@@ -28,13 +28,19 @@ class ConditionalGrowthGenome:
         max_voxels=5,
         search_radius=1,
     ):
-        self.axiom = Voxel(1)
+        self.next_voxel_id = 0
+        self.axiom = self.get_new_voxel(1)
         self.growth_iterations = growth_iterations
         self.materials = materials
         self.directions = directions
         self.max_voxels = max_voxels
         self.initialize_configurations()
         self.search_radius = search_radius
+
+    def get_new_voxel(self, material):
+        v = Voxel(material, self.next_voxel_id)
+        self.next_voxel_id += 1
+        return v
 
     def expand(self, growth_function):
         """Expand the axiom and grow the body.
@@ -60,7 +66,7 @@ class ConditionalGrowthGenome:
             for c in configuration:
                 material = c[0]
                 direction = c[1]
-                voxel = Voxel(material)
+                voxel = self.get_new_voxel(material)
 
                 if direction == "negative_x" and not current_voxel.negative_x:
                     current_voxel.negative_x = voxel
@@ -122,31 +128,33 @@ class ConditionalGrowthGenome:
         for m in self.materials:
             material_proportions[m] = 0
 
+        searched_voxel_ids = set()
         search_voxels = deque([voxel])
         while len(search_voxels) > 0:
             voxel = search_voxels.pop()
-            voxel.searched = True
+            searched_voxel_ids.add(voxel.id)
 
             if np.abs(initial_level - voxel.level) > self.search_radius:
                 break
 
             material_proportions[voxel.material] += 1
-            if voxel.negative_x and not voxel.negative_x.searched:
+            if voxel.negative_x and voxel.negative_x.id not in searched_voxel_ids:
                 search_voxels.appendleft(voxel.negative_x)
-            if voxel.positive_x and not voxel.positive_x.searched:
+            if voxel.positive_x and voxel.positive_x.id not in searched_voxel_ids:
                 search_voxels.appendleft(voxel.positive_x)
-            if voxel.negative_y and not voxel.negative_y.searched:
+            if voxel.negative_y and voxel.negative_y.id not in searched_voxel_ids:
                 search_voxels.appendleft(voxel.negative_y)
-            if voxel.positive_y and not voxel.positive_y.searched:
+            if voxel.positive_y and voxel.positive_y.id not in searched_voxel_ids:
                 search_voxels.appendleft(voxel.positive_y)
-            if voxel.negative_z and not voxel.negative_z.searched:
+            if voxel.negative_z and voxel.negative_z.id not in searched_voxel_ids:
                 search_voxels.appendleft(voxel.negative_z)
-            if voxel.positive_z and not voxel.positive_z.searched:
+            if voxel.positive_z and voxel.positive_z.id not in searched_voxel_ids:
                 search_voxels.appendleft(voxel.positive_z)
             total_voxels += 1
 
         for m in material_proportions:
             material_proportions[m] /= total_voxels
+
         return list(material_proportions.values())
 
     def initialize_configurations(self):
@@ -186,29 +194,30 @@ class ConditionalGrowthGenome:
         middle = int(np.floor(extent / 2))
         x, y, z = middle, middle, middle
 
+        searched_voxel_ids = set()
         to_process = deque([(x, y, z, self.axiom)])
         while len(to_process) > 0:
             x, y, z, voxel = to_process.pop()
-            voxel.processed = True
+            searched_voxel_ids.add(voxel.id)
             print(f"Added voxel at {x}, {y}, {z} with material {voxel.material}")
             X[x, y, z] = voxel.material
 
-            if voxel.negative_x and not voxel.negative_x.processed:
+            if voxel.negative_x and voxel.negative_x.id not in searched_voxel_ids:
                 x -= 1
                 to_process.appendleft((x, y, z, voxel.negative_x))
-            if voxel.positive_x and not voxel.positive_x.processed:
+            if voxel.positive_x and voxel.positive_x.id not in searched_voxel_ids:
                 x += 1
                 to_process.appendleft((x, y, z, voxel.positive_x))
-            if voxel.negative_y and not voxel.negative_y.processed:
+            if voxel.negative_y and voxel.negative_y.id not in searched_voxel_ids:
                 y -= 1
                 to_process.appendleft((x, y, z, voxel.negative_y))
-            if voxel.positive_y and not voxel.positive_y.processed:
+            if voxel.positive_y and voxel.positive_y.id not in searched_voxel_ids:
                 y += 1
                 to_process.appendleft((x, y, z, voxel.positive_y))
-            if voxel.negative_z and not voxel.negative_z.processed:
+            if voxel.negative_z and voxel.negative_z.id not in searched_voxel_ids:
                 z -= 1
                 to_process.appendleft((x, y, z, voxel.negative_z))
-            if voxel.positive_z and not voxel.positive_z.processed:
+            if voxel.positive_z and voxel.positive_z.id not in searched_voxel_ids:
                 z += 1
                 to_process.appendleft((x, y, z, voxel.positive_z))
         return X
