@@ -46,7 +46,7 @@ class ConditionalGrowthGenome:
         self.body = deque([self.axiom])
 
     def building(self):
-        """Return true if there is more to build.
+        """Returns True if there is more to build.
 
         """
 
@@ -129,11 +129,11 @@ class ConditionalGrowthGenome:
 
     def get_local_voxel_representation(self):
         """Get a representation of voxels nearby the next voxel in queue."""
-
-        assert (
-            self.building()
-        ), "Nothing left to build. Call self.building() to check in the future."
-        return self.get_function_input(self.body[-1])
+        if len(self.body) > 0:
+            return self.get_function_input(self.body[-1])
+        else:
+            # Edge case if there are no new voxels.
+            return [0 for i in range(len(self.materials))]
 
     def step(self, configuration_index):
         """Add one configuration. Do not use with ``expand()``."""
