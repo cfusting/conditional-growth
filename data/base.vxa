@@ -36,7 +36,7 @@
 	<Environment>
         <Thermal>
             <TempEnabled>1</TempEnabled>
-            <TempAmplitude>14</TempAmplitude>
+            <TempAmplitude>10</TempAmplitude>
             <TempBase>25</TempBase>
             <VaryTempEnabled>1</VaryTempEnabled>
             <TempPeriod>.5</TempPeriod>

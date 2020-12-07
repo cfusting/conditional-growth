@@ -19,7 +19,7 @@ def tensor_to_cdata(X):
     return X.reshape(X.shape[0], -1)
 
 
-def add_cdata_to_xml(C, x_size, y_size, z_size, file_path, record_history=True):
+def add_cdata_to_xml(C, x_size, y_size, z_size, file_path, record_history=False):
     """Writes the extent and CData to XML file."""
 
     VXD = etree.Element("VXD")
@@ -49,3 +49,13 @@ def add_cdata_to_xml(C, x_size, y_size, z_size, file_path, record_history=True):
     file_content = etree.tostring(VXD, pretty_print=True).decode("utf-8")
     with open(file_path, "w") as f:
         print(file_content, file=f)
+
+
+def get_fitness(out_file_path):
+    """Get the best fitness from the simulation output.
+
+    """
+
+    print(out_file_path)
+    doc = etree.parse(out_file_path)
+    return doc.xpath("//fitness_score")[0].text

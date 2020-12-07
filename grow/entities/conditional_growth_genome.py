@@ -27,84 +27,95 @@ class ConditionalGrowthGenome:
         growth_iterations=3,
         max_voxels=5,
         search_radius=1,
+        axiom_material=1,
     ):
-        self.next_voxel_id = 0
-        self.axiom = self.get_new_voxel(1)
-        self.growth_iterations = growth_iterations
         self.materials = materials
         self.directions = directions
+        self.growth_iterations = growth_iterations
         self.max_voxels = max_voxels
-        self.initialize_configurations()
         self.search_radius = search_radius
+        self.axiom_material = axiom_material
+
+        self.initialize_configurations()
+        self.reset()
+
+    def reset(self):
+        self.next_voxel_id = 0
+        self.axiom = self.get_new_voxel(self.axiom_material)
+        self.axiom.level = 0
+        self.body = deque([self.axiom])
+
+    def building(self):
+        """Return true if there is more to build.
+
+        """
+
+        return len(self.body) > 0 and self.body[-1].level < self.growth_iterations
 
     def get_new_voxel(self, material):
         v = Voxel(material, self.next_voxel_id)
         self.next_voxel_id += 1
         return v
 
+    def attach_voxels(self, configuration, current_voxel):
+        """Attach a configuration of voxels to the current voxel.
+
+        Attach a configuration of voxels (IE a
+        combination of voxels of a given material and placements)
+        to to the current voxel.
+
+        """
+
+        if configuration is None:
+            return []
+
+        voxels = []
+        for c in configuration:
+            material = c[0]
+            direction = c[1]
+            voxel = self.get_new_voxel(material)
+
+            if direction == "negative_x" and not current_voxel.negative_x:
+                current_voxel.negative_x = voxel
+                voxel.positive_x = current_voxel
+                voxel.level = current_voxel.level + 1
+                voxels.append(voxel)
+            if direction == "positive_x" and not current_voxel.positive_x:
+                current_voxel.positive_x = voxel
+                voxel.negative_x = current_voxel
+                voxel.level = current_voxel.level + 1
+                voxels.append(voxel)
+            if direction == "negative_y" and not current_voxel.negative_y:
+                current_voxel.negative_y = voxel
+                voxel.positive_y = current_voxel
+                voxel.level = current_voxel.level + 1
+                voxels.append(voxel)
+            if direction == "positive_y" and not current_voxel.positive_y:
+                current_voxel.positive_y = voxel
+                voxel.negative_y = current_voxel
+                voxel.level = current_voxel.level + 1
+                voxels.append(voxel)
+            if direction == "negative_z" and not current_voxel.negative_z:
+                current_voxel.negative_z = voxel
+                voxel.positive_z = current_voxel
+                voxel.level = current_voxel.level + 1
+                voxels.append(voxel)
+            if direction == "positive_z" and not current_voxel.positive_z:
+                current_voxel.positive_z = voxel
+                voxel.negative_z = current_voxel
+                voxel.level = current_voxel.level + 1
+                voxels.append(voxel)
+
+        return voxels
+
     def expand(self, growth_function):
-        """Expand the axiom and grow the body.
+        """Expand the axiom and grow the body. Do not use with ``step()``.
 
         Expand out the axiom given the condtional probability of
         new growth given nearby previous growth.
 
         """
 
-        def attach_voxels(configuration, current_voxel):
-            """Attach a configuration of voxels to the current voxel.
-
-            Attach a configuration of voxels (IE a
-            combination of voxels of a given material and placements)
-            to to the current voxel.
-
-            """
-
-            if configuration is None:
-                return []
-
-            voxels = []
-            for c in configuration:
-                material = c[0]
-                direction = c[1]
-                voxel = self.get_new_voxel(material)
-
-                if direction == "negative_x" and not current_voxel.negative_x:
-                    current_voxel.negative_x = voxel
-                    voxel.positive_x = current_voxel
-                    voxel.level = current_voxel.level + 1
-                    voxels.append(voxel)
-                if direction == "positive_x" and not current_voxel.positive_x:
-                    current_voxel.positive_x = voxel
-                    voxel.negative_x = current_voxel
-                    voxel.level = current_voxel.level + 1
-                    voxels.append(voxel)
-                if direction == "negative_y" and not current_voxel.negative_y:
-                    current_voxel.negative_y = voxel
-                    voxel.positive_y = current_voxel
-                    voxel.level = current_voxel.level + 1
-                    voxels.append(voxel)
-                if direction == "positive_y" and not current_voxel.positive_y:
-                    current_voxel.positive_y = voxel
-                    voxel.negative_y = current_voxel
-                    voxel.level = current_voxel.level + 1
-                    voxels.append(voxel)
-                if direction == "negative_z" and not current_voxel.negative_z:
-                    current_voxel.negative_z = voxel
-                    voxel.positive_z = current_voxel
-                    voxel.level = current_voxel.level + 1
-                    voxels.append(voxel)
-                if direction == "positive_z" and not current_voxel.positive_z:
-                    current_voxel.positive_z = voxel
-                    voxel.negative_z = current_voxel
-                    voxel.level = current_voxel.level + 1
-                    voxels.append(voxel)
-
-            print("Added voxels:")
-            for v in voxels:
-                print(v)
-            return voxels
-
-        self.axiom.level = 0
         body = deque([self.axiom])
         while len(body) > 0:
             voxel = body.pop()
@@ -112,11 +123,24 @@ class ConditionalGrowthGenome:
                 break
             X = self.get_function_input(voxel)
             configuration_index = growth_function.predict(X)
-            print(f"Configuration index: {configuration_index}")
             configuration = self.configuration_map[configuration_index]
-            voxels = attach_voxels(configuration, voxel)
-            for v in voxels:
-                body.appendleft(v)
+            voxels = self.attach_voxels(configuration, voxel)
+            body.extendleft(voxels)
+
+    def get_local_voxel_representation(self):
+        """Get a representation of voxels nearby the next voxel in queue."""
+
+        assert (
+            self.building()
+        ), "Nothing left to build. Call self.building() to check in the future."
+        return self.get_function_input(self.body[-1])
+
+    def step(self, configuration_index):
+        """Add one configuration. Do not use with ``expand()``."""
+        voxel = self.body.pop()
+        configuration = self.configuration_map[configuration_index]
+        voxels = self.attach_voxels(configuration, voxel)
+        self.body.extendleft(voxels)
 
     def get_function_input(self, voxel):
         """Get the material proportions of nearby voxels"""
@@ -178,7 +202,6 @@ class ConditionalGrowthGenome:
             for subset in itertools.combinations(possible_voxels, num_voxels):
                 self.configuration_map[i] = subset
                 i += 1
-        print(f"Initialized {len(self.configuration_map)} configurations.")
 
     def to_tensor(self):
         """Convert the graph representation of the body to a tensor.
@@ -199,7 +222,6 @@ class ConditionalGrowthGenome:
         while len(to_process) > 0:
             x, y, z, voxel = to_process.pop()
             searched_voxel_ids.add(voxel.id)
-            print(f"Added voxel at {x}, {y}, {z} with material {voxel.material}")
             X[x, y, z] = voxel.material
 
             if voxel.negative_x and voxel.negative_x.id not in searched_voxel_ids:
