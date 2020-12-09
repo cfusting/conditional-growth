@@ -19,7 +19,7 @@ def tensor_to_cdata(X):
     return X.reshape(X.shape[0], -1)
 
 
-def add_cdata_to_xml(C, x_size, y_size, z_size, file_path, record_history=False):
+def add_cdata_to_xml(C, x_size, y_size, z_size, file_path, record_history=True):
     """Writes the extent and CData to XML file."""
 
     VXD = etree.Element("VXD")

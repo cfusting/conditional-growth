@@ -36,7 +36,8 @@ class VoxcraftGrowthEnvironment(gym.Env):
 
     def get_fitness_for_action(self, action):
         data_dir_path = f"/tmp/{time()}_voxcraft_data"
-        out_file_path = f"{data_dir_path}/voxcraft_output.xml"
+        out_file_path = f"{data_dir_path}/output.xml"
+        simulation_file_path = f"{data_dir_path}/simulation.history"
         subprocess.run(f"mkdir {data_dir_path}".split())
 
         # Create the necessary directory and copy the base sim config.
@@ -47,10 +48,15 @@ class VoxcraftGrowthEnvironment(gym.Env):
 
         # Run the simulation.
         run_command = f"./voxcraft-sim -l -f -i {data_dir_path} -o {out_file_path}"
-        subprocess.run(
-            run_command.split(),
-            cwd=self.path_to_sim_build,
-        )
+        with open(simulation_file_path, "w") as f:
+            t1 = time()
+            subprocess.run(
+                run_command.split(),
+                cwd=self.path_to_sim_build,
+                stdout=f,
+            )
+        print(f"Simulation complete with time: {time() - t1}")
+        subprocess.run(f"cp {simulation_file_path} /tmp/latest.history".split())
 
         # The results are written to a file.
         return get_fitness(out_file_path)
