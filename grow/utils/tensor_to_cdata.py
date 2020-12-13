@@ -58,4 +58,4 @@ def get_fitness(out_file_path):
 
     print(out_file_path)
     doc = etree.parse(out_file_path)
-    return doc.xpath("//fitness_score")[0].text
+    return float(doc.xpath("//fitness_score")[0].text)

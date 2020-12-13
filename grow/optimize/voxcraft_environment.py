@@ -18,12 +18,13 @@ class VoxcraftGrowthEnvironment(gym.Env):
         )
 
         self.action_space = Discrete(len(self.genome.configuration_map))
-        self.observation_space = Box(
-            low=0, high=1, shape=(len(self.genome.materials), )
-        )
+        self.observation_space = Box(low=0, high=1, shape=(len(self.genome.materials),))
         self.path_to_sim_build = config["path_to_sim_build"]
         self.path_to_base_vxa = config["path_to_base_vxa"]
         self.reward_range = (0, float("inf"))
+
+        self.ranked_simulation_file_path = "/tmp/ranked_simulations"
+        subprocess.run(f"mkdir -p {self.ranked_simulation_file_path}".split())
 
     def step(self, action):
         fitness = float(self.get_fitness_for_action(action))
@@ -35,15 +36,16 @@ class VoxcraftGrowthEnvironment(gym.Env):
         return self.genome.get_local_voxel_representation()
 
     def get_fitness_for_action(self, action):
-        data_dir_path = f"/tmp/{time()}_voxcraft_data"
-        out_file_path = f"{data_dir_path}/output.xml"
+        simulation_folder = "voxcraft_data"
+        data_dir_path = f"{self.ranked_simulation_file_path}/{simulation_folder}"
         simulation_file_path = f"{data_dir_path}/simulation.history"
-        subprocess.run(f"mkdir {data_dir_path}".split())
+        out_file_path = f"{data_dir_path}/output.xml"
 
         # Create the necessary directory and copy the base sim config.
+        subprocess.run(f"mkdir -p {data_dir_path}".split())
         subprocess.run(f"cp {self.path_to_base_vxa} {data_dir_path}".split())
 
-        # Stage the simulation data.
+        # Stage the simulation file (robot.vxd).
         self.generate_sim_data(action, data_dir_path)
 
         # Run the simulation.
@@ -58,8 +60,14 @@ class VoxcraftGrowthEnvironment(gym.Env):
         print(f"Simulation complete with time: {time() - t1}")
         subprocess.run(f"cp {simulation_file_path} /tmp/latest.history".split())
 
-        # The results are written to a file.
-        return get_fitness(out_file_path)
+        # The fitness is written to out_file_path.
+        fitness = get_fitness(out_file_path) / self.genome.num_voxels
+        iteration = self.genome.num_steps
+        updated_data_dir_path = f"{self.ranked_simulation_file_path}/{fitness:.20f}_{iteration}_{simulation_folder}"
+        subprocess.run(
+            f"mv {data_dir_path} {updated_data_dir_path}".split()
+        )
+        return fitness
 
     def generate_sim_data(self, configuration_index, data_dir_path):
         self.genome.step(configuration_index)

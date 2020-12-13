@@ -1,6 +1,6 @@
 <VXA Version="1.1">
     <GPU>
-        <HeapSize>0.25</HeapSize>
+        <HeapSize>0.5</HeapSize>
     </GPU>
 	<Simulator>
 		<EnableExpansion>1</EnableExpansion>
@@ -36,7 +36,7 @@
 	<Environment>
         <Thermal>
             <TempEnabled>1</TempEnabled>
-            <TempAmplitude>10</TempAmplitude>
+            <TempAmplitude>5</TempAmplitude>
             <TempBase>25</TempBase>
             <VaryTempEnabled>1</VaryTempEnabled>
             <TempPeriod>.5</TempPeriod>

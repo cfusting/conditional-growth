@@ -37,9 +37,12 @@ class ConditionalGrowthGenome:
         self.axiom_material = axiom_material
 
         self.initialize_configurations()
+        print("Found {len(self.configuration_map) possible voxel configurations.")
         self.reset()
 
     def reset(self):
+        self.num_voxels = 1
+        self.num_steps = 0
         self.next_voxel_id = 0
         self.axiom = self.get_new_voxel(self.axiom_material)
         self.axiom.level = 0
@@ -55,6 +58,7 @@ class ConditionalGrowthGenome:
     def get_new_voxel(self, material):
         v = Voxel(material, self.next_voxel_id)
         self.next_voxel_id += 1
+        self.num_voxels += 1
         return v
 
     def attach_voxels(self, configuration, current_voxel):
@@ -141,6 +145,7 @@ class ConditionalGrowthGenome:
         configuration = self.configuration_map[configuration_index]
         voxels = self.attach_voxels(configuration, voxel)
         self.body.extendleft(voxels)
+        self.num_steps += 1
 
     def get_function_input(self, voxel):
         """Get the material proportions of nearby voxels"""
