@@ -1,6 +1,9 @@
 import gym
+import os
+import numpy as np
 from gym.spaces import Box, Discrete
-from grow.utils.tensor_to_cdata import tensor_to_cdata, add_cdata_to_xml, get_fitness
+from grow.utils.tensor_to_cdata import tensor_to_cdata, add_cdata_to_xml
+from grow.utils.output import get_voxel_positions
 from grow.entities.conditional_growth_genome import ConditionalGrowthGenome
 import subprocess
 from time import time
@@ -11,14 +14,16 @@ class VoxcraftGrowthEnvironment(gym.Env):
         self.genome = ConditionalGrowthGenome(
             materials=config["materials"],
             directions=config["directions"],
-            growth_iterations=config["growth_iterations"],
             max_voxels=config["max_voxels"],
             search_radius=config["search_radius"],
             axiom_material=config["axiom_material"],
         )
 
         self.action_space = Discrete(len(self.genome.configuration_map))
-        self.observation_space = Box(low=0, high=1, shape=(len(self.genome.materials),))
+        # Six possible directions each with m possible materials.
+        self.observation_space = Box(
+            low=0, high=1, shape=(len(self.genome.materials) * 6,)
+        )
         self.path_to_sim_build = config["path_to_sim_build"]
         self.path_to_base_vxa = config["path_to_base_vxa"]
         self.reward_range = (0, float("inf"))
@@ -26,18 +31,22 @@ class VoxcraftGrowthEnvironment(gym.Env):
         self.ranked_simulation_file_path = "/tmp/ranked_simulations"
         subprocess.run(f"mkdir -p {self.ranked_simulation_file_path}".split())
 
+        self.reward = config["reward"]
+        self.max_steps = config["max_steps"]
+
     def step(self, action):
-        fitness = float(self.get_fitness_for_action(action))
+        fitness = self.get_fitness_for_action(action)
         next_observation = self.genome.get_local_voxel_representation()
-        return next_observation, fitness, not self.genome.building(), {}
+        done = not self.genome.building() or (self.genome.steps == self.max_steps)
+        return next_observation, fitness, done, {}
 
     def reset(self):
         self.genome.reset()
         return self.genome.get_local_voxel_representation()
 
     def get_fitness_for_action(self, action):
-        simulation_folder = "voxcraft_data"
-        data_dir_path = f"{self.ranked_simulation_file_path}/{simulation_folder}"
+        simulation_folder = f"{self.genome.id}_{self.genome.steps}"
+        data_dir_path = f"/tmp/{simulation_folder}"
         simulation_file_path = f"{data_dir_path}/simulation.history"
         out_file_path = f"{data_dir_path}/output.xml"
 
@@ -49,7 +58,8 @@ class VoxcraftGrowthEnvironment(gym.Env):
         self.generate_sim_data(action, data_dir_path)
 
         # Run the simulation.
-        run_command = f"./voxcraft-sim -l -f -i {data_dir_path} -o {out_file_path}"
+        run_command = f"./voxcraft-sim -i {data_dir_path} -o {out_file_path}"
+        print(f"Running: {run_command}")
         with open(simulation_file_path, "w") as f:
             t1 = time()
             subprocess.run(
@@ -61,12 +71,20 @@ class VoxcraftGrowthEnvironment(gym.Env):
         subprocess.run(f"cp {simulation_file_path} /tmp/latest.history".split())
 
         # The fitness is written to out_file_path.
-        fitness = get_fitness(out_file_path) / self.genome.num_voxels
-        iteration = self.genome.num_steps
-        updated_data_dir_path = f"{self.ranked_simulation_file_path}/{fitness:.20f}_{iteration}_{simulation_folder}"
-        subprocess.run(
-            f"mv {data_dir_path} {updated_data_dir_path}".split()
-        )
+        if self.reward == "max_z":
+            _, final_positions = get_voxel_positions(out_file_path)
+            max_z = -np.inf
+            for p in final_positions:
+                if p[2] > max_z:
+                    max_z = p[2]
+            fitness = max_z
+        else:
+            raise Exception("Unknown reward type: {self.reward}")
+
+        updated_data_dir_path = f"{self.ranked_simulation_file_path}/{fitness:.20f}_{self.genome.steps}_{simulation_folder}"
+        if os.path.isdir(updated_data_dir_path):
+            raise("WARNING: Output directory exists. This not happen.")
+        subprocess.run(f"mv {data_dir_path} {updated_data_dir_path}".split())
         return fitness
 
     def generate_sim_data(self, configuration_index, data_dir_path):

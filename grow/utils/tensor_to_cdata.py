@@ -51,11 +51,3 @@ def add_cdata_to_xml(C, x_size, y_size, z_size, file_path, record_history=True):
         print(file_content, file=f)
 
 
-def get_fitness(out_file_path):
-    """Get the best fitness from the simulation output.
-
-    """
-
-    print(out_file_path)
-    doc = etree.parse(out_file_path)
-    return float(doc.xpath("//fitness_score")[0].text)
