@@ -265,21 +265,15 @@ class ConditionalGrowthGenome:
             X[x, y, z] = voxel.material
 
             if voxel.negative_x and voxel.negative_x.id not in searched_voxel_ids:
-                x -= 1
-                to_process.appendleft((x, y, z, voxel.negative_x))
+                to_process.appendleft((x - 1, y, z, voxel.negative_x))
             if voxel.positive_x and voxel.positive_x.id not in searched_voxel_ids:
-                x += 1
-                to_process.appendleft((x, y, z, voxel.positive_x))
+                to_process.appendleft((x + 1, y, z, voxel.positive_x))
             if voxel.negative_y and voxel.negative_y.id not in searched_voxel_ids:
-                y -= 1
-                to_process.appendleft((x, y, z, voxel.negative_y))
+                to_process.appendleft((x, y - 1, z, voxel.negative_y))
             if voxel.positive_y and voxel.positive_y.id not in searched_voxel_ids:
-                y += 1
-                to_process.appendleft((x, y, z, voxel.positive_y))
+                to_process.appendleft((x, y + 1, z, voxel.positive_y))
             if voxel.negative_z and voxel.negative_z.id not in searched_voxel_ids:
-                z -= 1
-                to_process.appendleft((x, y, z, voxel.negative_z))
+                to_process.appendleft((x, y, z - 1, voxel.negative_z))
             if voxel.positive_z and voxel.positive_z.id not in searched_voxel_ids:
-                z += 1
-                to_process.appendleft((x, y, z, voxel.positive_z))
+                to_process.appendleft((x, y, z + 1, voxel.positive_z))
         return X
