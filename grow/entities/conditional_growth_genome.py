@@ -26,7 +26,7 @@ class ConditionalGrowthGenome:
             "positive_z",
         ),
         max_voxels=5,
-        search_radius=1,
+        search_radius=3,
         axiom_material=1,
     ):
         self.materials = materials
@@ -40,7 +40,7 @@ class ConditionalGrowthGenome:
         self.reset()
 
     def reset(self):
-        self.num_voxels = 1
+        self.num_voxels = 0
         self.next_voxel_id = 0
         self.axiom = self.get_new_voxel(self.axiom_material)
         self.axiom.level = 0

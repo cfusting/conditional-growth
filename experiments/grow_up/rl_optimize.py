@@ -31,12 +31,13 @@ config = {
     "num_workers": 0,
     "create_env_on_driver": True,
     "output": "logdir",
+    "gamma": 1,
     "tau": 1.0,
 }
 
 ray.tune.run(
     SACTrainer, 
-    name="sac_max_z",
+    name="future_sac_max_z",
     config=config,
     checkpoint_freq=1,
     keep_checkpoints_num=10,
