@@ -37,7 +37,7 @@ config = {
 
 ray.tune.run(
     SACTrainer, 
-    name="future_sac_max_z",
+    name="fixed_sac_max_z",
     config=config,
     checkpoint_freq=1,
     keep_checkpoints_num=10,

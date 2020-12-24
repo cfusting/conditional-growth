@@ -134,92 +134,48 @@ class ConditionalGrowthGenome:
             return [0 for _ in range(len(self.materials) * 6)]
 
     def get_function_input(self, voxel):
-        """Get the material proportions of nearby voxels"""
+        proportions = []  # Ordered by -x, +x, -y, ...
+        extent = (2 * self.search_radius) + 1
+        v = int(np.floor(extent / 2))
+        X = self._to_tensor(voxel, extent)
 
-        initial_level = voxel.level
-        total_voxels = 0
+        material_totals = []
+        for m in self.materials:
+            material_totals.append(np.sum(X[:v + 1, :, :] == m))
+        for i in range(len(self.materials)):
+            proportions.append(material_totals[i] / np.sum(material_totals))
 
-        material_proportions = {
-            "negative_x": {},
-            "positive_x": {},
-            "negative_y": {},
-            "positive_y": {},
-            "negative_z": {},
-            "positive_z": {},
-        }
+        material_totals = []
+        for m in self.materials:
+            material_totals.append(np.sum(X[v:, :, :] == m))
+        for i in range(len(self.materials)):
+            proportions.append(material_totals[i] / np.sum(material_totals))
 
-        for k in material_proportions:
-            for m in self.materials:
-                material_proportions[k][m] = 0
+        material_totals = []
+        for m in self.materials:
+            material_totals.append(np.sum(X[:, :v + 1, :] == m))
+        for i in range(len(self.materials)):
+            proportions.append(material_totals[i] / np.sum(material_totals))
 
-        # Initialize the start directions from the voxel.
-        if voxel.negative_x:
-            voxel.negative_x.start_direction = "negative_x"
-        if voxel.positive_x:
-            voxel.positive_x.start_direction = "positive_x"
-        if voxel.negative_y:
-            voxel.negative_y.start_direction = "negative_y"
-        if voxel.positive_y:
-            voxel.positive_y.start_direction = "positive_y"
-        if voxel.negative_z:
-            voxel.negative_z.start_direction = "negative_z"
-        if voxel.positive_z:
-            voxel.positive_z.start_direction = "positive_z"
+        material_totals = []
+        for m in self.materials:
+            material_totals.append(np.sum(X[:, v:, :] == m))
+        for i in range(len(self.materials)):
+            proportions.append(material_totals[i] / np.sum(material_totals))
+            
+        material_totals = []
+        for m in self.materials:
+            material_totals.append(np.sum(X[:, :, :v + 1] == m))
+        for i in range(len(self.materials)):
+            proportions.append(material_totals[i] / np.sum(material_totals))
 
-        searched_voxel_ids = set()
-        search_voxels = deque([voxel])
-        while len(search_voxels) > 0:
-            voxel = search_voxels.pop()
-            searched_voxel_ids.add(voxel.id)
+        material_totals = []
+        for m in self.materials:
+            material_totals.append(np.sum(X[:, :, v:] == m))
+        for i in range(len(self.materials)):
+            proportions.append(material_totals[i] / np.sum(material_totals))
 
-            if np.abs(initial_level - voxel.level) > self.search_radius:
-                break
-
-            if hasattr(voxel, "start_direction"):
-                material_proportions[voxel.start_direction][
-                    voxel.material
-                ] += 1
-
-            if voxel.negative_x and voxel.negative_x.id not in searched_voxel_ids:
-                if not hasattr(voxel.negative_x, "start_direction"):
-                    voxel.negative_x.start_direction = voxel.start_direction
-                search_voxels.appendleft(voxel.negative_x)
-            if voxel.positive_x and voxel.positive_x.id not in searched_voxel_ids:
-                if not hasattr(voxel.positive_x, "start_direction"):
-                    voxel.positive_x.start_direction = voxel.start_direction
-                search_voxels.appendleft(voxel.positive_x)
-            if voxel.negative_y and voxel.negative_y.id not in searched_voxel_ids:
-                if not hasattr(voxel.negative_y, "start_direction"):
-                    voxel.negative_y.start_direction = voxel.start_direction
-                search_voxels.appendleft(voxel.negative_y)
-            if voxel.positive_y and voxel.positive_y.id not in searched_voxel_ids:
-                if not hasattr(voxel.positive_y, "start_direction"):
-                    voxel.positive_y.start_direction = voxel.start_direction
-                search_voxels.appendleft(voxel.positive_y)
-            if voxel.negative_z and voxel.negative_z.id not in searched_voxel_ids:
-                if not hasattr(voxel.negative_z, "start_direction"):
-                    voxel.negative_z.start_direction = voxel.start_direction
-                search_voxels.appendleft(voxel.negative_z)
-            if voxel.positive_z and voxel.positive_z.id not in searched_voxel_ids:
-                if not hasattr(voxel.positive_z, "start_direction"):
-                    voxel.positive_z.start_direction = voxel.start_direction
-                search_voxels.appendleft(voxel.positive_z)
-
-            total_voxels += 1
-
-        for k in material_proportions:
-            total_voxels = 0
-            for m in material_proportions[k]:
-                total_voxels += material_proportions[k][m]
-            for m in material_proportions[k]:
-                if total_voxels != 0:
-                    material_proportions[k][m] /= total_voxels
-
-        representation = []
-        for k in material_proportions:
-            representation.extend(list(material_proportions[k].values()))
-
-        return representation
+        return proportions
 
     def initialize_configurations(self):
         """Map every possible configuration.
@@ -244,6 +200,10 @@ class ConditionalGrowthGenome:
                 i += 1
 
     def to_tensor(self):
+        extent = (2 * self.max_level) + 1
+        return self._to_tensor(self.axiom, extent)
+
+    def _to_tensor(self, start_voxel, extent):
         """Convert the graph representation of the body to a tensor.
 
         Fill a three-dimensional tensor with the material types of
@@ -252,15 +212,18 @@ class ConditionalGrowthGenome:
 
         """
 
-        extent = (2 * self.max_level) + 1
         X = np.zeros((extent, extent, extent))
         middle = int(np.floor(extent / 2))
         x, y, z = middle, middle, middle
 
         searched_voxel_ids = set()
-        to_process = deque([(x, y, z, self.axiom)])
+        to_process = deque([(x, y, z, start_voxel)])
         while len(to_process) > 0:
             x, y, z, voxel = to_process.pop()
+
+            if x < 0 or y < 0 or z < 0 or x >= extent or y >= extent or z >= extent:
+                break
+
             searched_voxel_ids.add(voxel.id)
             X[x, y, z] = voxel.material
 
