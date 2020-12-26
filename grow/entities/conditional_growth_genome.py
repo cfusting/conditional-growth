@@ -17,29 +17,32 @@ class ConditionalGrowthGenome:
     def __init__(
         self,
         materials=(0, 1, 2),
-        directions=(
-            "negative_x",
-            "positive_x",
-            "negative_y",
-            "positive_y",
-            "negative_z",
-            "positive_z",
-        ),
         max_voxels=5,
         search_radius=3,
         axiom_material=1,
+        num_timesteps=6,
     ):
+        directions = (
+                "negative_x",
+                "positive_x",
+                "negative_y",
+                "positive_y",
+                "negative_z",
+                "positive_z",
+        )
         self.materials = materials
         self.directions = directions
         self.max_voxels = max_voxels
         self.search_radius = search_radius
         self.axiom_material = axiom_material
+        self.num_features = len(materials) * len(directions) * num_timesteps
 
         self.initialize_configurations()
         print(f"Found {len(self.configuration_map)} possible voxel configurations.")
         self.reset()
 
     def reset(self):
+        self.historic_representation = [0 for _ in range(self.num_features)]
         self.num_voxels = 0
         self.next_voxel_id = 0
         self.axiom = self.get_new_voxel(self.axiom_material)
@@ -127,11 +130,15 @@ class ConditionalGrowthGenome:
     def get_local_voxel_representation(self):
         """Get a representation of voxels nearby the next voxel in queue."""
         if self.building():
-            return self.get_function_input(self.body[-1])
+            local_representation = self.get_function_input(self.body[-1])
         else:
             # Maximum number of directions for each zero.
             # Covers the edge case in which no observations are available.
-            return [0 for _ in range(len(self.materials) * 6)]
+            local_representation = [0 for _ in range(len(self.materials) * len(self.directions))]
+
+        self.historic_representation = local_representation + self.historic_representation
+
+        return self.historic_representation
 
     def get_function_input(self, voxel):
         proportions = []  # Ordered by -x, +x, -y, ...
@@ -141,7 +148,7 @@ class ConditionalGrowthGenome:
 
         material_totals = []
         for m in self.materials:
-            material_totals.append(np.sum(X[:v + 1, :, :] == m))
+            material_totals.append(np.sum(X[: v + 1, :, :] == m))
         for i in range(len(self.materials)):
             proportions.append(material_totals[i] / np.sum(material_totals))
 
@@ -153,7 +160,7 @@ class ConditionalGrowthGenome:
 
         material_totals = []
         for m in self.materials:
-            material_totals.append(np.sum(X[:, :v + 1, :] == m))
+            material_totals.append(np.sum(X[:, : v + 1, :] == m))
         for i in range(len(self.materials)):
             proportions.append(material_totals[i] / np.sum(material_totals))
 
@@ -162,10 +169,10 @@ class ConditionalGrowthGenome:
             material_totals.append(np.sum(X[:, v:, :] == m))
         for i in range(len(self.materials)):
             proportions.append(material_totals[i] / np.sum(material_totals))
-            
+
         material_totals = []
         for m in self.materials:
-            material_totals.append(np.sum(X[:, :, :v + 1] == m))
+            material_totals.append(np.sum(X[:, :, : v + 1] == m))
         for i in range(len(self.materials)):
             proportions.append(material_totals[i] / np.sum(material_totals))
 

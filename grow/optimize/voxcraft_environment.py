@@ -13,36 +13,44 @@ class VoxcraftGrowthEnvironment(gym.Env):
     def __init__(self, config):
         self.genome = ConditionalGrowthGenome(
             materials=config["materials"],
-            directions=config["directions"],
             max_voxels=config["max_voxels"],
             search_radius=config["search_radius"],
             axiom_material=config["axiom_material"],
+            num_timesteps=config["num_timesteps"],
         )
 
         self.action_space = Discrete(len(self.genome.configuration_map))
-        # Six possible directions each with m possible materials.
-        self.observation_space = Box(
-            low=0, high=1, shape=(len(self.genome.materials) * 6,)
+        self.num_features = (
+            len(self.genome.materials)
+            * len(self.genome.directions)
+            * config["num_timesteps"]
         )
-        self.path_to_sim_build = config["path_to_sim_build"]
-        self.path_to_base_vxa = config["path_to_base_vxa"]
+        self.observation_space = Box(low=0, high=1, shape=(self.num_features,))
         self.reward_range = (0, float("inf"))
 
+        self.path_to_sim_build = config["path_to_sim_build"]
+        self.path_to_base_vxa = config["path_to_base_vxa"]
         self.ranked_simulation_file_path = "/tmp/ranked_simulations"
         subprocess.run(f"mkdir -p {self.ranked_simulation_file_path}".split())
 
         self.reward = config["reward"]
         self.max_steps = config["max_steps"]
 
+    def get_representation(self):
+        x = np.array(self.genome.get_local_voxel_representation())
+        x = x[:self.num_features]
+        return x
+
     def step(self, action):
         fitness = self.get_fitness_for_action(action)
-        next_observation = self.genome.get_local_voxel_representation()
+
         done = not self.genome.building() or (self.genome.steps == self.max_steps)
-        return next_observation, fitness, done, {}
+
+        return self.get_representation(), fitness, done, {}
 
     def reset(self):
         self.genome.reset()
-        return self.genome.get_local_voxel_representation()
+        return self.get_representation()
 
     def get_fitness_for_action(self, action):
         simulation_folder = f"{self.genome.id}_{self.genome.steps}"
@@ -59,7 +67,7 @@ class VoxcraftGrowthEnvironment(gym.Env):
 
         # Run the simulation.
         run_command = f"./voxcraft-sim -i {data_dir_path} -o {out_file_path}"
-        print(f"Running: {run_command}")
+        # print(f"Running: {run_command}")
         with open(simulation_file_path, "w") as f:
             t1 = time()
             subprocess.run(
@@ -67,7 +75,7 @@ class VoxcraftGrowthEnvironment(gym.Env):
                 cwd=self.path_to_sim_build,
                 stdout=f,
             )
-        print(f"Simulation complete with time: {time() - t1}")
+        # print(f"Simulation complete with time: {time() - t1}")
         subprocess.run(f"cp {simulation_file_path} /tmp/latest.history".split())
 
         # The fitness is written to out_file_path.
@@ -83,7 +91,7 @@ class VoxcraftGrowthEnvironment(gym.Env):
 
         updated_data_dir_path = f"{self.ranked_simulation_file_path}/{fitness:.20f}_{self.genome.steps}_{simulation_folder}"
         if os.path.isdir(updated_data_dir_path):
-            raise("WARNING: Output directory exists. This not happen.")
+            raise ("WARNING: Output directory exists. This not happen.")
         subprocess.run(f"mv {data_dir_path} {updated_data_dir_path}".split())
         return fitness
 

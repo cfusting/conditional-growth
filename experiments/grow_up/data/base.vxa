@@ -42,10 +42,10 @@
     <Palette>
     	<Material ID="1">
             <Display>
-                <Red>0.824</Red>
-                <Green>0.817</Green>
-                <Blue>0.804</Blue>
-                <Alpha>1</Alpha>
+                <Red>1</Red>
+                <Green>1</Green>
+                <Blue>0</Blue>
+                <Alpha>.75</Alpha>
             </Display>
             <Mechanical>
                 <MatModel>0</MatModel><!--0 = no failing-->
