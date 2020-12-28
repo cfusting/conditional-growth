@@ -1,0 +1,734 @@
+2020-12-25 04:11:41,722	INFO services.py:1090 -- View the Ray dashboard at [1m[32mhttp://127.0.0.1:8265[39m[22m
+2020-12-25 04:11:41,723	WARNING services.py:1552 -- WARNING: The object store is using /tmp instead of /dev/shm because /dev/shm has only 67108864 bytes available. This may slow down performance! You may be able to free up space by deleting files in /dev/shm or terminating any running plasma_store_server processes. If you are inside a Docker container, you may need to pass an argument with the flag '--shm-size' to 'docker run'.
+2020-12-25 04:11:43,282	ERROR syncer.py:63 -- Log sync requires rsync to be installed.
+== Status ==
+Memory usage on this node: 6.2/15.6 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1/16 CPUs, 1/1 GPUs, 0.0/8.25 GiB heap, 0.0/2.83 GiB objects (0/1.0 accelerator_type:RTX)
+Result logdir: /root/ray_results/max_z
+Number of trials: 1/1 (1 RUNNING)
++-------------------------------------------+----------+-------+
+| Trial name                                | status   | loc   |
+|-------------------------------------------+----------+-------|
+| SAC_VoxcraftGrowthEnvironment_4bd3c_00000 | RUNNING  |       |
++-------------------------------------------+----------+-------+
+
+
+[2m[36m(pid=190948)[0m Found 7 possible voxel configurations.
+[2m[36m(pid=190948)[0m Found 7 possible voxel configurations.
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869506.4681463_0 -o /tmp/1608869506.4681463_0/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.8226921558380127
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869507.7105992_0 -o /tmp/1608869507.7105992_0/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.5082926750183105
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869508.3730748_0 -o /tmp/1608869508.3730748_0/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7457332611083984
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869508.3730748_1 -o /tmp/1608869508.3730748_1/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7599973678588867
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869508.3730748_2 -o /tmp/1608869508.3730748_2/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7673068046569824
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869511.109819_0 -o /tmp/1608869511.109819_0/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7473030090332031
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869511.109819_1 -o /tmp/1608869511.109819_1/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7552030086517334
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869511.109819_2 -o /tmp/1608869511.109819_2/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7622814178466797
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869513.8390174_0 -o /tmp/1608869513.8390174_0/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.03953123092651367
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869513.8390174_1 -o /tmp/1608869513.8390174_1/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7534246444702148
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869513.8390174_2 -o /tmp/1608869513.8390174_2/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7535340785980225
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869515.8507397_0 -o /tmp/1608869515.8507397_0/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.03978133201599121
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869515.8507397_1 -o /tmp/1608869515.8507397_1/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7546541690826416
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869515.8507397_2 -o /tmp/1608869515.8507397_2/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.763225793838501
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869517.8734732_0 -o /tmp/1608869517.8734732_0/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.03971743583679199
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869517.8734732_1 -o /tmp/1608869517.8734732_1/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7531142234802246
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869517.8734732_2 -o /tmp/1608869517.8734732_2/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7575502395629883
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869519.8923664_0 -o /tmp/1608869519.8923664_0/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.743614912033081
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869519.8923664_1 -o /tmp/1608869519.8923664_1/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.040015220642089844
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869519.8923664_2 -o /tmp/1608869519.8923664_2/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7568275928497314
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869521.8984878_0 -o /tmp/1608869521.8984878_0/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7449808120727539
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869521.8984878_1 -o /tmp/1608869521.8984878_1/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.040013790130615234
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869521.8984878_2 -o /tmp/1608869521.8984878_2/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7702362537384033
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869523.9191747_0 -o /tmp/1608869523.9191747_0/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7481060028076172
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869523.9191747_1 -o /tmp/1608869523.9191747_1/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.03965878486633301
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869523.9191747_2 -o /tmp/1608869523.9191747_2/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7596988677978516
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869525.9326005_0 -o /tmp/1608869525.9326005_0/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7489962577819824
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869525.9326005_1 -o /tmp/1608869525.9326005_1/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.0399470329284668
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869525.9326005_2 -o /tmp/1608869525.9326005_2/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7615585327148438
+Result for SAC_VoxcraftGrowthEnvironment_4bd3c_00000:
+  custom_metrics: {}
+  date: 2020-12-25_04-11-47
+  done: false
+  episode_len_mean: .nan
+  episode_reward_max: .nan
+  episode_reward_mean: .nan
+  episode_reward_min: .nan
+  episodes_this_iter: 0
+  episodes_total: 0
+  evaluation:
+    custom_metrics: {}
+    episode_len_mean: 2.8
+    episode_reward_max: 0.026993999999999997
+    episode_reward_mean: 0.015388299999999997
+    episode_reward_min: -3.0000000000000004e-05
+    episodes_this_iter: 10
+    hist_stats:
+      episode_lengths:
+      - 1
+      - 3
+      - 3
+      - 3
+      - 3
+      - 3
+      - 3
+      - 3
+      - 3
+      - 3
+      episode_reward:
+      - -1.0e-05
+      - 0.017008
+      - 0.008895
+      - 0.023027
+      - 0.026977999999999995
+      - 0.024072999999999997
+      - 0.026978
+      - 0.026993999999999997
+      - -3.0000000000000004e-05
+      - -3.0000000000000004e-05
+    off_policy_estimator: {}
+    policy_reward_max: {}
+    policy_reward_mean: {}
+    policy_reward_min: {}
+    sampler_perf:
+      mean_action_processing_ms: 0.04382791190311828
+      mean_env_wait_ms: 696.1037208294047
+      mean_inference_ms: 1.2185244724668307
+      mean_raw_obs_processing_ms: 0.39380172203327046
+  experiment_id: 66b7f3b9bf394e7989610f1186ea8683
+  experiment_tag: '0'
+  hostname: fe1c60dcca94
+  info:
+    last_target_update_ts: 0
+    learner:
+      default_policy:
+        actor_loss: -1.9190964698791504
+        allreduce_latency: 0.0
+        alpha_loss: 0.0
+        alpha_value: 1.0
+        critic_loss: 1.5094077587127686
+        log_alpha_value: -0.00029999917023815215
+        max_q: 0.1901400238275528
+        mean_q: -0.025003772228956223
+        mean_td_error: 1.7352813482284546
+        min_q: -0.20333392918109894
+        model: {}
+        policy_t: 0.1428571492433548
+        target_entropy:
+        - 1.9069918394088745
+        td_error:
+        - 1.7352813482284546
+    num_steps_sampled: 1
+    num_steps_trained: 1
+  iterations_since_restore: 1
+  node_ip: 172.17.0.2
+  num_healthy_workers: 0
+  off_policy_estimator: {}
+  perf:
+    cpu_util_percent: 9.45
+    ram_util_percent: 54.15
+  pid: 190948
+  policy_reward_max: {}
+  policy_reward_mean: {}
+  policy_reward_min: {}
+  sampler_perf: {}
+  time_since_restore: 1.215449333190918
+  time_this_iter_s: 1.215449333190918
+  time_total_s: 1.215449333190918
+  timers:
+    learn_throughput: 71.349
+    learn_time_ms: 14.016
+  timestamp: 1608869507
+  timesteps_since_restore: 0
+  timesteps_total: 1
+  training_iteration: 1
+  trial_id: 4bd3c_00000
+  
+== Status ==
+Memory usage on this node: 8.5/15.6 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1/16 CPUs, 1/1 GPUs, 0.0/8.25 GiB heap, 0.0/2.83 GiB objects (0/1.0 accelerator_type:RTX)
+Result logdir: /root/ray_results/max_z
+Number of trials: 1/1 (1 RUNNING)
++-------------------------------------------+----------+-------------------+--------+------------------+------+----------+----------------------+----------------------+--------------------+
+| Trial name                                | status   | loc               |   iter |   total time (s) |   ts |   reward |   episode_reward_max |   episode_reward_min |   episode_len_mean |
+|-------------------------------------------+----------+-------------------+--------+------------------+------+----------+----------------------+----------------------+--------------------|
+| SAC_VoxcraftGrowthEnvironment_4bd3c_00000 | RUNNING  | 172.17.0.2:190948 |      1 |          1.21545 |    1 |      nan |                  nan |                  nan |                nan |
++-------------------------------------------+----------+-------------------+--------+------------------+------+----------+----------------------+----------------------+--------------------+
+
+
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869506.4681463_1 -o /tmp/1608869506.4681463_1/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7519564628601074
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869527.9487844_0 -o /tmp/1608869527.9487844_0/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7432870864868164
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869527.9487844_1 -o /tmp/1608869527.9487844_1/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.03980875015258789
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869527.9487844_2 -o /tmp/1608869527.9487844_2/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7621994018554688
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869530.9241285_0 -o /tmp/1608869530.9241285_0/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7572882175445557
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869530.9241285_1 -o /tmp/1608869530.9241285_1/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.039885520935058594
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869530.9241285_2 -o /tmp/1608869530.9241285_2/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7652649879455566
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869532.9517734_0 -o /tmp/1608869532.9517734_0/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7486827373504639
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869532.9517734_1 -o /tmp/1608869532.9517734_1/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.03999590873718262
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869532.9517734_2 -o /tmp/1608869532.9517734_2/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7668423652648926
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869534.9773583_0 -o /tmp/1608869534.9773583_0/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7490224838256836
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869534.9773583_1 -o /tmp/1608869534.9773583_1/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.03994321823120117
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869536.0774786_0 -o /tmp/1608869536.0774786_0/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7504110336303711
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869536.0774786_1 -o /tmp/1608869536.0774786_1/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7598617076873779
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869536.0774786_2 -o /tmp/1608869536.0774786_2/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7647418975830078
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869538.8188035_0 -o /tmp/1608869538.8188035_0/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.04008936882019043
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869538.8188035_1 -o /tmp/1608869538.8188035_1/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7530310153961182
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869539.9220865_0 -o /tmp/1608869539.9220865_0/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7538378238677979
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869539.9220865_1 -o /tmp/1608869539.9220865_1/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.040755510330200195
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869539.9220865_2 -o /tmp/1608869539.9220865_2/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7570247650146484
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869541.940755_0 -o /tmp/1608869541.940755_0/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7485878467559814
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869541.940755_1 -o /tmp/1608869541.940755_1/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.039815425872802734
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869541.940755_2 -o /tmp/1608869541.940755_2/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7596297264099121
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869543.954135_0 -o /tmp/1608869543.954135_0/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7491545677185059
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869543.954135_1 -o /tmp/1608869543.954135_1/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.03985714912414551
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869543.954135_2 -o /tmp/1608869543.954135_2/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.767629861831665
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869545.9762115_0 -o /tmp/1608869545.9762115_0/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.748504638671875
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869545.9762115_1 -o /tmp/1608869545.9762115_1/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.03997397422790527
+Result for SAC_VoxcraftGrowthEnvironment_4bd3c_00000:
+  custom_metrics: {}
+  date: 2020-12-25_04-12-08
+  done: false
+  episode_len_mean: .nan
+  episode_reward_max: .nan
+  episode_reward_mean: .nan
+  episode_reward_min: .nan
+  episodes_this_iter: 0
+  episodes_total: 0
+  evaluation:
+    custom_metrics: {}
+    episode_len_mean: 2.7
+    episode_reward_max: 0.049765000000000004
+    episode_reward_mean: 0.015340500000000002
+    episode_reward_min: -3.0000000000000004e-05
+    episodes_this_iter: 10
+    hist_stats:
+      episode_lengths:
+      - 3
+      - 3
+      - 3
+      - 2
+      - 3
+      - 2
+      - 3
+      - 3
+      - 3
+      - 2
+      episode_reward:
+      - 0.049765000000000004
+      - 0.026993
+      - 0.029883
+      - -2.0e-05
+      - 0.009941
+      - 0.009951
+      - -3.0000000000000004e-05
+      - -3.0000000000000004e-05
+      - 0.026972
+      - -2.0e-05
+    off_policy_estimator: {}
+    policy_reward_max: {}
+    policy_reward_mean: {}
+    policy_reward_min: {}
+    sampler_perf:
+      mean_action_processing_ms: 0.04455447196960449
+      mean_env_wait_ms: 683.922461100987
+      mean_inference_ms: 1.2429101126534599
+      mean_raw_obs_processing_ms: 0.39702653884887695
+  experiment_id: 66b7f3b9bf394e7989610f1186ea8683
+  experiment_tag: '0'
+  hostname: fe1c60dcca94
+  info:
+    last_target_update_ts: 2
+    learner:
+      default_policy:
+        actor_loss: -1.9349645376205444
+        allreduce_latency: 0.0
+        alpha_loss: -1.133829755417537e-05
+        alpha_value: 0.9997000694274902
+        critic_loss: 1.396793246269226
+        log_alpha_value: -0.0006000660941936076
+        max_q: 0.2658616900444031
+        mean_q: -0.012898692861199379
+        mean_td_error: 1.669241189956665
+        min_q: -0.2022497057914734
+        model: {}
+        policy_t: 0.1428571492433548
+        target_entropy:
+        - 1.9069918394088745
+        td_error:
+        - 1.669241189956665
+    num_steps_sampled: 2
+    num_steps_trained: 2
+    num_target_updates: 1
+  iterations_since_restore: 2
+  node_ip: 172.17.0.2
+  num_healthy_workers: 0
+  off_policy_estimator: {}
+  perf:
+    cpu_util_percent: 8.403333333333332
+    ram_util_percent: 54.54999999999999
+  pid: 190948
+  policy_reward_max: {}
+  policy_reward_mean: {}
+  policy_reward_min: {}
+  sampler_perf: {}
+  time_since_restore: 2.1322922706604004
+  time_this_iter_s: 0.9168429374694824
+  time_total_s: 2.1322922706604004
+  timers:
+    learn_throughput: 92.766
+    learn_time_ms: 10.78
+  timestamp: 1608869528
+  timesteps_since_restore: 0
+  timesteps_total: 2
+  training_iteration: 2
+  trial_id: 4bd3c_00000
+  
+== Status ==
+Memory usage on this node: 8.5/15.6 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1/16 CPUs, 1/1 GPUs, 0.0/8.25 GiB heap, 0.0/2.83 GiB objects (0/1.0 accelerator_type:RTX)
+Result logdir: /root/ray_results/max_z
+Number of trials: 1/1 (1 RUNNING)
++-------------------------------------------+----------+-------------------+--------+------------------+------+----------+----------------------+----------------------+--------------------+
+| Trial name                                | status   | loc               |   iter |   total time (s) |   ts |   reward |   episode_reward_max |   episode_reward_min |   episode_len_mean |
+|-------------------------------------------+----------+-------------------+--------+------------------+------+----------+----------------------+----------------------+--------------------|
+| SAC_VoxcraftGrowthEnvironment_4bd3c_00000 | RUNNING  | 172.17.0.2:190948 |      2 |          2.13229 |    2 |      nan |                  nan |                  nan |                nan |
++-------------------------------------------+----------+-------------------+--------+------------------+------+----------+----------------------+----------------------+--------------------+
+
+
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869506.4681463_2 -o /tmp/1608869506.4681463_2/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7648146152496338
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869547.0752437_0 -o /tmp/1608869547.0752437_0/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.5110349655151367
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869548.7245946_0 -o /tmp/1608869548.7245946_0/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.040044307708740234
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869548.7245946_1 -o /tmp/1608869548.7245946_1/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7513673305511475
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869549.8265266_0 -o /tmp/1608869549.8265266_0/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.039856672286987305
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869549.8265266_1 -o /tmp/1608869549.8265266_1/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7598485946655273
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869549.8265266_2 -o /tmp/1608869549.8265266_2/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7678899765014648
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869551.859936_0 -o /tmp/1608869551.859936_0/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.039873361587524414
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869552.0552213_0 -o /tmp/1608869552.0552213_0/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7556724548339844
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869552.0552213_1 -o /tmp/1608869552.0552213_1/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.763840913772583
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869552.0552213_2 -o /tmp/1608869552.0552213_2/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7705538272857666
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869554.8125389_0 -o /tmp/1608869554.8125389_0/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.04038524627685547
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869554.8125389_1 -o /tmp/1608869554.8125389_1/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7628779411315918
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869554.8125389_2 -o /tmp/1608869554.8125389_2/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7708854675292969
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869556.855143_0 -o /tmp/1608869556.855143_0/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.039795637130737305
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869556.855143_1 -o /tmp/1608869556.855143_1/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7644262313842773
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869556.855143_2 -o /tmp/1608869556.855143_2/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7701168060302734
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869558.8964562_0 -o /tmp/1608869558.8964562_0/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7479915618896484
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869558.8964562_1 -o /tmp/1608869558.8964562_1/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.03991127014160156
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869558.8964562_2 -o /tmp/1608869558.8964562_2/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7659950256347656
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869560.917181_0 -o /tmp/1608869560.917181_0/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7551932334899902
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869560.917181_1 -o /tmp/1608869560.917181_1/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.04021024703979492
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869560.917181_2 -o /tmp/1608869560.917181_2/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7699472904205322
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869562.950769_0 -o /tmp/1608869562.950769_0/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7549846172332764
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869562.950769_1 -o /tmp/1608869562.950769_1/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.041074514389038086
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869562.950769_2 -o /tmp/1608869562.950769_2/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7664840221405029
+Result for SAC_VoxcraftGrowthEnvironment_4bd3c_00000:
+  custom_metrics: {}
+  date: 2020-12-25_04-12-28
+  done: false
+  episode_len_mean: 3.0
+  episode_reward_max: 0.038786999999999995
+  episode_reward_mean: 0.038786999999999995
+  episode_reward_min: 0.038786999999999995
+  episodes_this_iter: 1
+  episodes_total: 1
+  evaluation:
+    custom_metrics: {}
+    episode_len_mean: 2.5
+    episode_reward_max: 0.026984999999999995
+    episode_reward_mean: 0.006084599999999998
+    episode_reward_min: -3.0000000000000004e-05
+    episodes_this_iter: 10
+    hist_stats:
+      episode_lengths:
+      - 1
+      - 2
+      - 3
+      - 1
+      - 3
+      - 3
+      - 3
+      - 3
+      - 3
+      - 3
+      episode_reward:
+      - -1.0e-05
+      - -2.0e-05
+      - -3.0000000000000004e-05
+      - -1.0e-05
+      - 0.009941
+      - 0.024079999999999997
+      - 0.026984999999999995
+      - -3.0000000000000004e-05
+      - -3.0000000000000004e-05
+      - -3.0000000000000004e-05
+    off_policy_estimator: {}
+    policy_reward_max: {}
+    policy_reward_mean: {}
+    policy_reward_min: {}
+    sampler_perf:
+      mean_action_processing_ms: 0.04503462049696181
+      mean_env_wait_ms: 681.294008537575
+      mean_inference_ms: 1.2513001759847007
+      mean_raw_obs_processing_ms: 0.40701877923659335
+  experiment_id: 66b7f3b9bf394e7989610f1186ea8683
+  experiment_tag: '0'
+  hostname: fe1c60dcca94
+  info:
+    last_target_update_ts: 2
+    learner:
+      default_policy:
+        actor_loss: -1.9511160850524902
+        allreduce_latency: 0.0
+        alpha_loss: -2.2210711904335767e-05
+        alpha_value: 0.9994000792503357
+        critic_loss: 0.010073985904455185
+        log_alpha_value: -0.0008999264100566506
+        max_q: 0.3398643732070923
+        mean_q: -0.00047490853467024863
+        mean_td_error: 0.13305208086967468
+        min_q: -0.2004573494195938
+        model: {}
+        policy_t: 0.1428571492433548
+        target_entropy:
+        - 1.9069918394088745
+        td_error:
+        - 0.13305208086967468
+    num_steps_sampled: 3
+    num_steps_trained: 3
+    num_target_updates: 1
+  iterations_since_restore: 3
+  node_ip: 172.17.0.2
+  num_healthy_workers: 0
+  off_policy_estimator: {}
+  perf:
+    cpu_util_percent: 8.239285714285716
+    ram_util_percent: 54.55714285714286
+  pid: 190948
+  policy_reward_max: {}
+  policy_reward_mean: {}
+  policy_reward_min: {}
+  sampler_perf:
+    mean_action_processing_ms: 0.05888938903808594
+    mean_env_wait_ms: 698.5973715782166
+    mean_inference_ms: 1.4277100563049316
+    mean_raw_obs_processing_ms: 0.9490847587585449
+  time_since_restore: 3.06156325340271
+  time_this_iter_s: 0.9292709827423096
+  time_total_s: 3.06156325340271
+  timers:
+    learn_throughput: 102.368
+    learn_time_ms: 9.769
+  timestamp: 1608869548
+  timesteps_since_restore: 0
+  timesteps_total: 3
+  training_iteration: 3
+  trial_id: 4bd3c_00000
+  
+== Status ==
+Memory usage on this node: 9.1/15.6 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1/16 CPUs, 1/1 GPUs, 0.0/8.25 GiB heap, 0.0/2.83 GiB objects (0/1.0 accelerator_type:RTX)
+Result logdir: /root/ray_results/max_z
+Number of trials: 1/1 (1 RUNNING)
++-------------------------------------------+----------+-------------------+--------+------------------+------+----------+----------------------+----------------------+--------------------+
+| Trial name                                | status   | loc               |   iter |   total time (s) |   ts |   reward |   episode_reward_max |   episode_reward_min |   episode_len_mean |
+|-------------------------------------------+----------+-------------------+--------+------------------+------+----------+----------------------+----------------------+--------------------|
+| SAC_VoxcraftGrowthEnvironment_4bd3c_00000 | RUNNING  | 172.17.0.2:190948 |      3 |          3.06156 |    3 | 0.038787 |             0.038787 |             0.038787 |                  3 |
++-------------------------------------------+----------+-------------------+--------+------------------+------+----------+----------------------+----------------------+--------------------+
+
+
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869548.034374_0 -o /tmp/1608869548.034374_0/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7626795768737793
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869564.9909859_0 -o /tmp/1608869564.9909859_0/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7838687896728516
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869564.9909859_1 -o /tmp/1608869564.9909859_1/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7554895877838135
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869564.9909859_2 -o /tmp/1608869564.9909859_2/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7703139781951904
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869568.860652_0 -o /tmp/1608869568.860652_0/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.039910078048706055
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869569.056163_0 -o /tmp/1608869569.056163_0/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7502026557922363
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869569.056163_1 -o /tmp/1608869569.056163_1/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7455484867095947
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869570.862345_0 -o /tmp/1608869570.862345_0/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.03970503807067871
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869570.862345_1 -o /tmp/1608869570.862345_1/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7568347454071045
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869570.862345_2 -o /tmp/1608869570.862345_2/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7647416591644287
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869572.891388_0 -o /tmp/1608869572.891388_0/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7505724430084229
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869572.891388_1 -o /tmp/1608869572.891388_1/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.03981447219848633
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869572.891388_2 -o /tmp/1608869572.891388_2/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7546651363372803
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869574.903307_0 -o /tmp/1608869574.903307_0/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7498776912689209
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869574.903307_1 -o /tmp/1608869574.903307_1/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.03959202766418457
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869574.903307_2 -o /tmp/1608869574.903307_2/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7710962295532227
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869576.9321594_0 -o /tmp/1608869576.9321594_0/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.5091402530670166
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869577.5973997_0 -o /tmp/1608869577.5973997_0/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.04160118103027344
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869577.5973997_1 -o /tmp/1608869577.5973997_1/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.04024338722229004
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869577.5973997_2 -o /tmp/1608869577.5973997_2/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.766127347946167
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869578.9183824_0 -o /tmp/1608869578.9183824_0/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7512145042419434
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869578.9183824_1 -o /tmp/1608869578.9183824_1/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.03980517387390137
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869578.9183824_2 -o /tmp/1608869578.9183824_2/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7648005485534668
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869580.9428937_0 -o /tmp/1608869580.9428937_0/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7487218379974365
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869580.9428937_1 -o /tmp/1608869580.9428937_1/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.03983569145202637
+Result for SAC_VoxcraftGrowthEnvironment_4bd3c_00000:
+  custom_metrics: {}
+  date: 2020-12-25_04-12-46
+  done: false
+  episode_len_mean: 3.0
+  episode_reward_max: 0.038786999999999995
+  episode_reward_mean: 0.038786999999999995
+  episode_reward_min: 0.038786999999999995
+  episodes_this_iter: 0
+  episodes_total: 1
+  evaluation:
+    custom_metrics: {}
+    episode_len_mean: 2.4
+    episode_reward_max: 0.019922
+    episode_reward_mean: 0.006085999999999999
+    episode_reward_min: -3.0000000000000004e-05
+    episodes_this_iter: 10
+    hist_stats:
+      episode_lengths:
+      - 3
+      - 1
+      - 2
+      - 3
+      - 3
+      - 3
+      - 1
+      - 3
+      - 3
+      - 2
+      episode_reward:
+      - -3.0000000000000004e-05
+      - -1.0e-05
+      - -2.0e-05
+      - 0.014107999999999999
+      - -3.0000000000000004e-05
+      - 0.009941
+      - -1.0e-05
+      - 0.007048
+      - 0.009941
+      - 0.019922
+    off_policy_estimator: {}
+    policy_reward_max: {}
+    policy_reward_mean: {}
+    policy_reward_min: {}
+    sampler_perf:
+      mean_action_processing_ms: 0.045572008405412937
+      mean_env_wait_ms: 677.4498735155378
+      mean_inference_ms: 1.2585390181768508
+      mean_raw_obs_processing_ms: 0.41607220967610675
+  experiment_id: 66b7f3b9bf394e7989610f1186ea8683
+  experiment_tag: '0'
+  hostname: fe1c60dcca94
+  info:
+    last_target_update_ts: 4
+    learner:
+      default_policy:
+        actor_loss: -1.9663656949996948
+        allreduce_latency: 0.0
+        alpha_loss: -3.167782779200934e-05
+        alpha_value: 0.9991004467010498
+        critic_loss: 1.208234429359436
+        log_alpha_value: -0.0011989932972937822
+        max_q: 0.3974510133266449
+        mean_q: 0.011216183193027973
+        mean_td_error: 1.5524652004241943
+        min_q: -0.19801759719848633
+        model: {}
+        policy_t: 0.1428571343421936
+        target_entropy:
+        - 1.9069918394088745
+        td_error:
+        - 1.5524652004241943
+    num_steps_sampled: 4
+    num_steps_trained: 4
+    num_target_updates: 2
+  iterations_since_restore: 4
+  node_ip: 172.17.0.2
+  num_healthy_workers: 0
+  off_policy_estimator: {}
+  perf:
+    cpu_util_percent: 9.363999999999999
+    ram_util_percent: 55.032
+  pid: 190948
+  policy_reward_max: {}
+  policy_reward_mean: {}
+  policy_reward_min: {}
+  sampler_perf:
+    mean_action_processing_ms: 0.05888938903808594
+    mean_env_wait_ms: 698.5973715782166
+    mean_inference_ms: 1.4277100563049316
+    mean_raw_obs_processing_ms: 0.9490847587585449
+  time_since_restore: 4.052394390106201
+  time_this_iter_s: 0.9908311367034912
+  time_total_s: 4.052394390106201
+  timers:
+    learn_throughput: 100.721
+    learn_time_ms: 9.928
+  timestamp: 1608869566
+  timesteps_since_restore: 0
+  timesteps_total: 4
+  training_iteration: 4
+  trial_id: 4bd3c_00000
+  [2m[36m(pid=190948)[0m 2020-12-25 04:11:44,202	INFO trainer.py:617 -- Current log_level is WARN. For more information, set 'log_level': 'INFO' / 'DEBUG' or use the -v and -vv flags.
+[2m[36m(pid=190948)[0m 2020-12-25 04:11:44,240	WARNING sac_tf_policy.py:62 -- When not using a state-preprocessor with SAC, `fcnet_hiddens` will be set to an empty list! Any hidden layer sizes are defined via `policy_model.fcnet_hiddens` and `Q_model.fcnet_hiddens`.
+[2m[36m(pid=190948)[0m 2020-12-25 04:11:46,453	WARNING sac_tf_policy.py:62 -- When not using a state-preprocessor with SAC, `fcnet_hiddens` will be set to an empty list! Any hidden layer sizes are defined via `policy_model.fcnet_hiddens` and `Q_model.fcnet_hiddens`.
+[2m[36m(pid=190948)[0m 2020-12-25 04:11:46,465	WARNING util.py:40 -- Install gputil for GPU system monitoring.
+
+== Status ==
+Memory usage on this node: 8.5/15.6 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1/16 CPUs, 1/1 GPUs, 0.0/8.25 GiB heap, 0.0/2.83 GiB objects (0/1.0 accelerator_type:RTX)
+Result logdir: /root/ray_results/max_z
+Number of trials: 1/1 (1 RUNNING)
++-------------------------------------------+----------+-------------------+--------+------------------+------+----------+----------------------+----------------------+--------------------+
+| Trial name                                | status   | loc               |   iter |   total time (s) |   ts |   reward |   episode_reward_max |   episode_reward_min |   episode_len_mean |
+|-------------------------------------------+----------+-------------------+--------+------------------+------+----------+----------------------+----------------------+--------------------|
+| SAC_VoxcraftGrowthEnvironment_4bd3c_00000 | RUNNING  | 172.17.0.2:190948 |      4 |          4.05239 |    4 | 0.038787 |             0.038787 |             0.038787 |                  3 |
++-------------------------------------------+----------+-------------------+--------+------------------+------+----------+----------------------+----------------------+--------------------+
+
+
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869548.034374_1 -o /tmp/1608869548.034374_1/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7571990489959717
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869582.0438178_0 -o /tmp/1608869582.0438178_0/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.74910569190979
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869582.0438178_1 -o /tmp/1608869582.0438178_1/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.749028205871582
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869584.8356829_0 -o /tmp/1608869584.8356829_0/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.03984403610229492
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869584.8356829_1 -o /tmp/1608869584.8356829_1/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7477977275848389
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869585.9347022_0 -o /tmp/1608869585.9347022_0/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7497560977935791
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869585.9347022_1 -o /tmp/1608869585.9347022_1/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.039942026138305664
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869585.9347022_2 -o /tmp/1608869585.9347022_2/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7694785594940186
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869587.9629266_0 -o /tmp/1608869587.9629266_0/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7504732608795166
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869587.9629266_1 -o /tmp/1608869587.9629266_1/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.0399472713470459
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869587.9629266_2 -o /tmp/1608869587.9629266_2/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7720670700073242
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869589.9986203_0 -o /tmp/1608869589.9986203_0/output.xml
+[2m[36m(pid=190948)[0m Simulation complete with time: 0.7499964237213135
+[2m[36m(pid=190948)[0m Running: ./voxcraft-sim -i /tmp/1608869589.9986203_1 -o /tmp/1608869589.9986203_1/output.xml
+Traceback (most recent call last):
+  File "rl_optimize.py", line 47, in <module>
+    ray.tune.run(
+  File "/root/miniconda3/lib/python3.8/site-packages/ray/tune/tune.py", line 411, in run
+    runner.step()
+  File "/root/miniconda3/lib/python3.8/site-packages/ray/tune/trial_runner.py", line 570, in step
+    self._process_events()  # blocking
+  File "/root/miniconda3/lib/python3.8/site-packages/ray/tune/trial_runner.py", line 676, in _process_events
+    trial = self.trial_executor.get_next_available_trial()  # blocking
+  File "/root/miniconda3/lib/python3.8/site-packages/ray/tune/ray_trial_executor.py", line 464, in get_next_available_trial
+    [result_id], _ = ray.wait(shuffled_results)
+  File "/root/miniconda3/lib/python3.8/site-packages/ray/worker.py", line 1578, in wait
+    ready_ids, remaining_ids = worker.core_worker.wait(
+  File "python/ray/_raylet.pyx", line 950, in ray._raylet.CoreWorker.wait
+  File "python/ray/_raylet.pyx", line 142, in ray._raylet.check_status
+KeyboardInterrupt

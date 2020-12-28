@@ -49,3 +49,5 @@ def add_cdata_to_xml(C, x_size, y_size, z_size, file_path, record_history=True):
     file_content = etree.tostring(VXD, pretty_print=True).decode("utf-8")
     with open(file_path, "w") as f:
         print(file_content, file=f)
+
+
