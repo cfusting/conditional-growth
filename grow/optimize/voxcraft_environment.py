@@ -1,9 +1,10 @@
 import gym
+from grow.utils.output import get_voxel_positions
 import os
 import numpy as np
 from gym.spaces import Box, Discrete
 from grow.utils.tensor_to_cdata import tensor_to_cdata, add_cdata_to_xml
-from grow.utils.output import get_voxel_positions
+from grow.utils.fitness import max_z, table
 from grow.entities.conditional_growth_genome import ConditionalGrowthGenome
 import subprocess
 from time import time
@@ -35,10 +36,11 @@ class VoxcraftGrowthEnvironment(gym.Env):
 
         self.reward = config["reward"]
         self.max_steps = config["max_steps"]
+        self.voxel_size = config["voxel_size"]
 
     def get_representation(self):
         x = np.array(self.genome.get_local_voxel_representation())
-        x = x[:self.num_features]
+        x = x[: self.num_features]
         return x
 
     def step(self, action):
@@ -81,11 +83,13 @@ class VoxcraftGrowthEnvironment(gym.Env):
         # The fitness is written to out_file_path.
         if self.reward == "max_z":
             _, final_positions = get_voxel_positions(out_file_path)
-            max_z = -np.inf
+            fitness = max_z(final_positions)
+        elif self.reward == "table":
+            _, final_positions = get_voxel_positions(out_file_path)
+            voxels = []
             for p in final_positions:
-                if p[2] > max_z:
-                    max_z = p[2]
-            fitness = max_z
+                voxels.append((p[0] / self.voxel_size, p[1] / self.voxel_size, p[2] / self.voxel_size))
+            fitness = table(voxels)
         else:
             raise Exception("Unknown reward type: {self.reward}")
 
