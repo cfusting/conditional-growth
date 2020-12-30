@@ -10,17 +10,12 @@ def max_z(x):
 def table(x):
     _, max_z = get_min_max_z(x)
     num_at_z, num_not_at_z = get_num_at_z(x, max_z)
+    # Account for 0 being height with one voxel.
+    height = max_z + 1
     surface = num_at_z
-    excess = num_not_at_z
-    stability = get_stability(x, max_z)
-    print(max_z)
-    print(surface)
-    if stability == 0:
-        return max_z * surface
-    if excess == 0:
-        return max_z * surface * stability
-    else:
-        return max_z * surface * (stability / excess)
+    excess = num_not_at_z or 1
+    stability = get_stability(x, max_z) or 1
+    return height * surface * (stability / excess)
 
 
 def get_min_max_z(final_positions):
@@ -46,6 +41,14 @@ def get_num_at_z(x, z):
 
 
 def get_convex_hull_area(x):
+    q = set()
+    for p in x:
+        q.add(p)
+        q.add((p[0] + 1, p[1]))
+        q.add((p[0], p[1] + 1))
+        q.add((p[0] + 1, p[1] + 1))
+    x = list(q)
+
     if len(x) == 0:
         return 0
     if len(x) == 1:

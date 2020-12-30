@@ -37,6 +37,7 @@ class VoxcraftGrowthEnvironment(gym.Env):
         self.reward = config["reward"]
         self.max_steps = config["max_steps"]
         self.voxel_size = config["voxel_size"]
+        self.simulation_interval = config["simulation_interval"]
 
     def get_representation(self):
         x = np.array(self.genome.get_local_voxel_representation())
@@ -44,14 +45,19 @@ class VoxcraftGrowthEnvironment(gym.Env):
         return x
 
     def step(self, action):
-        fitness = self.get_fitness_for_action(action)
+        if self.genome.step != 0 and self.genome.steps % self.simulation_interval == 0:
+            fitness = self.get_fitness_for_action(action)
+            self.previous_fitness = fitness
+        else:
+            self.genome.step(action)
 
         done = not self.genome.building() or (self.genome.steps == self.max_steps)
 
-        return self.get_representation(), fitness, done, {}
+        return self.get_representation(), self.previous_fitness, done, {}
 
     def reset(self):
         self.genome.reset()
+        self.previous_fitness = 0 
         return self.get_representation()
 
     def get_fitness_for_action(self, action):
