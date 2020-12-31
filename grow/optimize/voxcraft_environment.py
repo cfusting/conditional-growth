@@ -38,6 +38,7 @@ class VoxcraftGrowthEnvironment(gym.Env):
         self.max_steps = config["max_steps"]
         self.voxel_size = config["voxel_size"]
         self.simulation_interval = config["simulation_interval"]
+        self.surrogate_simulation = config["surrogate_simulation"]
 
     def get_representation(self):
         x = np.array(self.genome.get_local_voxel_representation())
@@ -57,10 +58,62 @@ class VoxcraftGrowthEnvironment(gym.Env):
 
     def reset(self):
         self.genome.reset()
-        self.previous_fitness = 0 
+        self.previous_fitness = 0
         return self.get_representation()
 
     def get_fitness_for_action(self, action):
+        (
+            simulation_folder,
+            data_dir_path,
+            simulation_file_path,
+            out_file_path,
+        ) = self.prep_simulation_folders()
+        self.genome.step(action)
+        self.generate_sim_data(action, data_dir_path)
+        run_command = f"./voxcraft-sim -i {data_dir_path} -o {out_file_path}"
+        final_positions = self.get_final_positions(
+            run_command, simulation_file_path, out_file_path
+        )
+        # The fitness is written to out_file_path.
+        if self.reward == "max_z":
+            fitness = max_z(final_positions)
+        elif self.reward == "table":
+            fitness = table(final_positions)
+        else:
+            raise Exception("Unknown reward type: {self.reward}")
+
+        if not self.surrogate_simulation:
+            self.update_file_fitness(
+                simulation_file_path, simulation_folder, fitness, data_dir_path
+            )
+
+        return fitness
+
+    def update_file_fitness(
+        self, simulation_file_path, simulation_folder, fitness, data_dir_path
+    ):
+        updated_data_dir_path = f"{self.ranked_simulation_file_path}/{fitness:.20f}_{self.genome.steps}_{simulation_folder}"
+
+        if os.path.isdir(updated_data_dir_path):
+            raise ("WARNING: Output directory exists. This not happen.")
+        subprocess.run(f"mv {data_dir_path} {updated_data_dir_path}".split())
+
+    def get_final_positions(self, run_command, simulation_file_path, out_file_path):
+        if self.surrogate_simulation:
+            _, final_positions = self.genome.to_tensor_and_tuples()
+        else:
+            with open(simulation_file_path, "w") as f:
+                subprocess.run(
+                    run_command.split(),
+                    cwd=self.path_to_sim_build,
+                    stdout=f,
+                )
+            subprocess.run(f"cp {simulation_file_path} /tmp/latest.history".split())
+            _, final_positions = get_voxel_positions(out_file_path)
+            final_positions = self.normalize_positions(final_positions)
+        return final_positions
+
+    def prep_simulation_folders(self):
         simulation_folder = f"{self.genome.id}_{self.genome.steps}"
         data_dir_path = f"/tmp/{simulation_folder}"
         simulation_file_path = f"{data_dir_path}/simulation.history"
@@ -69,47 +122,22 @@ class VoxcraftGrowthEnvironment(gym.Env):
         # Create the necessary directory and copy the base sim config.
         subprocess.run(f"mkdir -p {data_dir_path}".split())
         subprocess.run(f"cp {self.path_to_base_vxa} {data_dir_path}".split())
+        return simulation_folder, data_dir_path, simulation_file_path, out_file_path
 
-        # Stage the simulation file (robot.vxd).
-        self.generate_sim_data(action, data_dir_path)
-
-        # Run the simulation.
-        run_command = f"./voxcraft-sim -i {data_dir_path} -o {out_file_path}"
-        # print(f"Running: {run_command}")
-        with open(simulation_file_path, "w") as f:
-            t1 = time()
-            subprocess.run(
-                run_command.split(),
-                cwd=self.path_to_sim_build,
-                stdout=f,
+    def normalize_positions(self, positions):
+        normalized_positions = []
+        for p in positions:
+            normalized_positions.append(
+                (
+                    p[0] / self.voxel_size,
+                    p[1] / self.voxel_size,
+                    p[2] / self.voxel_size,
+                )
             )
-        # print(f"Simulation complete with time: {time() - t1}")
-        subprocess.run(f"cp {simulation_file_path} /tmp/latest.history".split())
-
-        # The fitness is written to out_file_path.
-        if self.reward == "max_z":
-            _, final_positions = get_voxel_positions(out_file_path)
-            fitness = max_z(final_positions)
-        elif self.reward == "table":
-            _, final_positions = get_voxel_positions(out_file_path)
-            voxels = []
-            for p in final_positions:
-                voxels.append((p[0] / self.voxel_size, p[1] / self.voxel_size, p[2] / self.voxel_size))
-            fitness = table(voxels)
-        else:
-            raise Exception("Unknown reward type: {self.reward}")
-
-        updated_data_dir_path = f"{self.ranked_simulation_file_path}/{fitness:.20f}_{self.genome.steps}_{simulation_folder}"
-        if os.path.isdir(updated_data_dir_path):
-            raise ("WARNING: Output directory exists. This not happen.")
-        subprocess.run(f"mv {data_dir_path} {updated_data_dir_path}".split())
-        return fitness
+        return normalized_positions
 
     def generate_sim_data(self, configuration_index, data_dir_path):
-        self.genome.step(configuration_index)
-
-        # Prepare creature for simulation.
-        X = self.genome.to_tensor()
+        X, _ = self.genome.to_tensor_and_tuples()
         C = tensor_to_cdata(X)
         robot_path = data_dir_path + "/robot.vxd"
         add_cdata_to_xml(C, X.shape[0], X.shape[1], X.shape[2], robot_path)

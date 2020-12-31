@@ -33,7 +33,7 @@ def get_num_at_z(x, z):
     at_z = 0
     not_at_z = 0
     for p in x:
-        if p[2] == z:
+        if np.floor(p[2]) == np.floor(z):
             at_z += 1
         else:
             not_at_z += 1
@@ -64,7 +64,7 @@ def get_stability(x, max_z):
         x, key=lambda p: p[2], reverse=True
     )
     # Top layer is not considered.
-    while descending_positions[0][2] == max_z:
+    while np.floor(descending_positions[0][2]) == np.floor(max_z):
         descending_positions.pop(0)
         if len(descending_positions) == 0:
             return 0
@@ -74,7 +74,7 @@ def get_stability(x, max_z):
     z = descending_positions[0][2]
     current_layer = []
     for p in descending_positions:
-        if p[2] == z:
+        if np.floor(p[2]) == np.floor(z):
             current_layer.append((p[0], p[1]))
         else:
             stability += get_convex_hull_area(current_layer)

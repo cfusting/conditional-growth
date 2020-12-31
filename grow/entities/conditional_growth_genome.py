@@ -144,7 +144,7 @@ class ConditionalGrowthGenome:
         proportions = []  # Ordered by -x, +x, -y, ...
         extent = (2 * self.search_radius) + 1
         v = int(np.floor(extent / 2))
-        X = self._to_tensor(voxel, extent)
+        X, _ = self._to_tensor_and_tuples(voxel, extent)
 
         material_totals = []
         for m in self.materials:
@@ -206,11 +206,11 @@ class ConditionalGrowthGenome:
                 self.configuration_map[i] = subset
                 i += 1
 
-    def to_tensor(self):
+    def to_tensor_and_tuples(self):
         extent = (2 * self.max_level) + 1
-        return self._to_tensor(self.axiom, extent)
+        return self._to_tensor_and_tuples(self.axiom, extent)
 
-    def _to_tensor(self, start_voxel, extent):
+    def _to_tensor_and_tuples(self, start_voxel, extent):
         """Convert the graph representation of the body to a tensor.
 
         Fill a three-dimensional tensor with the material types of
@@ -219,6 +219,7 @@ class ConditionalGrowthGenome:
 
         """
 
+        x_tuple = []
         X = np.zeros((extent, extent, extent))
         middle = int(np.floor(extent / 2))
         x, y, z = middle, middle, middle
@@ -233,6 +234,7 @@ class ConditionalGrowthGenome:
 
             searched_voxel_ids.add(voxel.id)
             X[x, y, z] = voxel.material
+            x_tuple.append((x, y, z))
 
             if voxel.negative_x and voxel.negative_x.id not in searched_voxel_ids:
                 to_process.appendleft((x - 1, y, z, voxel.negative_x))
@@ -246,4 +248,4 @@ class ConditionalGrowthGenome:
                 to_process.appendleft((x, y, z - 1, voxel.negative_z))
             if voxel.positive_z and voxel.positive_z.id not in searched_voxel_ids:
                 to_process.appendleft((x, y, z + 1, voxel.positive_z))
-        return X
+        return X, x_tuple
