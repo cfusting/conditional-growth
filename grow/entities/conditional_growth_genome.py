@@ -20,15 +20,15 @@ class ConditionalGrowthGenome:
         max_voxels=5,
         search_radius=3,
         axiom_material=1,
-        num_timesteps=6,
+        num_timesteps=1,
     ):
         directions = (
-                "negative_x",
-                "positive_x",
-                "negative_y",
-                "positive_y",
-                "negative_z",
-                "positive_z",
+            "negative_x",
+            "positive_x",
+            "negative_y",
+            "positive_y",
+            "negative_z",
+            "positive_z",
         )
         self.materials = materials
         self.directions = directions
@@ -134,9 +134,13 @@ class ConditionalGrowthGenome:
         else:
             # Maximum number of directions for each zero.
             # Covers the edge case in which no observations are available.
-            local_representation = [0 for _ in range(len(self.materials) * len(self.directions))]
+            local_representation = [
+                0 for _ in range(len(self.materials) * len(self.directions))
+            ]
 
-        self.historic_representation = local_representation + self.historic_representation
+        self.historic_representation = (
+            local_representation + self.historic_representation
+        )
 
         return self.historic_representation
 

@@ -2,19 +2,23 @@ import numpy as np
 from scipy.spatial import ConvexHull
 
 
-def max_z(x):
-    _, max_z = get_min_max_z(x)
+def max_z(initial_positions, final_positions):
+    if has_fallen(initial_positions, final_positions):
+        return 0
+    _, max_z = get_min_max_z(final_positions)
     return max_z
 
 
-def table(x):
-    _, max_z = get_min_max_z(x)
-    num_at_z, num_not_at_z = get_num_at_z(x, max_z)
+def table(initial_positions, final_positions):
+    if has_fallen(initial_positions, final_positions):
+        return 0
+    _, max_z = get_min_max_z(initial_positions)
+    num_at_z, num_not_at_z = get_num_at_z(initial_positions, max_z)
     # Account for 0 being height with one voxel.
     height = max_z + 1
     surface = num_at_z
     excess = num_not_at_z or 1
-    stability = get_stability(x, max_z) or 1
+    stability = get_stability(initial_positions, max_z) or 1
     return height * surface * (stability / excess)
 
 
@@ -85,3 +89,12 @@ def get_stability(x, max_z):
 
     return stability
 
+
+def has_fallen(initial_positions, final_positions):
+    """Have the x or y axes moved more than half a voxel?"""
+
+    X = np.array(initial_positions)[:, :2]
+    Y = np.array(final_positions)[:, :2]
+    difference = np.abs(X - Y)
+    print(difference)
+    return np.any(difference >= 0.5)

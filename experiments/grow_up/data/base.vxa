@@ -1,6 +1,6 @@
 <VXA Version="1.1">
     <GPU>
-        <HeapSize>0.5</HeapSize>
+        <HeapSize>0.05</HeapSize>
     </GPU>
 	<Simulator>
 		<EnableExpansion>1</EnableExpansion>

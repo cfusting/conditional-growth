@@ -12,9 +12,9 @@ def get_voxel_positions(out_file_path):
                 p.append([float(q) for q in v.split(",")])
         return p
     
-    intitial_positions = doc.xpath("/report/detail/robot/init_pos")[0].text
+    initial_positions = doc.xpath("/report/detail/robot/init_pos")[0].text
     final_positions = doc.xpath("/report/detail/robot/pos")[0].text
-    return parse(intitial_positions), parse(final_positions)
+    return parse(initial_positions), parse(final_positions)
 
 
 def get_fitness(out_file_path):

@@ -44,7 +44,7 @@ def test_single_voxel():
     features = []
     for _ in range(6):
         features.extend([(s - 1) / s, 1 / s, 0])
-    check_representations(np.array(features), np.array([[[1.0]]]), g)
+        check_representations(np.array(features)[: 18], np.array([[[1.0]]]), g)
 
 
 def test_single_addition():
