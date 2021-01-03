@@ -17,7 +17,7 @@ config = {
         "axiom_material": 1,
         "path_to_sim_build": "/root/voxcraft-sim/build",
         "path_to_base_vxa": "/root/conditional-growth/experiments/grow_up/data/base.vxa",
-        "reward": "max_z",
+        "reward": "table",
         "voxel_size": 0.01,
         "surrogate_simulation": False,
     },
@@ -33,7 +33,7 @@ config = {
 
 ray.tune.run(
     PPOTrainer,
-    name="big_penis",
+    name="stupid_table",
     config=config,
     checkpoint_freq=1,
     keep_checkpoints_num=0,

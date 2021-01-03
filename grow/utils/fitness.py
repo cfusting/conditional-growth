@@ -97,4 +97,4 @@ def has_fallen(initial_positions, final_positions):
     Y = np.array(final_positions)[:, :2]
     difference = np.abs(X - Y)
     print(difference)
-    return np.any(difference >= 0.5)
+    return np.any(difference >= 0.25)
