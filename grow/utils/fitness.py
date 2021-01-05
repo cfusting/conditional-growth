@@ -90,10 +90,10 @@ def get_stability(x, max_z):
     return stability
 
 
-def has_fallen(initial_positions, final_positions):
+def has_fallen(initial_positions, final_positions, threshold=0.25):
     """Have the x or y axes moved more than half a voxel?"""
 
     X = np.array(initial_positions)[:, :2]
     Y = np.array(final_positions)[:, :2]
     difference = np.abs(X - Y)
-    return np.any(difference >= 0.25)
+    return np.any(difference >= threshold)
