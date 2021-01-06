@@ -15,14 +15,16 @@ parser = argparse.ArgumentParser(
 )
 
 parser.add_argument("--num-voxels", type=int, nargs="+")
-parser.add_argument("--elastic-mod", type=float,  nargs="+")
+parser.add_argument("--elastic-mod", type=float, nargs="+")
 parser.add_argument("--density", type=float, nargs="+")
 parser.add_argument("--structure", type=str, nargs="+")
-parser.add_argument("--time", type=int)
+parser.add_argument("--dtfrac", type=float, nargs="+")
+parser.add_argument("--time", type=float)
 parser.add_argument("--sim-build-path", type=str)
 parser.add_argument("--template-data-folder-path", type=str)
 parser.add_argument("--output-path", type=str)
 parser.add_argument("--record", action="store_true")
+parser.add_argument("--stability-threshold", type=float)
 args = parser.parse_args()
 
 
@@ -55,31 +57,34 @@ for d in args.density:
     for s in args.structure:
         for e in args.elastic_mod:
             for n in args.num_voxels:
-                print("--------------------------------")
-                print(
-                    f'Testing for stability: Number of Voxels: {n}, '
-                    f'Elastic_Mod: {e}, Density: {d}, Structure: {s}'
-                )
+                for f in args.dtfrac:
+                    print("--------------------------------")
+                    print(
+                        f"Testing for stability: Number of Voxels: {n}, "
+                        f"Elastic_Mod: {e}, Density: {d}, Structure: {s}, DtFrac: {f}"
+                    )
 
-                output_folder_path = f"{initial_folder_path}_{n}_{e}_{d}_{s}"
-                data_folder_path = f"{output_folder_path}/data"
-                base_path = f"{data_folder_path}/base.vxa"
-                robot_path = f"{data_folder_path}/robot.vxd"
-                output_file_path = f"{output_folder_path}/output.xml"
-                log_file_path = f"{output_folder_path}/simulation.history"
+                    output_folder_path = f"{initial_folder_path}_{n}_{e}_{d}_{s}"
+                    data_folder_path = f"{output_folder_path}/data"
+                    base_path = f"{data_folder_path}/base.vxa"
+                    robot_path = f"{data_folder_path}/robot.vxd"
+                    output_file_path = f"{output_folder_path}/output.xml"
+                    log_file_path = f"{output_folder_path}/simulation.history"
 
-                subprocess.run(f"mkdir -p {output_folder_path}".split())
-                subprocess.run(
-                    f"cp -R {args.template_data_folder_path} {data_folder_path}".split()
-                )
+                    subprocess.run(f"mkdir -p {output_folder_path}".split())
+                    subprocess.run(
+                        f"cp -R {args.template_data_folder_path} {data_folder_path}".split()
+                    )
 
-                write_configs_to_base(base_path, e, d, args.time)
-                generate_robot(s, n, robot_path)
-                run_simulation(data_folder_path, output_file_path, log_file_path)
-                initial_positions, final_positions = get_voxel_positions(
-                    output_file_path
-                )
-                stable = not has_fallen(initial_positions, final_positions, 0.0025)
+                    write_configs_to_base(base_path, e, d, args.time, f)
+                    generate_robot(s, n, robot_path)
+                    run_simulation(data_folder_path, output_file_path, log_file_path)
+                    initial_positions, final_positions = get_voxel_positions(
+                        output_file_path
+                    )
+                    stable = not has_fallen(
+                        initial_positions, final_positions, args.stability_threshold
+                    )
 
-                print(f"Stable: {stable}")
-                print("--------------------------------")
+                    print(f"Stable: {stable}")
+                    print("--------------------------------")

@@ -2,7 +2,7 @@ from lxml import etree
 
 
 def write_configs_to_base(
-    file_path, elastic_mod, density, simulation_time
+    file_path, elastic_mod, density, simulation_time, dtfrac
 ):
     doc = etree.parse(file_path)
 
@@ -13,6 +13,9 @@ def write_configs_to_base(
     doc.xpath(
         "/VXA/Simulator/StopCondition/StopConditionFormula/mtSUB/mtCONST"
     )[0].text = str(simulation_time)
+    doc.xpath(
+        "/VXA/Simulator/Integration/DtFrac"
+    )[0].text = str(dtfrac)
 
     file_content = etree.tostring(doc, pretty_print=True).decode("utf-8")
     with open(file_path, "w") as f:

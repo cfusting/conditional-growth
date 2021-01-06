@@ -8,7 +8,7 @@
             <mtVAR>z</mtVAR>
         </FitnessFunction>
         <Integration>
-            <DtFrac>3</DtFrac>
+            <DtFrac>1</DtFrac>
         </Integration>
 		<StopCondition>
 			<StopConditionFormula>
