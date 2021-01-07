@@ -30,7 +30,8 @@ class VoxcraftGrowthEnvironment(gym.Env):
 
         self.path_to_sim_build = config["path_to_sim_build"]
         self.path_to_base_vxa = config["path_to_base_vxa"]
-        self.ranked_simulation_file_path = "/tmp/ranked_simulations"
+        self.ranked_simulation_file_path = config["ranked_simulation_file_path"]
+        self.record_history = config["record_history"]
         subprocess.run(f"mkdir -p {self.ranked_simulation_file_path}".split())
 
         self.reward = config["reward"]
@@ -79,7 +80,6 @@ class VoxcraftGrowthEnvironment(gym.Env):
             run_command, simulation_file_path, out_file_path
         )
         reward = self.get_reward(initial_positions, final_positions)
-        print(reward)
         self.update_file_fitness(
             simulation_file_path, simulation_folder, reward, data_dir_path
         )
@@ -151,4 +151,4 @@ class VoxcraftGrowthEnvironment(gym.Env):
         X, _ = self.genome.to_tensor_and_tuples()
         C = tensor_to_cdata(X)
         robot_path = data_dir_path + "/robot.vxd"
-        add_cdata_to_xml(C, X.shape[0], X.shape[1], X.shape[2], robot_path)
+        add_cdata_to_xml(C, X.shape[0], X.shape[1], X.shape[2], robot_path, self.record_history)
