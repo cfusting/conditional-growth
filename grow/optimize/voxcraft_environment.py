@@ -4,7 +4,7 @@ import os
 import numpy as np
 from gym.spaces import Box, Discrete
 from grow.utils.tensor_to_cdata import tensor_to_cdata, add_cdata_to_xml
-from grow.utils.fitness import max_z, table
+from grow.utils.fitness import max_z, table, distance_traveled
 from grow.entities.conditional_growth_genome import ConditionalGrowthGenome
 import subprocess
 
@@ -78,7 +78,7 @@ class VoxcraftGrowthEnvironment(gym.Env):
         initial_positions, final_positions = self.get_sim_final_positions(
             run_command, simulation_file_path, out_file_path
         )
-        reward = self.get_reward(initial_positions, final_positions)
+        reward = self.get_reward(initial_positions, final_positions, out_file_path)
         print(reward)
         self.update_file_fitness(
             simulation_file_path, simulation_folder, reward, data_dir_path
@@ -90,14 +90,17 @@ class VoxcraftGrowthEnvironment(gym.Env):
         self.genome.step(action)
 
         initial_positions, final_positions = self.genome.to_tensor_and_tuples()
-        reward = self.get_reward(initial_positions, final_positions)
+        # Out file path is none as distance traveled is not supported.
+        reward = self.get_reward(initial_positions, final_positions, None)
         return reward
 
-    def get_reward(self, initial_positions, final_positions):
+    def get_reward(self, initial_positions, final_positions, out_file_path):
         if self.reward == "max_z":
             reward = max_z(initial_positions, final_positions)
         elif self.reward == "table":
             reward = table(initial_positions, final_positions)
+        elif self.reward == "locomotion":
+            reward = distance_traveled(out_file_path)
         else:
             raise Exception("Unknown reward type: {self.reward}")
         return reward

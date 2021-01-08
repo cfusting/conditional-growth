@@ -3,6 +3,12 @@ from ray.rllib.agents.ppo import PPOTrainer
 from grow.optimize.voxcraft_environment import VoxcraftGrowthEnvironment
 
 
+"""
+IMPORTANT: You MUST configure data/base.vxa to match the relevant
+configurations in this file.
+"""
+
+
 ray.init()
 
 config = {
@@ -21,6 +27,7 @@ config = {
         "voxel_size": 0.01,
         "surrogate_simulation": False,
     },
+    "seed": 32432,
     "num_workers": 1,
     "num_gpus": .25,
     "num_gpus_per_worker": .25,

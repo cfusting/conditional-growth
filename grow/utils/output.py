@@ -15,12 +15,3 @@ def get_voxel_positions(out_file_path):
     initial_positions = doc.xpath("/report/detail/robot/init_pos")[0].text
     final_positions = doc.xpath("/report/detail/robot/pos")[0].text
     return parse(initial_positions), parse(final_positions)
-
-
-def get_fitness(out_file_path):
-    """Get the best fitness from the simulation output.
-
-    """
-
-    doc = etree.parse(out_file_path)
-    return float(doc.xpath("//fitness_score")[0].text)

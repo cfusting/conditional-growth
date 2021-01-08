@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.spatial import ConvexHull
+from lxml import etree
 
 
 def max_z(initial_positions, final_positions):
@@ -97,3 +98,12 @@ def has_fallen(initial_positions, final_positions, threshold=0.25):
     Y = np.array(final_positions)[:, :2]
     difference = np.abs(X - Y)
     return np.any(difference >= threshold)
+
+
+def distance_traveled(out_file_path):
+    """Get the longest distance traveled from the simulation output.
+
+    """
+
+    doc = etree.parse(out_file_path)
+    return float(doc.xpath("//fitness_score")[0].text)
