@@ -107,3 +107,7 @@ def distance_traveled(out_file_path):
 
     doc = etree.parse(out_file_path)
     return float(doc.xpath("//fitness_score")[0].text)
+
+
+def shape(surface_area, volume, surface_proportion, volume_proportion):
+    return volume_proportion * volume + surface_proportion * surface_area

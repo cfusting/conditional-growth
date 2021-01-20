@@ -4,12 +4,16 @@ import os
 import numpy as np
 from gym.spaces import Box, Discrete
 from grow.utils.tensor_to_cdata import tensor_to_cdata, add_cdata_to_xml
-from grow.utils.fitness import max_z, table, distance_traveled
+from grow.utils.fitness import max_z, table, distance_traveled, shape
+from grow.utils.plotting import plot_voxels
 from grow.entities.conditional_growth_genome import ConditionalGrowthGenome
 import subprocess
 
 
 class VoxcraftGrowthEnvironment(gym.Env):
+
+    metadata = {"render.modes": ["rgb_array"]}
+
     def __init__(self, config):
         self.genome = ConditionalGrowthGenome(
             materials=config["materials"],
@@ -39,6 +43,8 @@ class VoxcraftGrowthEnvironment(gym.Env):
         self.voxel_size = config["voxel_size"]
         self.simulation_interval = config["simulation_interval"]
         self.surrogate_simulation = config["surrogate_simulation"]
+        self.surface_proportion = config["surface_proportion"]
+        self.volume_proportion = config["volume_proportion"]
 
     def get_representation(self):
         x = np.array(self.genome.get_local_voxel_representation())
@@ -79,7 +85,9 @@ class VoxcraftGrowthEnvironment(gym.Env):
         initial_positions, final_positions = self.get_sim_final_positions(
             run_command, simulation_file_path, out_file_path
         )
-        reward = self.get_reward(initial_positions, final_positions, out_file_path)
+        reward = self.get_reward(
+            initial_positions, final_positions, out_file_path, None, None
+        )
         self.update_file_fitness(
             simulation_file_path, simulation_folder, reward, data_dir_path
         )
@@ -89,18 +97,25 @@ class VoxcraftGrowthEnvironment(gym.Env):
     def get_surrogate_reward_for_action(self, action):
         self.genome.step(action)
 
-        initial_positions, final_positions = self.genome.to_tensor_and_tuples()
+        X, x_tuples, x_values, surface_area, volume = self.genome.to_tensor_and_tuples()
         # Out file path is none as distance traveled is not supported.
-        reward = self.get_reward(initial_positions, final_positions, None)
+        reward = self.get_reward(x_tuples, x_tuples, None, surface_area, volume)
+
         return reward
 
-    def get_reward(self, initial_positions, final_positions, out_file_path):
+    def get_reward(
+        self, initial_positions, final_positions, out_file_path, surface_area, volume
+    ):
         if self.reward == "max_z":
             reward = max_z(initial_positions, final_positions)
         elif self.reward == "table":
             reward = table(initial_positions, final_positions)
         elif self.reward == "locomotion":
             reward = distance_traveled(out_file_path)
+        elif self.reward == "shape":
+            reward = shape(
+                surface_area, volume, self.surface_proportion, self.volume_proportion
+            )
         else:
             raise Exception("Unknown reward type: {self.reward}")
         return reward
@@ -151,7 +166,24 @@ class VoxcraftGrowthEnvironment(gym.Env):
         return normalized_positions
 
     def generate_sim_data(self, configuration_index, data_dir_path):
-        X, _ = self.genome.to_tensor_and_tuples()
+        X, _, _, _, _ = self.genome.to_tensor_and_tuples()
         C = tensor_to_cdata(X)
         robot_path = data_dir_path + "/robot.vxd"
-        add_cdata_to_xml(C, X.shape[0], X.shape[1], X.shape[2], robot_path, self.record_history)
+        add_cdata_to_xml(
+            C, X.shape[0], X.shape[1], X.shape[2], robot_path, self.record_history
+        )
+
+    def render(self, mode="rgb_array"):
+        if mode == "rgb_array":
+            (
+                X,
+                x_tuples,
+                x_values,
+                surface_area,
+                volume,
+            ) = self.genome.to_tensor_and_tuples()
+            img = plot_voxels(
+                x_tuples,
+                x_values,
+            )
+            return img
