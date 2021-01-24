@@ -55,7 +55,7 @@ def plot_voxels(position_tuples, values):
         grid,
         show_edges=True,
         scalars=scalars,
-        cmap="plasma",
+        cmap="cool",
     )
     img = plotter.screenshot(return_img=True)
     plotter.close()

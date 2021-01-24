@@ -48,7 +48,6 @@ class ConditionalGrowthGenome:
         self.axiom = self.get_new_voxel(self.axiom_material)
         self.axiom.level = 0
         self.body = deque([self.axiom])
-        self.id = str(time())
         self.max_level = 0
         self.steps = 0
 
@@ -148,7 +147,7 @@ class ConditionalGrowthGenome:
         proportions = []  # Ordered by -x, +x, -y, ...
         extent = (2 * self.search_radius) + 1
         v = int(np.floor(extent / 2))
-        X, _, _, _, _ = self._to_tensor_and_tuples(voxel, extent)
+        X, _, _ = self._to_tensor_and_tuples(voxel, extent)
 
         material_totals = []
         for m in self.materials:
@@ -229,8 +228,6 @@ class ConditionalGrowthGenome:
         middle = int(np.floor(extent / 2))
         x, y, z = middle, middle, middle
 
-        surface_area = 0
-        volume = 0
         searched_voxel_ids = set()
         to_process = deque([(x, y, z, start_voxel)])
         while len(to_process) > 0:
@@ -239,9 +236,6 @@ class ConditionalGrowthGenome:
             if x < 0 or y < 0 or z < 0 or x >= extent or y >= extent or z >= extent:
                 break
 
-            current_surface_area = 6
-            volume += 1
-
             searched_voxel_ids.add(voxel.id)
             X[x, y, z] = voxel.material
             x_tuples.append((x, y, z))
@@ -249,23 +243,16 @@ class ConditionalGrowthGenome:
 
             if voxel.negative_x and voxel.negative_x.id not in searched_voxel_ids:
                 to_process.appendleft((x - 1, y, z, voxel.negative_x))
-                current_surface_area -= 1
             if voxel.positive_x and voxel.positive_x.id not in searched_voxel_ids:
                 to_process.appendleft((x + 1, y, z, voxel.positive_x))
-                current_surface_area -= 1
             if voxel.negative_y and voxel.negative_y.id not in searched_voxel_ids:
                 to_process.appendleft((x, y - 1, z, voxel.negative_y))
-                current_surface_area -= 1
             if voxel.positive_y and voxel.positive_y.id not in searched_voxel_ids:
                 to_process.appendleft((x, y + 1, z, voxel.positive_y))
-                current_surface_area -= 1
             if voxel.negative_z and voxel.negative_z.id not in searched_voxel_ids:
                 to_process.appendleft((x, y, z - 1, voxel.negative_z))
-                current_surface_area -= 1
             if voxel.positive_z and voxel.positive_z.id not in searched_voxel_ids:
                 to_process.appendleft((x, y, z + 1, voxel.positive_z))
-                current_surface_area -= 1
 
-            surface_area += current_surface_area
 
-        return X, x_tuples, x_values, surface_area, volume
+        return X, x_tuples, x_values

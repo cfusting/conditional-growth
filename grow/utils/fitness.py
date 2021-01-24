@@ -109,5 +109,37 @@ def distance_traveled(out_file_path):
     return float(doc.xpath("//fitness_score")[0].text)
 
 
-def shape(surface_area, volume, surface_proportion, volume_proportion):
+def shape(X, surface_proportion, volume_proportion):
+    volume = get_volume(X)
+    surface_area = get_surface_area(X)
     return volume_proportion * volume + surface_proportion * surface_area
+
+
+def get_volume(X):
+    return np.sum(X != 0)
+
+
+def get_surface_area(X):
+    m = X.shape[0]
+    n = X.shape[1]
+    z = X.shape[2]
+    
+    surfaces = 0
+    for i in range(m):
+        for j in range(n):
+            for k in range(z):
+                # If the cell is empty check for surfaces surrounding it.
+                if X[i, j, k] == 0:
+                    if i > 0 and X[i - 1, j, k] != 0:
+                        surfaces += 1
+                    if i < m - 1 and X[i + 1, j, k] != 0:
+                        surfaces += 1
+                    if j > 0 and X[i, j - 1, k] != 0:
+                        surfaces += 1
+                    if j < n - 1 and X[i, j + 1, k] != 0:
+                        surfaces += 1
+                    if k > 0 and X[i, j, k - 1] != 0:
+                        surfaces += 1
+                    if k < z - 1 and X[i, j, k + 1] != 0:
+                        surfaces += 1
+    return surfaces
