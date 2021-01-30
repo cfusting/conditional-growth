@@ -47,7 +47,8 @@ def add_cdata_to_xml(C, x_size, y_size, z_size, file_path, record_history=True):
         etree.SubElement(history, "RecordFixedVoxels").text = "0"
 
     file_content = etree.tostring(VXD, pretty_print=True).decode("utf-8")
-    with open(file_path, "w") as f:
-        print(file_content, file=f)
+    if file_path is not None:
+        with open(file_path, "w") as f:
+            print(file_content, file=f)
 
-
+    return file_content
