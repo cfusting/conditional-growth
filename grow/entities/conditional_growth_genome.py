@@ -20,7 +20,7 @@ class ConditionalGrowthGenome:
         max_voxels=5,
         search_radius=3,
         axiom_material=1,
-        num_timesteps=1,
+        num_timestep_features=1,
     ):
         directions = (
             "negative_x",
@@ -35,7 +35,7 @@ class ConditionalGrowthGenome:
         self.max_voxels = max_voxels
         self.search_radius = search_radius
         self.axiom_material = axiom_material
-        self.num_features = len(materials) * len(directions) * num_timesteps
+        self.num_features = len(materials) * len(directions) * num_timestep_features
 
         self.initialize_configurations()
         print(f"Found {len(self.configuration_map)} possible voxel configurations.")
@@ -154,31 +154,26 @@ class ConditionalGrowthGenome:
             material_totals.append(np.sum(X[: v + 1, :, :] == m))
         for i in range(len(self.materials)):
             proportions.append(material_totals[i] / np.sum(material_totals))
-
         material_totals = []
         for m in self.materials:
             material_totals.append(np.sum(X[v:, :, :] == m))
         for i in range(len(self.materials)):
             proportions.append(material_totals[i] / np.sum(material_totals))
-
         material_totals = []
         for m in self.materials:
             material_totals.append(np.sum(X[:, : v + 1, :] == m))
         for i in range(len(self.materials)):
             proportions.append(material_totals[i] / np.sum(material_totals))
-
         material_totals = []
         for m in self.materials:
             material_totals.append(np.sum(X[:, v:, :] == m))
         for i in range(len(self.materials)):
             proportions.append(material_totals[i] / np.sum(material_totals))
-
         material_totals = []
         for m in self.materials:
             material_totals.append(np.sum(X[:, :, : v + 1] == m))
         for i in range(len(self.materials)):
             proportions.append(material_totals[i] / np.sum(material_totals))
-
         material_totals = []
         for m in self.materials:
             material_totals.append(np.sum(X[:, :, v:] == m))

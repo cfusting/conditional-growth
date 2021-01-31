@@ -3,16 +3,12 @@ from scipy.spatial import ConvexHull
 from lxml import etree
 
 
-def max_z(initial_positions, final_positions):
-    if has_fallen(initial_positions, final_positions):
-        return 0
+def max_z(final_positions):
     _, max_z = get_min_max_z(final_positions)
     return max_z
 
 
-def table(initial_positions, final_positions):
-    if has_fallen(initial_positions, final_positions):
-        return 0
+def table(final_positions):
     _, max_z = get_min_max_z(initial_positions)
     num_at_z, num_not_at_z = get_num_at_z(initial_positions, max_z)
     # Account for 0 being height with one voxel.
@@ -92,27 +88,24 @@ def get_stability(x, max_z):
 
 
 def has_fallen(initial_positions, final_positions, threshold=0.25):
-    """Have the x or y axes moved more than half a voxel?"""
-
     X = np.array(initial_positions)[:, :2]
     Y = np.array(final_positions)[:, :2]
     difference = np.abs(X - Y)
     return np.any(difference >= threshold)
 
 
-def distance_traveled(out_file_path):
-    """Get the longest distance traveled from the simulation output.
-
-    """
-
-    doc = etree.parse(out_file_path)
-    return float(doc.xpath("//fitness_score")[0].text)
+def distance_traveled(initial_positions, final_positions):
+    X = np.array(initial_positions)[:, :2]
+    Y = np.array(final_positions)[:, :2]
+    return np.linalg.norm(X - Y).max()
 
 
-def shape(X, surface_proportion, volume_proportion):
-    volume = get_volume(X)
-    surface_area = get_surface_area(X)
-    return volume_proportion * volume + surface_proportion * surface_area
+def max_volume(X):
+    return get_volume(X) / get_surface_area(X)
+
+
+def max_surface_area(X):
+    return get_surface_area(X) / get_volume(X)
 
 
 def get_volume(X):
