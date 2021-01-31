@@ -4,10 +4,6 @@
 
 ![theory1](./docs/theory1.jpg)
 ![theory2](./docs/theory2.jpg)
-![theory3](./docs/theory3.jpg)
-![theory4](./docs/theory4.jpg)
-![theory5](./docs/theory5.jpg)
-![theory6](./docs/theory6.jpg)
 
 ### About
 
