@@ -1,5 +1,14 @@
 # Growing Virtual Creatures
 
+### Theory
+
+![theory1](./docs/theory1.jpg)
+![theory2](./docs/theory2.jpg)
+![theory3](./docs/theory3.jpg)
+![theory4](./docs/theory4.jpg)
+![theory5](./docs/theory5.jpg)
+![theory6](./docs/theory6.jpg)
+
 ### About
 
 This package provides the necessary tooling to grow virtual creatures made from three-dimensional blocks called voxels (a 3d pixel). Starting with one or more voxels new voxels are iteratively added based on nearby voxels and the current position. Some voxels are energetic and pulse, causing the virtual creatures to move around.
@@ -36,6 +45,3 @@ Run the optimization script.
 docker run --rm --gpus all con-grow python experiments/grow_up/rl_optimize.py
 ```
 
-### Theory
-
-![Theory](./docs/theory.png)
