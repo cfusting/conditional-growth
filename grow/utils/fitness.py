@@ -88,21 +88,16 @@ def get_stability(x, max_z):
 
 
 def has_fallen(initial_positions, final_positions, threshold=0.25):
-    """Have the x or y axes moved more than half a voxel?"""
-
     X = np.array(initial_positions)[:, :2]
     Y = np.array(final_positions)[:, :2]
     difference = np.abs(X - Y)
     return np.any(difference >= threshold)
 
 
-def distance_traveled(out_file_path):
-    """Get the longest distance traveled from the simulation output.
-
-    """
-
-    doc = etree.parse(out_file_path)
-    return float(doc.xpath("//fitness_score")[0].text)
+def distance_traveled(initial_positions, final_positions):
+    X = np.array(initial_positions)[:, :2]
+    Y = np.array(final_positions)[:, :2]
+    return np.linalg.norm(X - Y).max()
 
 
 def max_volume(X):
