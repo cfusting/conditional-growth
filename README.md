@@ -35,3 +35,7 @@ Run the optimization script.
 ```bash
 docker run --rm --gpus all con-grow python experiments/grow_up/rl_optimize.py
 ```
+
+### Theory
+
+![Theory](./docs/theory.png)
