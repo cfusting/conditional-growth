@@ -26,9 +26,9 @@ def test_optimize():
         },
         "vf_clip_param": 10**5,
         "seed": np.random.randint(10**5),
-        "num_workers": 3,
+        "num_workers": 1,
         "num_gpus": 0,
-        "num_gpus_per_worker": 0.25,
+        "num_gpus_per_worker": 0.75,
         "num_envs_per_worker": 1,
         "framework": "torch",
     }
