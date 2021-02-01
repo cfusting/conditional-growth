@@ -18,7 +18,7 @@ config = {
         "materials": (0, 1),
         "num_timestep_feature": 1,
         "max_steps": 10,
-        "simulation_interval": 1,
+        "reward_interval": 1,
         "max_voxels": 6,
         "search_radius": 3,
         "axiom_material": 1,
@@ -35,6 +35,8 @@ config = {
     "num_gpus_per_worker": 0.75,
     "num_envs_per_worker": 1,
     "framework": "torch",
+    # "monitor": True, 
+    # "evaluation_num_workers": 7,
 }
 
 ray.tune.run(
@@ -43,4 +45,5 @@ ray.tune.run(
     config=config,
     checkpoint_freq=0,
     keep_checkpoints_num=0,
+    # restore=,
 )
