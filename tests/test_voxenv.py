@@ -27,11 +27,10 @@ def test_optimize():
         "vf_clip_param": 10**5,
         "seed": np.random.randint(10**5),
         "num_workers": 1,
-        "num_gpus": .25,
+        "num_gpus": 0,
         "num_gpus_per_worker": 0.75,
         "num_envs_per_worker": 1,
         "framework": "torch",
-        "monitor": True,
     }
 
     ray.tune.run(
@@ -41,5 +40,3 @@ def test_optimize():
         stop={"timesteps_total": 1},
         local_dir="/tmp"
     )
-
-test_optimize()

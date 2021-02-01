@@ -27,7 +27,8 @@ def check_state(b, v, l, s, g):
 
 def check_representations(X, A, g):
     assert_array_equal(X, g.get_local_voxel_representation())
-    assert_array_equal(A, g.to_tensor())
+    X, _, _ = g.to_tensor_and_tuples()
+    assert_array_equal(A, X)
 
 
 def get_search_area_volume(g):
@@ -44,7 +45,7 @@ def test_single_voxel():
     features = []
     for _ in range(6):
         features.extend([(s - 1) / s, 1 / s, 0])
-        check_representations(np.array(features)[: 18], np.array([[[1.0]]]), g)
+    check_representations(np.array(features)[: 18], np.array([[[1.0]]]), g)
 
 
 def test_single_addition():

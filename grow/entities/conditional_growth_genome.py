@@ -17,7 +17,7 @@ class ConditionalGrowthGenome:
     def __init__(
         self,
         materials=(0, 1, 2),
-        max_voxels=5,
+        max_voxels=6,
         search_radius=3,
         axiom_material=1,
         num_timestep_features=1,
@@ -141,7 +141,7 @@ class ConditionalGrowthGenome:
             local_representation + self.historic_representation
         )
 
-        return self.historic_representation
+        return self.historic_representation[: self.num_features]
 
     def get_function_input(self, voxel):
         proportions = []  # Ordered by -x, +x, -y, ...
