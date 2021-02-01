@@ -22,7 +22,7 @@ class TensorGrowthEnvironment(gym.Env):
             num_timestep_features=config["num_timestep_features"],
         )
 
-        self.max_steps=config["max_steps"],
+        self.max_steps = config["max_steps"]
         self.action_space = Discrete(len(self.genome.configuration_map))
         self.observation_space = Box(low=0, high=1, shape=(self.genome.num_features,))
         self.reward_range = (0, float("inf"))
@@ -41,14 +41,12 @@ class TensorGrowthEnvironment(gym.Env):
 
     def step(self, action):
         self.genome.step(action)
-        if self.genome.steps != 0 and self.genome.steps % self.reward_interval == 0:
+        if 0 < self.genome.steps and self.genome.steps % self.reward_interval == 0:
             X, x_tuples, _ = self.genome.to_tensor_and_tuples()
             reward = self.get_reward(x_tuples, X)
             self.previous_reward = reward
-        else:
-            self.genome.step(action)
 
-        done = not self.genome.building() or (self.genome.steps == self.max_steps)
+        done = (not self.genome.building()) or (self.genome.steps == self.max_steps)
         return self.get_representation(), self.previous_reward, done, {}
 
     def get_reward(self, final_positions, X):

@@ -1,7 +1,7 @@
 import ray
 import numpy as np
 from ray.rllib.agents.ppo import PPOTrainer
-from grow.optimize.voxcraft_environment import VoxcraftGrowthEnvironment
+from grow.env.voxcraft_environment import VoxcraftGrowthEnvironment
 
 
 """
@@ -23,7 +23,7 @@ config = {
         "search_radius": 3,
         "axiom_material": 1,
         "path_to_sim_build": "/root/voxcraft-sim/build",
-        "base_template_path": "/root/conditional-growth/experiments/grow/data/base.vxa",
+        "base_template_path": "/root/conditional-growth/experiments/distance_traveled/data/base.vxa",
         "reward_type": "distance_traveled",
         "voxel_size": 0.01,
         "fallen_threshold": 0.25,

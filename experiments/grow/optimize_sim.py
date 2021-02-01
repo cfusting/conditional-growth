@@ -1,7 +1,7 @@
 import ray
 import numpy as np
 from ray.rllib.agents.ppo import PPOTrainer
-from grow.optimize.voxcraft_environment import VoxcraftGrowthEnvironment
+from grow.env.voxcraft_environment import VoxcraftGrowthEnvironment
 
 
 """
@@ -30,7 +30,7 @@ config = {
     },
     "vf_clip_param": 10**5,
     "seed": np.random.randint(10**5),
-    "num_workers": 3,
+    "num_workers": 1,
     "num_gpus": .25,
     "num_gpus_per_worker": 0.75,
     "num_envs_per_worker": 1,
