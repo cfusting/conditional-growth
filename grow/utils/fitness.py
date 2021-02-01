@@ -8,7 +8,7 @@ def max_z(final_positions):
     return max_z
 
 
-def table(final_positions):
+def table(initial_positions):
     _, max_z = get_min_max_z(initial_positions)
     num_at_z, num_not_at_z = get_num_at_z(initial_positions, max_z)
     # Account for 0 being height with one voxel.
@@ -101,11 +101,19 @@ def distance_traveled(initial_positions, final_positions):
 
 
 def max_volume(X):
-    return get_volume(X) / get_surface_area(X)
+    s = get_surface_area(X)
+    v = get_volume(X)
+    if v == 0 or s == 0:
+        return 0
+    return v / s
 
 
 def max_surface_area(X):
-    return get_surface_area(X) / get_volume(X)
+    s = get_surface_area(X)
+    v = get_volume(X)
+    if v == 0 or s == 0:
+        return 0
+    return s / v
 
 
 def get_volume(X):

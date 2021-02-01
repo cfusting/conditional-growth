@@ -37,7 +37,6 @@ class TensorGrowthEnvironment(gym.Env):
 
     def get_representation(self):
         x = np.array(self.genome.get_local_voxel_representation())
-        x = x[: self.genome.num_features]
         return x
 
     def step(self, action):

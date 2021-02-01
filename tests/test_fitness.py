@@ -45,7 +45,7 @@ def test_get_convex_hull_area_four():
         (4, 0),
         (4, 4),
     )
-    assert get_convex_hull_area(x) == 25
+    assert math.isclose(get_convex_hull_area(x), 25, rel_tol=0.01) is True
 
 
 def test_min_max_z():
@@ -61,7 +61,7 @@ def test_min_max_z():
 
 def test_max_z_single_coordinate():
     x = ((0, 0, 0),)
-    assert max_z(x, x) == 0
+    assert max_z(x) == 0
 
 
 def test_max_z_multiple_coordinates():
@@ -70,7 +70,7 @@ def test_max_z_multiple_coordinates():
         (4, 7, 9),
         (0, 0, 0.5),
     )
-    assert max_z(x, x) == 9
+    assert max_z(x) == 9
 
 
 def test_get_num_at_z():
@@ -120,17 +120,17 @@ def test_stupid_table():
     x = [
         (0, 0, 0),
     ]
-    assert table(x, x) == 1
+    assert table(x) == 1
 
     x.append((0, 0, 1))
-    assert table(x, x) == 2
+    assert table(x) == 2
 
     x.append((0, 0, 2))
-    assert table(x, x) == 3
+    assert table(x) == 3
 
     x.append((1, 0, 2))
     x.append((2, 0, 2))
-    assert table(x, x) == 3 * 3
+    assert table(x) == 3 * 3
 
 
 def test_coffee_table():
@@ -168,7 +168,7 @@ def test_coffee_table():
         (3, 3, 3),
     )
 
-    assert table(x, x) == 4 * 16 * ((3 * 16) / (3 * 4))
+    assert table(x) == 4 * 16 * ((3 * 16) / (3 * 4))
 
 
 def test_has_fallen():
@@ -240,7 +240,7 @@ def test_has_fallen_and_max_z_example():
     )
 
     assert has_fallen(x, y) == False
-    assert math.isclose(max_z(x, y), 1.9901, rel_tol=0.01) is True
+    assert math.isclose(max_z(y), 1.9901, rel_tol=0.01) is True
 
 
     def test_should_fall_example():

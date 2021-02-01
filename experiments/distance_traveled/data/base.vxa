@@ -4,18 +4,6 @@
     </GPU>
 	<Simulator>
 		<EnableExpansion>1</EnableExpansion>
-        <FitnessFunction>
-            <mtADD>
-                <mtMUL>
-                <mtVAR>x</mtVAR>
-                <mtVAR>x</mtVAR>
-                </mtMUL>
-                <mtMUL>
-                <mtVAR>y</mtVAR>
-                <mtVAR>y</mtVAR>
-                </mtMUL>
-            </mtADD>
-        </FitnessFunction>
         <Integration>
             <DtFrac>1</DtFrac>
         </Integration>
@@ -23,7 +11,7 @@
 			<StopConditionFormula>
 				<mtSUB>
 				<mtVAR>t</mtVAR>
-				<mtCONST>5</mtCONST>
+				<mtCONST>1</mtCONST>
 				</mtSUB>
 			</StopConditionFormula>
 		</StopCondition>
