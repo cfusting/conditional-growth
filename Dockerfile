@@ -18,16 +18,16 @@ RUN wget \
 RUN conda install python=3.7
 
 # Build voxcraft-sim
-RUN conda install -c anaconda cmake
+RUN conda install -c anaconda cmake==3.12.0
 RUN git clone https://github.com/voxcraft/voxcraft-sim.git \
     && cd voxcraft-sim && mkdir build && cd build && cmake .. && make -j 10
 
 # Add project requirements
 RUN apt-get update
 RUN apt-get install -y ffmpeg libsm6 libxext6 rsync 
-RUN pip install ray torch gym dm-tree pandas lxml
-RUN ray install-nightly
-# It's necessary to install rllib outside of the previous line.
+RUN pip install ray==1.1.0 torch==1.7.1 gym==0.17.3 pandas==1.1.5
+RUN pip install pyvista==0.27.4 dm-tree==0.1.5 lxml==4.6.2 pytest==6.2.1 matplotlib==3.3.3
+# It's necessary to install rllib after the previous line.
 RUN pip install ray[rllib]
 RUN pip install vtk==8.1.2
 
