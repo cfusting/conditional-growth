@@ -4,8 +4,8 @@ services:
     - docker
 
 before_install:
-    - docker build -t growth .
-    - docker run growth pytest --ignore=tests/test_voxenv.py --ignore=tests/test_plotting.py
+    - docker pull cfusting/conditional-growth .
+    - docker run cfusting/conditional-growth pytest --ignore=tests/test_voxenv.py --ignore=tests/test_plotting.py
 
 script:
     - pytest --ignore=tests/test_voxenv.py --ignore=tests/test_plotting.py
