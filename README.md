@@ -1,5 +1,7 @@
 # Growing Virtual Creatures
 
+[![Build Status](https://travis-ci.org/cfusting/conditional-growth.svg?branch=main)](https://travis-ci.org/cfusting/conditional-growth)
+
 ### Theory
 
 ![theory1](./docs/theory1.jpg)
