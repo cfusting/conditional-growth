@@ -16,7 +16,7 @@ This package provides the necessary tooling to grow virtual creatures made from 
 #### Requirements
 This project uses [voxcraft-sim](https://github.com/voxcraft/voxcraft-sim) to simulate voxels. When building voxcraft-sim the makefile checks if a GPU is available. Thus it is necessary for docker build to be able to see your GPU. To that end install and configure the [nvidia-container-runtime](https://stackoverflow.com/questions/59691207/docker-build-with-nvidia-runtime).
 
-#### Installing the nvidia runtime
+#### Installing the Nvidia runtime
 
 ```bash
 distribution=$(. /etc/os-release;echo $ID$VERSION_ID) \
