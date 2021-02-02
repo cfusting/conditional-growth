@@ -4,7 +4,7 @@ WORKDIR "/root"
 
 RUN apt-get update
 RUN apt-get remove -y --purge cmake
-RUN apt-get install -y git libboost-all-dev wget screen
+RUN apt-get install -y git libboost-all-dev wget screen vim
 
 # Install Miniconda
 ENV PATH="/root/miniconda3/bin:${PATH}"
@@ -24,7 +24,7 @@ RUN git clone https://github.com/voxcraft/voxcraft-sim.git \
 
 # Add project requirements
 RUN apt-get update
-RUN apt-get install -y ffmpeg libsm6 libxext6 rsync 
+RUN apt-get install -y ffmpeg libsm6 libxext6 rsync libgl1-mesa-dev xvfb
 RUN pip install ray==1.1.0 torch==1.7.1 gym==0.17.3 pandas==1.1.5
 RUN pip install pyvista==0.27.4 dm-tree==0.1.5 lxml==4.6.2 pytest==6.2.1 matplotlib==3.3.3
 # It's necessary to install rllib after the previous line.

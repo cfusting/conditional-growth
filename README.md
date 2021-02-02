@@ -11,7 +11,7 @@
 
 This package provides the necessary tooling to grow virtual creatures made from three-dimensional blocks called voxels (a 3d pixel). Starting with one or more voxels new voxels are iteratively added based on nearby voxels and the current position. Some voxels are energetic and pulse, causing the virtual creatures to move around.
 
-### Running with Docker
+### Building with Docker
 
 #### Requirements
 This project uses [voxcraft-sim](https://github.com/voxcraft/voxcraft-sim) to simulate voxels. When building voxcraft-sim the makefile checks if a GPU is available. Thus it is necessary for docker build to be able to see your GPU. To that end install and configure the [nvidia-container-runtime](https://stackoverflow.com/questions/59691207/docker-build-with-nvidia-runtime).
@@ -32,14 +32,25 @@ sudo systemctl restart docker
 Clone this repository and navigate into the root folder.
 
 ```bash
-docker build -t con-grow .
+docker build -t grow .
 ```
+
+### Optimizing a Creature
+
+In this example we will build a creature for which surface area is maximized and volume is minimized.
 
 #### Run
 
-Run the optimization script.
+Run the optimization script, storing the results in the host environment's /tmp directory.
 
 ```bash
-docker run --rm --gpus all con-grow python experiments/grow_up/rl_optimize.py
+docker run --rm --gpus all -v /tmp:/tmp --shm-size 2G growth python scripts/grow/optimize_grid.py
 ```
 
+#### TODO
+
+Finish the section on viewing videos and scores.
+
+```bash
+docker run --rm --gpus all -v /tmp:/tmp --shm-size 2G growth /bin/bash -c "source headless.sh; python scripts/grow/optimize_grid.py"
+```
