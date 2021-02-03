@@ -60,11 +60,11 @@ tensorboard --logdir /tmp/ray_results/badger
 
 #### Creatures
 
-Uncommenting `monitor=True` in optimize_grid.py will enable the recording of a creature being built. The resulting movies can be found in /tmp/ray_results/expname/trialname (as can all the other logs). Refer to [RlLib](https://docs.ray.io/en/master/rllib.html) for more details. 
+Uncommenting `monitor=True` in optimize_grid.py will enable the recording of a creature being built. The resulting movies can be found in /tmp/ray_results/expname/trialname (as can all the other logs). Refer to [RLlib](https://docs.ray.io/en/master/rllib.html) for more details. 
 
 Due to a memory leak in vtk (which is the graphics library used to create the movies), enabling monitoring will eventually cause the trial to crash. To avoid this run your experiment until convergence and turn on monitoring after loading a checkpoint to capture a few movies at that point in training.
 
 Below are some videos of this example mid-way through training and at convergence.
 
 ![midway](./docs/midway.gif)
-![column](./docs/columns.gif)
+![column](./docs/column.gif)
