@@ -32,7 +32,7 @@ config = {
 
 ray.tune.run(
     PPOTrainer,
-    name="wombat",
+    name="penguin",
     config=config,
     checkpoint_freq=0,
     keep_checkpoints_num=0,

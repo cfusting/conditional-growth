@@ -47,10 +47,24 @@ Run the optimization script, storing the results in the host environment's /tmp 
 docker run --rm --gpus all -v /tmp:/tmp --shm-size 2G growth python scripts/grow/optimize_grid.py
 ```
 
-#### TODO
+#### Metrics
 
-Finish the section on viewing videos and scores.
+Metrics are captured by the [ray](https://docs.ray.io/en/master/) framework in /tmp/ray_results/expname where expname is specified in the optimize_grid.py script. The easiest way to view the metrics is to use tensorboard. For example:
 
 ```bash
-docker run --rm --gpus all -v /tmp:/tmp --shm-size 2G growth /bin/bash -c "source headless.sh; python scripts/grow/optimize_grid.py"
+tensorboard --logdir /tmp/ray_results/badger
 ```
+
+![tensorboard](./docs/tensorboard.png)
+
+
+#### Creatures
+
+Uncommenting `monitor=True` in optimize_grid.py will enable the recording of a creature being built. The resulting movies can be found in /tmp/ray_results/expname/trialname (as can all the other logs). Refer to [RlLib](https://docs.ray.io/en/master/rllib.html) for more details. 
+
+Due to a memory leak in vtk (which is the graphics library used to create the movies), enabling monitoring will eventually cause the trial to crash. To avoid this run your experiment until convergence and turn on monitoring after loading a checkpoint to capture a few movies at that point in training.
+
+Below are some videos of this example mid-way through training and at convergence.
+
+![midway](./docs/midway.gif)
+![column](./docs/columns.gif)
