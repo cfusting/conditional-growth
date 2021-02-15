@@ -22,7 +22,7 @@ config = {
     "vf_clip_param": 10**5,
     "seed": np.random.randint(10**5),
     "num_workers": 4,
-    "num_gpus": 0,
+    "num_gpus": 1,
     "num_gpus_per_worker": 0,
     "num_envs_per_worker": 1,
     "framework": "torch",
@@ -36,6 +36,5 @@ ray.tune.run(
     config=config,
     checkpoint_freq=0,
     keep_checkpoints_num=0,
-    local_dir="/tmp/ray_results",
     # restore=,
 )
