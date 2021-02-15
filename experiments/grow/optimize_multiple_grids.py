@@ -7,7 +7,8 @@ from ray.rllib.agents.callbacks import DefaultCallbacks
 
 class Callbacks(DefaultCallbacks):
 
-    def on_episode_start
+    def on_episode_end(self, *, worker, base_env, policies, episode, env_index, **kwargs):
+        episode.custom_metrics["final_reward"] = episode.prev_reward_for()
 
 
 ray.init()
@@ -35,6 +36,7 @@ for seed in range(5):
         "num_gpus_per_worker": 0,
         "num_envs_per_worker": 1,
         "framework": "torch",
+        "callbacks": Callbacks,
     }
 
     ray.tune.run(
