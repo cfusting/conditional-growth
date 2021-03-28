@@ -44,7 +44,7 @@ In this example we will build a creature for which surface area is maximized and
 Run the optimization script, storing the results in the host environment's /tmp directory.
 
 ```bash
-docker run --rm --gpus all -v /tmp:/tmp --shm-size 2G growth python scripts/grow/optimize_grid.py
+docker run --rm --gpus all -v /tmp:/tmp --shm-size 2G grow python scripts/grow/optimize_grid.py
 ```
 
 #### Metrics
