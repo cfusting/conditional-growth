@@ -1,5 +1,5 @@
 Bootstrap: docker
-From: cfusting/con-ide
+From: cfusting/conditional-growth
 
 %post
     chmod -R o+rX /root
