@@ -18,9 +18,9 @@ RUN wget \
 RUN conda install python=3.7
 
 # Build voxcraft-sim
-RUN conda install -c anaconda cmake==3.12.0
-RUN git clone https://github.com/voxcraft/voxcraft-sim.git \
-    && cd voxcraft-sim && mkdir build && cd build && cmake .. && make -j 10
+# RUN conda install -c anaconda cmake==3.12.0
+# RUN git clone https://github.com/voxcraft/voxcraft-sim.git \
+    # && cd voxcraft-sim && mkdir build && cd build && cmake .. && make -j 10
 
 # Add project requirements
 RUN apt-get update
