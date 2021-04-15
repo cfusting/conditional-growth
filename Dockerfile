@@ -17,7 +17,7 @@ RUN wget \
     && rm -f Miniconda3-latest-Linux-x86_64.sh 
 RUN conda install python=3.7
 
-# Build voxcraft-sim
+Build voxcraft-sim
 RUN conda install -c anaconda cmake==3.12.0
 RUN git clone https://github.com/voxcraft/voxcraft-sim.git \
     && cd voxcraft-sim && mkdir build && cd build && cmake .. && make -j 10

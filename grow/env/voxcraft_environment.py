@@ -1,12 +1,11 @@
 import gym
+from pathlib import Path
 from uuid import uuid4
 from grow.utils.output import get_voxel_positions
-import os
 import numpy as np
 from gym.spaces import Box, Discrete
 from grow.utils.tensor_to_cdata import tensor_to_cdata, add_cdata_to_xml
 from grow.utils.fitness import max_z, table, distance_traveled, has_fallen
-from grow.utils.plotting import plot_voxels
 from grow.entities.conditional_growth_genome import ConditionalGrowthGenome
 import subprocess
 
@@ -68,6 +67,7 @@ class VoxcraftGrowthEnvironment(gym.Env):
         reward = self.get_reward(
             initial_positions, final_positions, out_path
         )
+        self.current_simulation_history = Path(out_path).read_text()
         subprocess.run(f"rm -fr {sim_path}".split())
         return reward
 
@@ -106,10 +106,14 @@ class VoxcraftGrowthEnvironment(gym.Env):
         print(reward)
         return reward
 
+#     def render(self, mode="ansi"):
+#         if mode == "ansi":
+#             X, _, _, = self.genome.to_tensor_and_tuples()
+#             C = tensor_to_cdata(X)
+#             return add_cdata_to_xml(
+#                 C, X.shape[0], X.shape[1], X.shape[2], None, record_history=False
+#             )
+
     def render(self, mode="ansi"):
         if mode == "ansi":
-            X, _, _, = self.genome.to_tensor_and_tuples()
-            C = tensor_to_cdata(X)
-            return add_cdata_to_xml(
-                C, X.shape[0], X.shape[1], X.shape[2], None, record_history=False
-            )
+            return self.current_simulation_history
