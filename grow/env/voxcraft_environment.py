@@ -32,6 +32,7 @@ class VoxcraftGrowthEnvironment(gym.Env):
         self.voxel_size = config["voxel_size"]
         self.reward_interval = config["reward_interval"]
         self.fallen_threshold = config["fallen_threshold"]
+        self.current_simulation_history = "\n"
 
     def get_representation(self):
         x = np.array(self.genome.get_local_voxel_representation())
@@ -116,4 +117,4 @@ class VoxcraftGrowthEnvironment(gym.Env):
 
     def render(self, mode="ansi"):
         if mode == "ansi":
-            return self.current_simulation_history
+            return self.current_simulation_history + "\n"

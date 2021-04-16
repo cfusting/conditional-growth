@@ -5,7 +5,7 @@
 	<Simulator>
 		<EnableExpansion>1</EnableExpansion>
         <Integration>
-            <DtFrac>1</DtFrac>
+            <DtFrac>.95</DtFrac>
         </Integration>
 		<StopCondition>
 			<StopConditionFormula>
@@ -15,6 +15,7 @@
 				</mtSUB>
 			</StopConditionFormula>
 		</StopCondition>
+        <SavePositionOfAllVoxels>1</SavePositionOfAllVoxels>
 	    <Damping>
             <BondDampingZ>1</BondDampingZ>
             <ColDampingZ>0.8</ColDampingZ>
@@ -24,10 +25,10 @@
 	<Environment>
         <Thermal>
             <TempEnabled>1</TempEnabled>
-            <TempAmplitude>5</TempAmplitude>
+            <TempAmplitude>10</TempAmplitude>
             <TempBase>25</TempBase>
             <VaryTempEnabled>1</VaryTempEnabled>
-            <TempPeriod>.5</TempPeriod>
+            <TempPeriod>.2</TempPeriod>
         </Thermal>
         <Gravity>
             <GravEnabled>1</GravEnabled>
