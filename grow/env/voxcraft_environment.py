@@ -15,6 +15,7 @@ class VoxcraftGrowthEnvironment(gym.Env):
     metadata = {"render.modes": ["ansi"]}
 
     def __init__(self, config):
+        print("Init")
         self.genome = ConditionalGrowthGenome(
             materials=config["materials"],
             max_voxels=config["max_voxels"],
@@ -32,13 +33,14 @@ class VoxcraftGrowthEnvironment(gym.Env):
         self.voxel_size = config["voxel_size"]
         self.reward_interval = config["reward_interval"]
         self.fallen_threshold = config["fallen_threshold"]
-        self.current_simulation_history = "\n"
+        self.robot = "\n"
 
     def get_representation(self):
         x = np.array(self.genome.get_local_voxel_representation())
         return x
 
     def step(self, action):
+        print(f"Step: {self.genome.step}")
         self.genome.step(action)
         if self.genome.steps != 0 and self.genome.steps % self.reward_interval == 0:
             reward = self.get_reward_for_action(action)
@@ -68,15 +70,15 @@ class VoxcraftGrowthEnvironment(gym.Env):
         reward = self.get_reward(
             initial_positions, final_positions, out_path
         )
-        self.current_simulation_history = Path(out_path).read_text()
         subprocess.run(f"rm -fr {sim_path}".split())
+        print(f"Reward: {reward}")
         return reward
 
     def generate_sim_data(self, configuration_index, data_dir_path):
         X, _, _, = self.genome.to_tensor_and_tuples()
         C = tensor_to_cdata(X)
         robot_path = data_dir_path + "/robot.vxd"
-        add_cdata_to_xml(
+        self.robot = add_cdata_to_xml(
             C, X.shape[0], X.shape[1], X.shape[2], robot_path, record_history=False)
 
     def get_sim_positions(self, run_command, out_file_path):
@@ -107,14 +109,6 @@ class VoxcraftGrowthEnvironment(gym.Env):
         print(reward)
         return reward
 
-#     def render(self, mode="ansi"):
-#         if mode == "ansi":
-#             X, _, _, = self.genome.to_tensor_and_tuples()
-#             C = tensor_to_cdata(X)
-#             return add_cdata_to_xml(
-#                 C, X.shape[0], X.shape[1], X.shape[2], None, record_history=False
-#             )
-
     def render(self, mode="ansi"):
         if mode == "ansi":
-            return self.current_simulation_history + "\n"
+            return self.robot + "\n"
