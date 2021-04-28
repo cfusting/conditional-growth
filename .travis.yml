@@ -5,6 +5,8 @@ services:
 
 before_install:
     - docker pull cfusting/conditional-growth
+    - docker run cfusting/conditional-growth git fetch --all
+    - docker run cfusting/conditional-growth git reset --hard origin/main
 
 script:
     - docker run cfusting/conditional-growth pytest --ignore=tests/test_voxenv.py --ignore=tests/test_plotting.py
