@@ -1,6 +1,5 @@
 import numpy as np
 from scipy.spatial import ConvexHull
-from lxml import etree
 
 
 def max_z(final_positions):
@@ -41,7 +40,7 @@ def get_num_at_z(x, z):
     return at_z, not_at_z
 
 
-def get_convex_hull_area(x):
+def prepare_points_for_convex_hull(x):
     q = set()
     for p in x:
         q.add(p)
@@ -57,7 +56,56 @@ def get_convex_hull_area(x):
     if len(x) == 2:
         return np.sqrt((x[0][0] - x[0][1])**2 + (x[1][0] - x[1][1])**2)
 
+    return x
+
+
+def get_convex_hull_perimeter(x):
+    x = prepare_points_for_convex_hull(x)    
+    return ConvexHull(x).area
+
+
+def get_convex_hull_area(x):
+    x = prepare_points_for_convex_hull(x)    
     return ConvexHull(x).volume
+
+
+def tree(x, threshold=10):
+
+    def tree_reward(current_layer, z, threshold=10):
+        def get_alpha(z, threshold):
+            if z <= threshold:
+                return 1
+            else:
+                return 2**z
+
+        def get_beta(z, threshold):
+            if z <= threshold:
+                return 10
+            else:
+                return 1
+
+        alpha = get_alpha(z, threshold)
+        beta = get_beta(z, threshold)
+        return alpha * get_convex_hull_perimeter(current_layer) + beta * get_convex_hull_area(current_layer)
+
+    ascending_positions = sorted(
+        x, key=lambda p: p[2], reverse=False
+    )
+
+    reward = 0
+    z = ascending_positions[0][2]
+    current_layer = []
+    for p in ascending_positions:
+        if np.floor(p[2]) == np.floor(z):
+            current_layer.append((p[0], p[1]))
+        else:
+            reward += tree_reward(current_layer, z)
+            current_layer = []
+            current_layer.append((p[0], p[1]))
+            z = p[2]
+    reward += tree_reward(current_layer, z)
+
+    return reward
 
 
 def get_stability(x, max_z):

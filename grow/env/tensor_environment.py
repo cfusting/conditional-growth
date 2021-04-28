@@ -1,7 +1,7 @@
 import gym
 import numpy as np
 from gym.spaces import Box, Discrete
-from grow.utils.fitness import max_z, table, max_volume, max_surface_area
+from grow.utils.fitness import max_z, table, max_volume, max_surface_area, tree
 from grow.utils.plotting import plot_voxels
 from grow.entities.conditional_growth_genome import ConditionalGrowthGenome
 
@@ -14,7 +14,7 @@ class TensorGrowthEnvironment(gym.Env):
     metadata = {"render.modes": ["rgb_array"]}
 
     def __init__(self, config):
-        self.genome=ConditionalGrowthGenome(
+        self.genome = ConditionalGrowthGenome(
             materials=config["materials"],
             max_voxels=config["max_voxels"],
             search_radius=config["search_radius"],
@@ -58,6 +58,8 @@ class TensorGrowthEnvironment(gym.Env):
             reward = max_volume(X)
         elif self.reward_type == "max_surface_area":
             reward = max_surface_area(X)
+        elif self.reward_type == "tree":
+            reward = tree(final_positions)
         else:
             raise Exception("Unknown reward type: {self.reward}")
         return reward
