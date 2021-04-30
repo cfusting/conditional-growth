@@ -2,9 +2,11 @@
 
 [![Build Status](https://travis-ci.com/cfusting/conditional-growth.svg?branch=main)](https://travis-ci.com/cfusting/conditional-growth)
 
-### About
+## About
 
 This package provides the necessary tooling to grow virtual creatures made from three-dimensional blocks called voxels (3d pixels). Starting with one or more voxels new voxels are iteratively added based on the composition of nearby voxels and the current position. Environments exist for gridworld and [voxcraft-sim](https://github.com/voxcraft/voxcraft-sim). Gridworld has no physics engine and is thus extremely fast to run.
+
+<br/><br/>
 
 ## Building with Docker
 
