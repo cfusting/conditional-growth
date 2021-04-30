@@ -86,7 +86,7 @@ def tree(x, threshold=10):
 
         alpha = get_alpha(z, threshold)
         beta = get_beta(z, threshold)
-        return alpha * get_convex_hull_perimeter(current_layer) + beta * get_convex_hull_area(current_layer)
+        return alpha * get_convex_hull_area(current_layer) + beta * len(current_layer) 
 
     ascending_positions = sorted(
         x, key=lambda p: p[2], reverse=False
