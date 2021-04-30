@@ -43,15 +43,15 @@ In this example we will build a creature for which surface area is maximized and
 Run the optimization script, storing the results in the host environment's /tmp directory.
 
 ```bash
-docker run --rm --gpus all -v /tmp:/tmp --shm-size 2G grow python scripts/examples/optimize_grid.py
+docker run --rm --gpus all -v /tmp:/home/ray/ray_results --shm-size 2G grow python examples/optimize_grid.py
 ```
 
 ### Metrics
 
-Metrics are captured by the [ray](https://docs.ray.io/en/master/) framework in /tmp/ray_results/expname where expname is specified in the optimize_grid.py script. The easiest way to view the metrics is to use tensorboard. For example:
+Metrics are captured by the [ray](https://docs.ray.io/en/master/) framework in /tmp/expname where expname is specified in the optimize_grid.py script. The easiest way to view the metrics is to use tensorboard. For example:
 
 ```bash
-docker run -p 6006:6006 --rm tensorflow/tensorflow tensorboard --logdir /tmp/ray_results/badger
+docker run -p 6006:6006 --rm tensorflow/tensorflow tensorboard --logdir /tmp/max_surface_area
 ```
 
 ![tensorboard](./docs/tensorboard.png)
