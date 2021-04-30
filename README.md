@@ -4,19 +4,14 @@
 
 ### About
 
-This package provides the necessary tooling to grow virtual creatures made from three-dimensional blocks called voxels (3d pixels). Starting with one or more voxels new voxels are iteratively added based on the composition of nearby voxels and the current position. In the simulation environment some voxels are energetic and pulse, causing the virtual creatures to move around.
-
-### Theory
-
-![theory1](./docs/theory1.jpg)
-![theory2](./docs/theory2.jpg)
+This package provides the necessary tooling to grow virtual creatures made from three-dimensional blocks called voxels (3d pixels). Starting with one or more voxels new voxels are iteratively added based on the composition of nearby voxels and the current position. Environments exist for gridworld and [voxcraft-sim](https://github.com/voxcraft/voxcraft-sim). Gridworld has no physics engine and is thus extremely fast to run.
 
 ### Building with Docker
 
 #### Requirements
-This project uses [voxcraft-sim](https://github.com/voxcraft/voxcraft-sim) to simulate voxels. When building voxcraft-sim the makefile checks if a GPU is available. Thus it is necessary for docker build to be able to see your GPU. To that end install and configure the [nvidia-container-runtime](https://stackoverflow.com/questions/59691207/docker-build-with-nvidia-runtime).
+If you would like to use a GPU make sure to install [nvidia-container-runtime](https://stackoverflow.com/questions/59691207/docker-build-with-nvidia-runtime). Other than that the Dockerfile will handle all the dependencies.
 
-#### Installing the Nvidia runtime
+#### Installing Nvidia container runtime
 
 ```bash
 distribution=$(. /etc/os-release;echo $ID$VERSION_ID) \
@@ -29,13 +24,13 @@ sudo systemctl restart docker
 
 #### Build
 
-Clone this repository and navigate into the root folder.
+Clone this repository and navigate into the root folder. Build the Dockerfile and tag it "grow".
 
 ```bash
 docker build -t grow .
 ```
 
-### Optimizing a Creature
+### Example: Optimizing a Creature in gridworld
 
 In this example we will build a creature for which surface area is maximized and volume is minimized.
 
@@ -68,3 +63,10 @@ Below are some videos of this example mid-way through training and at convergenc
 
 ![midway](./docs/midway.gif)
 ![column](./docs/column.gif)
+
+
+### Theory
+
+![theory1](./docs/theory1.jpg)
+![theory2](./docs/theory2.jpg)
+
