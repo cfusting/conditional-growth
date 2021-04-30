@@ -30,6 +30,7 @@ Clone this repository and navigate into the root folder. Build the Dockerfile an
 docker build -t grow .
 ```
 
+<br/><br/>
 
 ## Example: Optimizing a Creature in gridworld
 
@@ -65,9 +66,9 @@ Below are some videos of this example mid-way through training and at convergenc
 ![midway](./docs/midway.gif)
 ![column](./docs/column.gif)
 
+<br/><br/>
 
-
-### Theory
+## Theory
 
 ![theory1](./docs/theory1.jpg)
 ![theory2](./docs/theory2.jpg)
