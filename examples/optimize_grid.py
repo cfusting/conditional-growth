@@ -12,8 +12,8 @@ config = {
         "materials": (0, 1),
         "num_timestep_features": 1,
         "max_steps": 10,
-        "reward_interval": 9,
-        "max_voxels": 5,
+        "reward_interval": 1,
+        "max_voxels": 6,
         "search_radius": 3,
         "axiom_material": 1,
         "reward_type": "max_surface_area",
@@ -31,7 +31,7 @@ config = {
 
 ray.tune.run(
     PPOTrainer,
-    name="badger",
+    name="max_surface_area",
     config=config,
     checkpoint_freq=0,
     keep_checkpoints_num=0,
