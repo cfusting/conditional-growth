@@ -27,7 +27,6 @@ class TensorGrowthEnvironment(gym.Env):
         self.observation_space = Box(low=0, high=1, shape=(self.genome.num_features,))
         self.reward_range = (0, float("inf"))
         self.reward_type = config["reward_type"]
-        self.voxel_size = config["voxel_size"]
         self.reward_interval = config["reward_interval"]
 
     def reset(self):
