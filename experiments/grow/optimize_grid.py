@@ -26,15 +26,15 @@ config = {
     "num_gpus_per_worker": 0,
     "num_envs_per_worker": 1,
     "framework": "torch",
-    # "monitor": True, 
+    "record_env": True, 
     # "evaluation_num_workers": 7,
 }
 
 ray.tune.run(
     PPOTrainer,
-    name="tree",
+    name="vids",
     config=config,
-    checkpoint_freq=0,
-    keep_checkpoints_num=0,
-    # restore=,
+    checkpoint_freq=1,
+    keep_checkpoints_num=None,
+    restore="/home/ray/ray_results/cat/PPO_TensorGrowthEnvironment_d009c_00000_0_2021-04-30_16-07-19/checkpoint_000027/checkpoint-27",
 )
