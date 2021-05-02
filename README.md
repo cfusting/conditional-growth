@@ -51,7 +51,7 @@ docker run --rm --gpus all -v /tmp:/home/ray/ray_results --shm-size 2G grow pyth
 Metrics are captured by the [ray](https://docs.ray.io/en/master/) framework in /tmp/expname where expname is specified in the optimize_grid.py script. The easiest way to view the metrics is to use tensorboard. For example:
 
 ```bash
-docker run -p 6006:6006 --rm tensorflow/tensorflow tensorboard --logdir /tmp/max_surface_area
+docker run -p 6006:6006 --rm -v /tmp:/tmp tensorflow/tensorflow tensorboard --logdir /tmp/max_surface_area --host 0.0.0.0 --port 6000
 ```
 
 ![tensorboard](./docs/tensorboard.png)
