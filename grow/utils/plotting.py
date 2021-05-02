@@ -55,8 +55,9 @@ def plot_voxels(position_tuples, values):
         grid,
         show_edges=True,
         scalars=scalars,
-        cmap="cool",
+        cmap=["aquamarine"],
     )
+    plotter.add_floor('-z')
     img = plotter.screenshot(return_img=True)
     plotter.close()
     return img

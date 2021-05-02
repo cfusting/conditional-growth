@@ -69,24 +69,17 @@ def get_convex_hull_area(x):
     return ConvexHull(x).volume
 
 
-def tree(x, threshold=10):
+def tree(x):
 
-    def tree_reward(current_layer, z, threshold=10):
-        def get_alpha(z, threshold):
-            if z <= threshold:
-                return 1
-            else:
-                return 2**z
-
-        def get_beta(z, threshold):
-            if z <= threshold:
-                return 10
-            else:
-                return 1
-
-        alpha = get_alpha(z, threshold)
-        beta = get_beta(z, threshold)
-        return alpha * get_convex_hull_area(current_layer) + beta * len(current_layer) 
+    def tree_reward(current_layer, z, threshold=5):
+        # Bounded by 1 on both trunk and leaves.
+        area = get_convex_hull_area(current_layer) 
+        if z <= threshold:
+            # Density
+            return len(current_layer) / area
+        else:
+            # Sparsity
+            return 1 / len(current_layer) 
 
     ascending_positions = sorted(
         x, key=lambda p: p[2], reverse=False
@@ -96,13 +89,11 @@ def tree(x, threshold=10):
     z = ascending_positions[0][2]
     current_layer = []
     for p in ascending_positions:
-        if np.floor(p[2]) == np.floor(z):
-            current_layer.append((p[0], p[1]))
-        else:
+        if np.floor(p[2]) != np.floor(z):
             reward += tree_reward(current_layer, z)
             current_layer = []
-            current_layer.append((p[0], p[1]))
             z = p[2]
+        current_layer.append((p[0], p[1]))
     reward += tree_reward(current_layer, z)
 
     return reward

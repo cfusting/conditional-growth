@@ -10,14 +10,13 @@ config = {
     "env": TensorGrowthEnvironment,
     "env_config": {
         "materials": (0, 1),
-        "num_timestep_features": 1,
-        "max_steps": 50,
-        "reward_interval": 49,
-        "max_voxels": 5,
-        "search_radius": 3,
+        "num_timestep_features": 3,
+        "max_steps": 500,
+        "reward_interval": 499,
+        "max_voxels": 6,
+        "search_radius": 9,
         "axiom_material": 1,
         "reward_type": "tree",
-        "voxel_size": 0.01,
     },
     "vf_clip_param": 10**5,
     "seed": np.random.randint(10**5),
@@ -26,15 +25,15 @@ config = {
     "num_gpus_per_worker": 0,
     "num_envs_per_worker": 1,
     "framework": "torch",
-    "record_env": True, 
+    # "record_env": True, 
     # "evaluation_num_workers": 7,
 }
 
 ray.tune.run(
     PPOTrainer,
-    name="vids",
+    name="big-tree",
     config=config,
-    checkpoint_freq=1,
+    checkpoint_freq=10,
     keep_checkpoints_num=None,
-    restore="/home/ray/ray_results/cat/PPO_TensorGrowthEnvironment_d009c_00000_0_2021-04-30_16-07-19/checkpoint_000027/checkpoint-27",
-)
+    # restore="/home/ray/ray_results/fig-tree/PPO_TensorGrowthEnvironment_5c0d8_00000_0_2021-05-02_11-15-22/checkpoint_000200/checkpoint-200"
+    )
