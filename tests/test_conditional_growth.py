@@ -48,7 +48,7 @@ def test_single_voxel():
         features.extend([(s - 1) / s, 1 / s, 0])
     features.extend([0, 0, 0])
 
-    check_representations(np.array(features)[: 18], np.array([[[1.0]]]), g)
+    check_representations(np.array(features)[: 21], np.array([[[1.0]]]), g)
 
 
 def test_single_addition():
@@ -82,8 +82,7 @@ def test_blank_addition():
 
     check_state(False, 1, 0, 1, g)
 
-    features = np.array([0 for _ in range(18)])
-    features.extend([0, 0, 0])
+    features = np.array([0 for _ in range(18)] + [0, 0, 0])
 
     check_representations(features, np.array([[[1.0]]]), g)
 
