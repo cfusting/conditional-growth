@@ -21,6 +21,7 @@ class ConditionalGrowthGenome:
         search_radius=3,
         axiom_material=1,
         num_timestep_features=1,
+        max_steps=10,
     ):
         directions = (
             "negative_x",
@@ -36,6 +37,8 @@ class ConditionalGrowthGenome:
         self.search_radius = search_radius
         self.axiom_material = axiom_material
         self.num_features = len(materials) * len(directions) * num_timestep_features
+        self.max_steps = max_steps
+        self.max_possible_coordinate = int(np.ceil(self.max_steps / 2))
 
         self.initialize_configurations()
         print(f"Found {len(self.configuration_map)} possible voxel configurations.")
@@ -47,6 +50,9 @@ class ConditionalGrowthGenome:
         self.next_voxel_id = 0
         self.axiom = self.get_new_voxel(self.axiom_material)
         self.axiom.level = 0
+        self.axiom.x = 0
+        self.axiom.y = 0
+        self.axiom.z = 0
         self.body = deque([self.axiom])
         self.max_level = 0
         self.steps = 0
@@ -89,31 +95,66 @@ class ConditionalGrowthGenome:
                 current_voxel.negative_x = voxel
                 voxel.positive_x = current_voxel
                 increment_level(voxel, current_voxel)
+
+                voxel.x = current_voxel.x - 1
+                voxel.y = current_voxel.y
+                voxel.z = current_voxel.z
+
                 voxels.append(voxel)
+
             if direction == "positive_x" and not current_voxel.positive_x:
                 current_voxel.positive_x = voxel
                 voxel.negative_x = current_voxel
                 increment_level(voxel, current_voxel)
+
+                voxel.x = current_voxel.x + 1
+                voxel.y = current_voxel.y
+                voxel.z = current_voxel.z
+
                 voxels.append(voxel)
+
             if direction == "negative_y" and not current_voxel.negative_y:
                 current_voxel.negative_y = voxel
                 voxel.positive_y = current_voxel
                 increment_level(voxel, current_voxel)
+
+                voxel.x = current_voxel.x
+                voxel.y = current_voxel.y - 1
+                voxel.z = current_voxel.z
+
                 voxels.append(voxel)
+
             if direction == "positive_y" and not current_voxel.positive_y:
                 current_voxel.positive_y = voxel
                 voxel.negative_y = current_voxel
                 increment_level(voxel, current_voxel)
+
+                voxel.x = current_voxel.x
+                voxel.y = current_voxel.y + 1
+                voxel.z = current_voxel.z
+
                 voxels.append(voxel)
+
             if direction == "negative_z" and not current_voxel.negative_z:
                 current_voxel.negative_z = voxel
                 voxel.positive_z = current_voxel
                 increment_level(voxel, current_voxel)
+
+                voxel.x = current_voxel.x
+                voxel.y = current_voxel.y
+                voxel.z = current_voxel.z - 1
+
                 voxels.append(voxel)
+
             if direction == "positive_z" and not current_voxel.positive_z:
                 current_voxel.positive_z = voxel
                 voxel.negative_z = current_voxel
                 increment_level(voxel, current_voxel)
+
+                voxel.x = current_voxel.x
+                voxel.y = current_voxel.y
+                voxel.z = current_voxel.z + 1
+
                 voxels.append(voxel)
 
         return voxels
@@ -180,7 +221,11 @@ class ConditionalGrowthGenome:
         for i in range(len(self.materials)):
             proportions.append(material_totals[i] / np.sum(material_totals))
 
-        return proportions
+        return proportions + [
+                                voxel.x / self.max_possible_coordinate, 
+                                voxel.y / self.max_possible_coordinate, 
+                                voxel.z / self.max_possible_coordinate
+                                ]
 
     def initialize_configurations(self):
         """Map every possible configuration.

@@ -15,6 +15,9 @@ class Voxel:
         self.positive_y = None
         self.negative_y = None
         self.level = None
+        self.x = None
+        self.y = None
+        self.z = None
 
     def __str__(self):
         return f"Voxel with material: {self.material} and level: {self.level}"

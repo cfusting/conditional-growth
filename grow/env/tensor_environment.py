@@ -20,6 +20,7 @@ class TensorGrowthEnvironment(gym.Env):
             search_radius=config["search_radius"],
             axiom_material=config["axiom_material"],
             num_timestep_features=config["num_timestep_features"],
+            max_steps=config["max_steps"]
         )
 
         self.max_steps = config["max_steps"]
