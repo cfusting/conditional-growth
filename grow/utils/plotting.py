@@ -58,6 +58,7 @@ def plot_voxels(position_tuples, values):
         cmap=["aquamarine"],
     )
     plotter.add_floor('-z')
+    plotter.view_xz()
     img = plotter.screenshot(return_img=True)
     plotter.close()
     return img

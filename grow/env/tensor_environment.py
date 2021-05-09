@@ -25,7 +25,10 @@ class TensorGrowthEnvironment(gym.Env):
 
         self.max_steps = config["max_steps"]
         self.action_space = Discrete(len(self.genome.configuration_map))
-        self.observation_space = Box(low=0, high=1, shape=(self.genome.num_features,))
+        self.observation_space = Box(
+            np.array([0 for x in range(self.genome.num_features)] + [-1, -1, -1]), 
+            np.array([1 for x in range(self.genome.num_features)] + [1, 1, 1])
+        )
         self.reward_range = (0, float("inf"))
         self.reward_type = config["reward_type"]
         self.reward_interval = config["reward_interval"]
