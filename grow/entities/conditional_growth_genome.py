@@ -39,13 +39,14 @@ class ConditionalGrowthGenome:
         self.num_features = len(materials) * len(directions) * num_timestep_features
         self.max_steps = max_steps
         self.max_possible_coordinate = int(np.ceil(self.max_steps / 2))
+        self.num_coordinates = 3
 
         self.initialize_configurations()
         print(f"Found {len(self.configuration_map)} possible voxel configurations.")
         self.reset()
 
     def reset(self):
-        self.historic_representation = [0 for _ in range(self.num_features + 3)]
+        self.historic_representation = [0 for _ in range(self.num_features + self.num_coordinates)]
         self.num_voxels = 0
         self.next_voxel_id = 0
         self.axiom = self.get_new_voxel(self.axiom_material)
@@ -175,14 +176,14 @@ class ConditionalGrowthGenome:
             # Maximum number of directions for each zero.
             # Covers the edge case in which no observations are available.
             local_representation = [
-                0 for _ in range(len(self.materials) * len(self.directions) + 3)
+                0 for _ in range(len(self.materials) * len(self.directions) + self.num_coordinates)
             ]
 
         self.historic_representation = (
             local_representation + self.historic_representation
         )
 
-        return self.historic_representation[: self.num_features + 3]
+        return self.historic_representation[: self.num_features + self.num_coordinates]
 
     def get_function_input(self, voxel):
         proportions = []  # Ordered by -x, +x, -y, ...
