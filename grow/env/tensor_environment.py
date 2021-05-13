@@ -45,8 +45,7 @@ class TensorGrowthEnvironment(gym.Env):
     def step(self, action):
         self.genome.step(action)
         if 0 < self.genome.steps and self.genome.steps % self.reward_interval == 0:
-            X, x_tuples, _ = self.genome.to_tensor_and_tuples()
-            reward = self.get_reward(x_tuples, X)
+            reward = self.get_reward(self.genome.positions, self.genome.X)
             self.previous_reward = reward
 
         done = (not self.genome.building()) or (self.genome.steps == self.max_steps)
@@ -69,16 +68,10 @@ class TensorGrowthEnvironment(gym.Env):
 
     def render(self, mode="rgb_array"):
         if mode == "rgb_array":
-            (
-                _,
-                x_tuples,
-                x_values,
-            ) = self.genome.to_tensor_and_tuples()
-
             # Most unfortunetly this calls vtk which has a memory leak.
             # Best to only call during a short evaluation.
             img = plot_voxels(
-                x_tuples,
-                x_values
+                self.genome.positions,
+                self.genome.values 
             )
             return img
