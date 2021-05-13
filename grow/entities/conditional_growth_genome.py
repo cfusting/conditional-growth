@@ -38,7 +38,9 @@ class ConditionalGrowthGenome:
         self.axiom_material = axiom_material
         self.num_features = len(materials) * len(directions) * num_timestep_features
         self.max_steps = max_steps
-        self.max_possible_coordinate = int(np.ceil(self.max_steps / 2))
+        # Assumes building in one axis only at each step. Zero indexed.
+        self.max_length = 2 * (self.max_steps + 1) + 1
+        self.axiom_coordinate = self.max_steps + 1
         self.num_coordinates = 3
 
         self.initialize_configurations()
@@ -51,9 +53,9 @@ class ConditionalGrowthGenome:
         self.next_voxel_id = 0
         self.axiom = self.get_new_voxel(self.axiom_material)
         self.axiom.level = 0
-        self.axiom.x = 0
-        self.axiom.y = 0
-        self.axiom.z = 0
+        self.axiom.x = self.axiom_coordinate
+        self.axiom.y = self.axiom_coordinate
+        self.axiom.z = self.axiom_coordinate
         self.body = deque([self.axiom])
         self.max_level = 0
         self.steps = 0
@@ -188,9 +190,10 @@ class ConditionalGrowthGenome:
     def get_function_input(self, voxel):
         proportions = []  # Ordered by -x, +x, -y, ...
         extent = (2 * self.search_radius) + 1
-        v = int(np.floor(extent / 2))
         X, _, _ = self._to_tensor_and_tuples(voxel, extent)
+        v = self.search_radius
 
+        # x axis
         material_totals = []
         for m in self.materials:
             material_totals.append(np.sum(X[: v + 1, :, :] == m))
@@ -201,6 +204,8 @@ class ConditionalGrowthGenome:
             material_totals.append(np.sum(X[v:, :, :] == m))
         for i in range(len(self.materials)):
             proportions.append(material_totals[i] / np.sum(material_totals))
+
+        # y axis
         material_totals = []
         for m in self.materials:
             material_totals.append(np.sum(X[:, : v + 1, :] == m))
@@ -211,6 +216,8 @@ class ConditionalGrowthGenome:
             material_totals.append(np.sum(X[:, v:, :] == m))
         for i in range(len(self.materials)):
             proportions.append(material_totals[i] / np.sum(material_totals))
+
+        # z axis
         material_totals = []
         for m in self.materials:
             material_totals.append(np.sum(X[:, :, : v + 1] == m))
@@ -223,9 +230,9 @@ class ConditionalGrowthGenome:
             proportions.append(material_totals[i] / np.sum(material_totals))
 
         return proportions + [
-                                voxel.x / self.max_possible_coordinate, 
-                                voxel.y / self.max_possible_coordinate, 
-                                voxel.z / self.max_possible_coordinate
+                                voxel.x / self.max_length, 
+                                voxel.y / self.max_length, 
+                                voxel.z / self.max_length,
                                 ]
 
     def initialize_configurations(self):
@@ -250,29 +257,27 @@ class ConditionalGrowthGenome:
                 self.configuration_map[i] = subset
                 i += 1
 
-    def to_tensor_and_tuples(self):
-        extent = (2 * self.max_level) + 1
-        return self._to_tensor_and_tuples(self.axiom, extent)
+    def to_tensor_and_tuples(self, voxel, extent):
+        return _to_tensor_and_tuples(self.axiom, self.max_length)
 
     def _to_tensor_and_tuples(self, start_voxel, extent):
         """Convert the graph representation of the body to a tensor.
 
         Fill a three-dimensional tensor with the material types of
         each voxel IE:
-            X[i][j][k] = m
+            X[i, j, k] = m
 
         """
 
         x_tuples = []
         x_values = []
         X = np.zeros((extent, extent, extent))
-        middle = int(np.floor(extent / 2))
-        x, y, z = middle, middle, middle
 
         searched_voxel_ids = set()
-        to_process = deque([(x, y, z, start_voxel)])
+        to_process = deque([start_voxel])
         while len(to_process) > 0:
-            x, y, z, voxel = to_process.pop()
+            voxel = to_process.pop()
+            x, y, z = voxel.x, voxel.y, voxel.z
 
             if x < 0 or y < 0 or z < 0 or x >= extent or y >= extent or z >= extent:
                 break
@@ -283,17 +288,16 @@ class ConditionalGrowthGenome:
             x_values.append(voxel.material)
 
             if voxel.negative_x and voxel.negative_x.id not in searched_voxel_ids:
-                to_process.appendleft((x - 1, y, z, voxel.negative_x))
+                to_process.appendleft(voxel.negative_x)
             if voxel.positive_x and voxel.positive_x.id not in searched_voxel_ids:
-                to_process.appendleft((x + 1, y, z, voxel.positive_x))
+                to_process.appendleft(voxel.positive_x)
             if voxel.negative_y and voxel.negative_y.id not in searched_voxel_ids:
-                to_process.appendleft((x, y - 1, z, voxel.negative_y))
+                to_process.appendleft(voxel.negative_y)
             if voxel.positive_y and voxel.positive_y.id not in searched_voxel_ids:
-                to_process.appendleft((x, y + 1, z, voxel.positive_y))
+                to_process.appendleft(voxel.positive_y)
             if voxel.negative_z and voxel.negative_z.id not in searched_voxel_ids:
-                to_process.appendleft((x, y, z - 1, voxel.negative_z))
+                to_process.appendleft(voxel.negative_z)
             if voxel.positive_z and voxel.positive_z.id not in searched_voxel_ids:
-                to_process.appendleft((x, y, z + 1, voxel.positive_z))
-
+                to_process.appendleft(voxel.positive_z)
 
         return X, x_tuples, x_values

@@ -69,7 +69,7 @@ def get_convex_hull_area(x):
     return ConvexHull(x).volume
 
 
-def tree(x, threshold=0.7):
+def tree(x, threshold=0.9):
     ascending_positions = sorted(
         x, key=lambda p: p[2], reverse=False
     )
@@ -79,12 +79,7 @@ def tree(x, threshold=0.7):
     def tree_reward(current_layer, z):
         # Bounded by 1 on both trunk and leaves.
         area = get_convex_hull_area(current_layer) 
-        if z <= z_threshold:
-            # Density
-            return len(current_layer)
-        else:
-            # Sparsity
-            return area / len(current_layer) 
+        return area * z
 
     reward = 0
     z = ascending_positions[0][2]

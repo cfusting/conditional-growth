@@ -79,6 +79,6 @@ class TensorGrowthEnvironment(gym.Env):
             # Best to only call during a short evaluation.
             img = plot_voxels(
                 x_tuples,
-                x_values,
+                x_values
             )
             return img
