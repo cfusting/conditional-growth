@@ -7,4 +7,4 @@ before_install:
     - docker build -t grow .
 
 script:
-    - docker run grow pytest tests/general
+    - docker run grow pytest --ignore=tests/general/plotting.py tests/general
