@@ -48,7 +48,11 @@ def prepare_points_for_convex_hull(x):
         q.add((p[0], p[1] + 1))
         q.add((p[0] + 1, p[1] + 1))
     x = list(q)
+    return x
 
+
+def get_convex_hull_area(x):
+    x = prepare_points_for_convex_hull(x)    
     if len(x) == 0:
         return 0
     if len(x) == 1:
@@ -56,16 +60,6 @@ def prepare_points_for_convex_hull(x):
     if len(x) == 2:
         return np.sqrt((x[0][0] - x[0][1])**2 + (x[1][0] - x[1][1])**2)
 
-    return x
-
-
-def get_convex_hull_perimeter(x):
-    x = prepare_points_for_convex_hull(x)    
-    return ConvexHull(x).area
-
-
-def get_convex_hull_area(x):
-    x = prepare_points_for_convex_hull(x)    
     return ConvexHull(x).volume
 
 

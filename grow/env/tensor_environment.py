@@ -3,7 +3,7 @@ import numpy as np
 from gym.spaces import Box, Discrete
 from grow.utils.fitness import max_z, table, max_volume, max_surface_area, tree
 from grow.utils.plotting import plot_voxels
-from grow.entities.conditional_growth_genome import ConditionalGrowthGenome
+from grow.entities.growth_function import GrowthFunction 
 
 
 """A 3D grid environment in which creatures iteratively grow."""
@@ -14,7 +14,7 @@ class TensorGrowthEnvironment(gym.Env):
     metadata = {"render.modes": ["rgb_array"]}
 
     def __init__(self, config):
-        self.genome = ConditionalGrowthGenome(
+        self.genome = GrowthFunction(
             materials=config["materials"],
             max_voxels=config["max_voxels"],
             search_radius=config["search_radius"],

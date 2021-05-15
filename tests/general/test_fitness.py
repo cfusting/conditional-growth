@@ -242,7 +242,6 @@ def test_has_fallen_and_max_z_example():
     assert has_fallen(x, y) == False
     assert math.isclose(max_z(y), 1.9901, rel_tol=0.01) is True
 
-
     def test_should_fall_example():
         x = (
             np.array(

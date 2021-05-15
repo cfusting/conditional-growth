@@ -1,12 +1,11 @@
 import gym
-from pathlib import Path
 from uuid import uuid4
 from grow.utils.output import get_voxel_positions
 import numpy as np
 from gym.spaces import Box, Discrete
 from grow.utils.tensor_to_cdata import tensor_to_cdata, add_cdata_to_xml
 from grow.utils.fitness import max_z, table, distance_traveled, has_fallen
-from grow.entities.conditional_growth_genome import ConditionalGrowthGenome
+from grow.entities.growth_function import GrowthFunction
 import subprocess
 
 
@@ -16,7 +15,7 @@ class VoxcraftGrowthEnvironment(gym.Env):
 
     def __init__(self, config):
         print("Init")
-        self.genome = ConditionalGrowthGenome(
+        self.genome = GrowthFunction(
             materials=config["materials"],
             max_voxels=config["max_voxels"],
             search_radius=config["search_radius"],
