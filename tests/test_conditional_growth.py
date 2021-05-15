@@ -84,3 +84,72 @@ def test_single_voxel_tensor(growth_function):
         growth_function.axiom_coordinate,
     ] = growth_function.axiom_material
     assert_equal(growth_function.X, X)
+
+
+def test_two_voxel_features(growth_function):
+    volume = get_search_area_volume(growth_function.search_radius)
+    configuration_index = get_configuration_index(((1, "positive_x"),), growth_function)
+    growth_function.step(configuration_index)
+
+    features = []
+    # Six faces to check.
+    features.extend([(volume - 2) / volume, 2 / volume])
+    for _ in range(5):
+        # Three material types.
+        # All but one 0.
+        # One 1.
+        features.extend([(volume - 1) / volume, 1 / volume])
+
+    # Relative coordinate of voxel.
+    # Axiom is stored explicitly.
+    features.extend(
+        [
+            (growth_function.axiom_coordinate + 1) / growth_function.max_length
+            for _ in range(3)
+        ]
+    )
+
+
+def test_two_voxel_tensor(growth_function):
+    configuration_index = get_configuration_index(((1, "positive_x"),), growth_function)
+    growth_function.step(configuration_index)
+
+    X = np.zeros(
+        (
+            growth_function.max_length,
+            growth_function.max_length,
+            growth_function.max_length,
+        )
+    )
+
+    X[
+        growth_function.axiom_coordinate,
+        growth_function.axiom_coordinate,
+        growth_function.axiom_coordinate,
+    ] = growth_function.axiom_material
+    X[
+        growth_function.axiom_coordinate + 1,
+        growth_function.axiom_coordinate,
+        growth_function.axiom_coordinate,
+    ] = 1
+
+    assert_equal(growth_function.X, X)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
