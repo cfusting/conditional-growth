@@ -5,8 +5,7 @@ class Voxel:
 
     """
 
-    def __init__(self, material, voxel_id, x=None, y=None, z=None):
-        self.id = voxel_id
+    def __init__(self, material, x=None, y=None, z=None):
         self.material = material
         self.negative_x = None
         self.positive_x = None

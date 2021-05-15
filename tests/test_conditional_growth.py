@@ -1,16 +1,7 @@
-from grow.entities.conditional_growth_genome import ConditionalGrowthGenome
-from numpy.testing import assert_array_equal
+import pytest
+from grow.entities.growth_function import GrowthFunction
+from numpy.testing import assert_equal
 import numpy as np
-
-
-def print_info():
-    g = ConditionalGrowthGenome()
-    for k in g.configuration_map:
-        print(f"k: {k} | v: {g.configuration_map[k]}")
-
-    c = ((2, "positive_x"),)
-    c_i = list(g.configuration_map.keys())[list(g.configuration_map.values()).index(c)]
-    print(c_i)
 
 
 def get_configuration_index(c, g):
@@ -18,90 +9,78 @@ def get_configuration_index(c, g):
     return c_i
 
 
-def check_state(b, v, l, s, g):
-    assert g.building() is b
-    assert g.num_voxels == v
-    assert g.max_level == l
-    assert g.steps == s
+def get_search_area_volume(search_radius):
+    """
+    Example if search radius is 3 and we are voxel v.
+    * indicates searched area in 2d (assume z is
+    the same expanding upward).
+
+    y-axis is search radius * 2 + 1.
+    x-axis includes v and is thus search radius + 1.
+
+    000****
+    000****
+    000v***
+    000****
+    000****
+
+    """
+    extent = (search_radius * 2) + 1
+    return (extent ** 2) * (search_radius + 1)
 
 
-def check_representations(X, A, g):
-    assert_array_equal(X, g.get_local_voxel_representation())
-    X, _, _ = g.to_tensor_and_tuples()
-    assert_array_equal(A, X)
+@pytest.fixture
+def growth_function():
+    return GrowthFunction(
+        materials=(0, 1),
+        max_voxels=6,
+        search_radius=3,
+        axiom_material=1,
+        num_timestep_features=1,
+        max_steps=10,
+    )
 
 
-def get_search_area_volume(g):
-    extent = (g.search_radius * 2) + 1
-    return (extent ** 2) * (g.search_radius + 1)
+def test_max_length(growth_function):
+    assert growth_function.max_length == 22
 
 
-def test_single_voxel():
-    g = ConditionalGrowthGenome()
+def test_axiom_coordinate(growth_function):
+    assert growth_function.axiom_coordinate == 11
 
-    check_state(True, 1, 0, 0, g)
 
-    s = get_search_area_volume(g)
-    
+def test_single_voxel_features(growth_function):
+    volume = get_search_area_volume(growth_function.search_radius)
+
     features = []
+    # Six faces to check.
     for _ in range(6):
-        features.extend([(s - 1) / s, 1 / s, 0])
-    features.extend([0, 0, 0])
+        # Three material types.
+        # All but one 0.
+        # One 1.
+        features.extend([(volume - 1) / volume, 1 / volume])
 
-    check_representations(np.array(features)[: 21], np.array([[[1.0]]]), g)
-
-
-def test_single_addition():
-    g = ConditionalGrowthGenome()
-
-    i = get_configuration_index(((2, "positive_x"),), g)
-    g.step(i)
-
-    check_state(True, 2, 1, 1, g)
-
-    s = get_search_area_volume(g)
-
-    features = []
-    features.extend([(s - 2) / s, 1 / s, 1 / s])
-    features.extend([(s - 1) / s, 0, 1 / s])
-    for _ in range(4):
-        features.extend([(s - 2) / s, 1 / s, 1 / s])
-    features.extend([0.2, 0, 0])
-
-    A = np.zeros((3, 3, 3))
-    A[1, 1, 1] = 1
-    A[2, 1, 1] = 2
-    check_representations(np.array(features), A, g)
+    # Relative coordinate of voxel.
+    # Axiom is stored explicitly.
+    features.extend(
+        [
+            growth_function.axiom_coordinate / growth_function.max_length
+            for _ in range(3)
+        ]
+    )
 
 
-def test_blank_addition():
-    g = ConditionalGrowthGenome()
-
-    i = get_configuration_index(None, g)
-    g.step(i)
-
-    check_state(False, 1, 0, 1, g)
-
-    features = np.array([0 for _ in range(18)] + [0, 0, 0])
-
-    check_representations(features, np.array([[[1.0]]]), g)
-
-
-# def test_add_multiple():
-#     g = ConditionalGrowthGenome()
-#     check_state(True, 1, 0, 0, g)
-#     check_representations(np.array([0 for _ in range(18)]), np.array([[[1.0]]]), g)
-#     i = get_configuration_index(((1, "negative_z"), (2, "positive_y")), g)
-#     g.step(i)
-#     check_state(True, 3, 1, 1, g)
-#     A = np.zeros((3, 3, 3))
-#     A[1, 1, 1] = 1.0
-#     A[1, 1, 0] = 1.0
-#     A[1, 2, 1] = 2.0
-#     check_representations(np.array([0 for _ in range(15)] + [0, 0.5, 0.5]), A, g)
-#     i = get_configuration_index(None, g)
-#     g.step(i)
-#     check_state(True, 3, 1, 2, g)
-#     check_representations(
-#         np.array([0 for _ in range(6)] + [0, 1.0, 0] + [0 for _ in range(9)]), A, g
-#     )
+def test_single_voxel_tensor(growth_function):
+    X = np.zeros(
+        (
+            growth_function.max_length,
+            growth_function.max_length,
+            growth_function.max_length,
+        )
+    )
+    X[
+        growth_function.axiom_coordinate,
+        growth_function.axiom_coordinate,
+        growth_function.axiom_coordinate,
+    ] = growth_function.axiom_material
+    assert_equal(growth_function.X, X)
