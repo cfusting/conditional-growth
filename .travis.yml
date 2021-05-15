@@ -4,8 +4,6 @@ services:
     - docker
 
 before_install:
-    - git pull https://github.com/cfusting/conditional-growth.git
-    - cd conditional-growth
     - docker build -t grow .
 
 script:
