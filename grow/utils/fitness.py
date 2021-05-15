@@ -48,7 +48,11 @@ def prepare_points_for_convex_hull(x):
         q.add((p[0], p[1] + 1))
         q.add((p[0] + 1, p[1] + 1))
     x = list(q)
+    return x
 
+
+def get_convex_hull_area(x):
+    x = prepare_points_for_convex_hull(x)    
     if len(x) == 0:
         return 0
     if len(x) == 1:
@@ -56,20 +60,10 @@ def prepare_points_for_convex_hull(x):
     if len(x) == 2:
         return np.sqrt((x[0][0] - x[0][1])**2 + (x[1][0] - x[1][1])**2)
 
-    return x
-
-
-def get_convex_hull_perimeter(x):
-    x = prepare_points_for_convex_hull(x)    
-    return ConvexHull(x).area
-
-
-def get_convex_hull_area(x):
-    x = prepare_points_for_convex_hull(x)    
     return ConvexHull(x).volume
 
 
-def tree(x, threshold=0.7):
+def tree(x, threshold=0.9):
     ascending_positions = sorted(
         x, key=lambda p: p[2], reverse=False
     )
@@ -79,12 +73,7 @@ def tree(x, threshold=0.7):
     def tree_reward(current_layer, z):
         # Bounded by 1 on both trunk and leaves.
         area = get_convex_hull_area(current_layer) 
-        if z <= z_threshold:
-            # Density
-            return len(current_layer)
-        else:
-            # Sparsity
-            return area / len(current_layer) 
+        return area * z
 
     reward = 0
     z = ascending_positions[0][2]

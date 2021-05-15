@@ -5,8 +5,7 @@ class Voxel:
 
     """
 
-    def __init__(self, material, voxel_id):
-        self.id = voxel_id
+    def __init__(self, material, x=None, y=None, z=None):
         self.material = material
         self.negative_x = None
         self.positive_x = None
@@ -14,10 +13,9 @@ class Voxel:
         self.negative_z = None
         self.positive_y = None
         self.negative_y = None
-        self.level = None
-        self.x = None
-        self.y = None
-        self.z = None
+        self.x = x
+        self.y = y
+        self.z = z
 
     def __str__(self):
         return f"Voxel with material: {self.material} and level: {self.level}"

@@ -4,7 +4,9 @@ services:
     - docker
 
 before_install:
-    - docker pull cfusting/conditional-growth
+    - git pull https://github.com/cfusting/conditional-growth.git
+    - cd conditional-growth
+    - docker build -t grow .
 
 script:
-    - docker run cfusting/conditional-growth pytest --ignore=tests/test_voxenv.py --ignore=tests/test_plotting.py
+    - docker run grow pytest tests/general

@@ -11,10 +11,10 @@ config = {
     "env_config": {
         "materials": (0, 1),
         "num_timestep_features": 1,
-        "max_steps": 500,
-        "reward_interval": 499,
+        "max_steps": 50,
+        "reward_interval": 49,
         "max_voxels": 6,
-        "search_radius": 3,
+        "search_radius": 5,
         "axiom_material": 1,
         "reward_type": "tree",
     },
@@ -42,17 +42,17 @@ config = {
     "num_gpus_per_worker": 0,
     "num_envs_per_worker": 1,
     "framework": "torch",
-    "record_env": True, 
+    # "record_env": True, 
     # "evaluation_num_workers": 7,
 }
 
 
 ray.tune.run(
     PPOTrainer,
-    # name="fat-cat",
-    name="visualize",
+    name="squared",
+    # name="visualize",
     config=config,
     checkpoint_freq=10,
     keep_checkpoints_num=None,
-    restore="/home/ray/ray_results/fat-cat/PPO_TensorGrowthEnvironment_cc9b7_00000_0_2021-05-08_17-30-47/checkpoint_000240/checkpoint-240",
+    # restore="/home/ray/ray_results/old-squirrel/PPO_TensorGrowthEnvironment_9f519_00000_0_2021-05-09_06-01-08/checkpoint_000110/checkpoint-110",
     )
