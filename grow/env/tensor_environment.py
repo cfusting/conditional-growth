@@ -1,7 +1,7 @@
 import gym
 import numpy as np
 from gym.spaces import Box, Discrete
-from grow.utils.fitness import max_z, table, max_volume, max_surface_area, tree
+from grow.utils.fitness import max_z, table, max_volume, max_surface_area, twist
 from grow.utils.plotting import plot_voxels
 from grow.entities.growth_function import GrowthFunction 
 
@@ -61,7 +61,7 @@ class TensorGrowthEnvironment(gym.Env):
         elif self.reward_type == "max_surface_area":
             reward = max_surface_area(X)
         elif self.reward_type == "tree":
-            reward = tree(final_positions)
+            reward = twist(self.genome.axiom)
         else:
             raise Exception("Unknown reward type: {self.reward}")
         return reward
