@@ -4,6 +4,7 @@ from grow.utils.fitness import (
     get_min_max_z,
     get_num_at_z,
     get_convex_hull_area,
+    get_convex_hull_volume,
     get_stability,
     has_fallen,
     twist,
@@ -12,7 +13,7 @@ import pytest
 from grow.entities.growth_function import GrowthFunction
 import numpy as np
 import math
-
+from numpy.testing import assert_almost_equal
 
 def test_get_convex_hull_area_none():
     x = ()
@@ -322,3 +323,32 @@ def test_twist_four_voxels_one_twist(growth_function):
     growth_function.step(configuration_index)
     assert twist(growth_function.axiom) == 1
 
+
+def test_volume_none():
+    assert get_convex_hull_volume([]) == 0
+
+
+def test_volume_one():
+    assert get_convex_hull_volume([[1, 1, 1]]) == 1
+
+
+def test_volume_two():
+    assert get_convex_hull_volume([[1, 1, 1], [2, 1, 1]]) == 2
+
+
+def test_volume_two_apart():
+    assert_almost_equal(3, get_convex_hull_volume([[1, 1, 1], [3, 1, 1]]))
+    
+
+def test_volume_eight_apart():
+    points = [
+        [0, 0, 0],
+        [2, 0, 0],
+        [0, 2, 0],
+        [2, 2, 0],
+        [0, 0, 1],
+        [2, 0, 1],
+        [0, 2, 1],
+        [2, 2, 1],
+    ]
+    assert_almost_equal(18, get_convex_hull_volume(points))

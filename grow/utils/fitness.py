@@ -1,6 +1,7 @@
 import numpy as np
 from collections import deque
 from scipy.spatial import ConvexHull
+from grow.utils.plotting import get_vertices_of_voxel
 
 
 def max_z(final_positions):
@@ -61,6 +62,13 @@ def get_convex_hull_area(x):
     if len(x) == 2:
         return np.sqrt((x[0][0] - x[0][1])**2 + (x[1][0] - x[1][1])**2)
 
+    return ConvexHull(x).volume
+
+
+def get_convex_hull_volume(x):
+    if len(x) == 0:
+        return 0
+    x, _, _ = get_vertices_of_voxel(x)
     return ConvexHull(x).volume
 
 
