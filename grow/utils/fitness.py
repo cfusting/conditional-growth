@@ -1,4 +1,5 @@
 import numpy as np
+from collections import deque
 from scipy.spatial import ConvexHull
 
 
@@ -63,28 +64,62 @@ def get_convex_hull_area(x):
     return ConvexHull(x).volume
 
 
-def tree(x, threshold=0.9):
-    ascending_positions = sorted(
-        x, key=lambda p: p[2], reverse=False
-    )
-    z_max = ascending_positions[len(ascending_positions) - 1][2]
-    z_threshold = int(np.floor(z_max * threshold))
+def twist(axiom):
+    """Reward a creature that twists continuously.
 
-    def tree_reward(current_layer, z):
-        # Bounded by 1 on both trunk and leaves.
-        area = get_convex_hull_area(current_layer) 
-        return area * z
+    This function adds one to the reward every time three voxels 
+    make an L-shaped twist with only two connections.
 
+    Examples in two dimensions:
+
+        **  and  *
+        *        **
+
+    """
     reward = 0
-    z = ascending_positions[0][2]
-    current_layer = []
-    for p in ascending_positions:
-        if np.floor(p[2]) != np.floor(z):
-            reward += tree_reward(current_layer, z)
-            current_layer = []
-            z = p[2]
-        current_layer.append((p[0], p[1]))
-    reward += tree_reward(current_layer, z)
+    voxels = deque([axiom])    
+    visited = set()
+
+    def add_voxel(voxel):
+        if voxel not in visited:
+            voxels.appendleft(voxel)
+            visited.add(voxel)
+
+    while len(voxels) > 0:
+
+        current_voxel = voxels.pop()
+        count = 0
+        num_x = 0
+        num_y = 0
+        num_z = 0
+
+        if current_voxel.positive_x:
+            count += 1
+            num_x += 1
+            add_voxel(current_voxel.positive_x)
+        if current_voxel.negative_x:
+            count += 1
+            num_x += 1
+            add_voxel(current_voxel.negative_x)
+        if current_voxel.positive_y:
+            count += 1
+            num_y += 1
+            add_voxel(current_voxel.positive_y)
+        if current_voxel.negative_y:
+            count += 1
+            num_y += 1
+            add_voxel(current_voxel.negative_y)
+        if current_voxel.positive_z:
+            count += 1
+            num_z += 1
+            add_voxel(current_voxel.positive_z)
+        if current_voxel.negative_z:
+            count += 1
+            num_z += 1
+            add_voxel(current_voxel.negative_z)
+
+        if count == 2 and num_x < 2 and num_y < 2 and num_z < 2:
+            reward += 1
 
     return reward
 

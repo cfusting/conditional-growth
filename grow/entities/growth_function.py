@@ -79,7 +79,7 @@ class GrowthFunction:
         self.positions.append((x, y, z))
         self.values.append(material)
         self.X[x, y, z] = material
-        self.body.extendleft([v])
+        self.body.appendleft(v)
         return v
 
     def attach_voxels(self, configuration, current_voxel):

@@ -6,7 +6,10 @@ from grow.utils.fitness import (
     get_convex_hull_area,
     get_stability,
     has_fallen,
+    twist,
 )
+import pytest
+from grow.entities.growth_function import GrowthFunction
 import numpy as np
 import math
 
@@ -265,3 +268,57 @@ def test_has_fallen_and_max_z_example():
         )
 
         assert has_fallen(x, y) is True
+
+
+@pytest.fixture
+def growth_function():
+    return GrowthFunction(
+        materials=(0, 1),
+        max_voxels=6,
+        search_radius=3,
+        axiom_material=1,
+        num_timestep_features=1,
+        max_steps=10,
+    )
+
+
+def get_configuration_index(c, g):
+    c_i = list(g.configuration_map.keys())[list(g.configuration_map.values()).index(c)]
+    return c_i
+
+
+def test_twist_three_voxels(growth_function):
+    configuration_index = get_configuration_index(((1, "positive_x"),), growth_function)
+    growth_function.step(configuration_index)
+    configuration_index = get_configuration_index(((1, "positive_y"),), growth_function)
+    growth_function.step(configuration_index)
+    assert twist(growth_function.axiom) == 1
+
+
+def test_twist_three_voxels_straight(growth_function):
+    configuration_index = get_configuration_index(((1, "positive_x"),), growth_function)
+    growth_function.step(configuration_index)
+    configuration_index = get_configuration_index(((1, "positive_x"),), growth_function)
+    growth_function.step(configuration_index)
+    assert twist(growth_function.axiom) == 0
+
+
+def test_twist_four_voxels(growth_function):
+    configuration_index = get_configuration_index(((1, "positive_x"),), growth_function)
+    growth_function.step(configuration_index)
+    configuration_index = get_configuration_index(((1, "positive_y"),), growth_function)
+    growth_function.step(configuration_index)
+    configuration_index = get_configuration_index(((1, "positive_x"),), growth_function)
+    growth_function.step(configuration_index)
+    assert twist(growth_function.axiom) == 2
+
+
+def test_twist_four_voxels_one_twist(growth_function):
+    configuration_index = get_configuration_index(((1, "positive_x"),), growth_function)
+    growth_function.step(configuration_index)
+    configuration_index = get_configuration_index(((1, "positive_y"),), growth_function)
+    growth_function.step(configuration_index)
+    configuration_index = get_configuration_index(((1, "positive_y"),), growth_function)
+    growth_function.step(configuration_index)
+    assert twist(growth_function.axiom) == 1
+
