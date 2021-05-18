@@ -5,6 +5,7 @@ from grow.utils.fitness import (
     get_num_at_z,
     get_convex_hull_area,
     get_convex_hull_volume,
+    max_hull_volume_min_density,
     get_stability,
     has_fallen,
     twist,
@@ -352,3 +353,36 @@ def test_volume_eight_apart():
         [2, 2, 1],
     ]
     assert_almost_equal(18, get_convex_hull_volume(points))
+
+    
+def test_hull_density_none():
+    assert max_hull_volume_min_density([]) == 0
+
+
+def test_hull_density_one():
+    assert max_hull_volume_min_density([[1, 1, 1]]) == 1
+
+
+def test_hull_density_two():
+    assert max_hull_volume_min_density([[1, 1, 1], [2, 1, 1]]) == 1
+
+
+def test_hull_density_two_apart():
+    assert_almost_equal(3 / 2, max_hull_volume_min_density([[1, 1, 1], [3, 1, 1]]))
+    
+
+def test_hull_density_eight_apart():
+    points = [
+        [0, 0, 0],
+        [2, 0, 0],
+        [0, 2, 0],
+        [2, 2, 0],
+        [0, 0, 1],
+        [2, 0, 1],
+        [0, 2, 1],
+        [2, 2, 1],
+    ]
+    assert_almost_equal(18 / 8, max_hull_volume_min_density(points))
+
+    
+

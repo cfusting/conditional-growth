@@ -16,7 +16,7 @@ config = {
         "max_voxels": 6,
         "search_radius": 3,
         "axiom_material": 1,
-        "reward_type": "convex_hull_volume",
+        "reward_type": "max_hull_volume_min_density",
     },
     # Hypers
     # See https://openreview.net/pdf?id=nIAxjsniDzg
@@ -46,7 +46,7 @@ config = {
 
 ray.tune.run(
     PPOTrainer,
-    name="hull_volume",
+    name="empty_space",
     # name="visualize",
     config=config,
     checkpoint_freq=10,

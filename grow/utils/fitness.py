@@ -72,6 +72,12 @@ def get_convex_hull_volume(x):
     return ConvexHull(x).volume
 
 
+def max_hull_volume_min_density(x):
+    if len(x) == 0:
+        return 0
+    return get_convex_hull_volume(x) / len(x)
+
+
 def twist(axiom):
     """Reward a creature that twists continuously.
 

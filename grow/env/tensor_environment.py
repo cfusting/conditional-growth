@@ -8,6 +8,7 @@ from grow.utils.fitness import (
     max_surface_area,
     twist,
     convex_hull_volume,
+    max_hull_volume_min_density,
 )
 from grow.utils.plotting import plot_voxels
 from grow.entities.growth_function import GrowthFunction
@@ -70,7 +71,9 @@ class TensorGrowthEnvironment(gym.Env):
         elif self.reward_type == "tree":
             reward = twist(self.genome.axiom)
         elif self.reward_type == "convex_hull_volume":
-            reward = convex_hull_volume(self.genome.axiom)
+            reward = convex_hull_volume(final_positions)
+        elif self.reward_type == "max_hull_volume_min_density":
+            reward = max_hull_volume_min_density(final_positions)
         else:
             raise Exception("Unknown reward type: {self.reward}")
         return reward
