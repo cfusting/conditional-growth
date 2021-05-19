@@ -17,13 +17,14 @@ def plot_voxels(position_tuples, values):
         show_edges=True,
         scalars=scalars,
         cmap=["aquamarine"],
-        opacity=0.5,
+        opacity=0.1,
     )
     plotter.add_floor("-z")
-    plotter.enable_depth_peeling(10)
+    plotter.enable_depth_peeling(0)
     camera, focus, viewup = plotter.get_default_cam_pos()
+    distance = 10
     plotter.camera_position = [
-        (camera[0] - 20, camera[1] - 20, camera[2]),
+        (camera[0] - distance, camera[1] - distance, camera[2]),
         focus,
         viewup,
     ]

@@ -11,8 +11,8 @@ config = {
     "env_config": {
         "materials": (0, 1),
         "num_timestep_features": 1,
-        "max_steps": 50,
-        "reward_interval": 49,
+        "max_steps": 100,
+        "reward_interval": 1,
         "max_voxels": 6,
         "search_radius": 3,
         "axiom_material": 1,
@@ -39,17 +39,17 @@ config = {
     "num_gpus_per_worker": 0,
     "num_envs_per_worker": 1,
     "framework": "torch",
-    # "record_env": True,
+    "record_env": True,
     # "evaluation_num_workers": 7,
 }
 
 
 ray.tune.run(
     PPOTrainer,
-    name="empty_space",
-    # name="visualize",
+    # name="empty_space",
+    name="blizize",
     config=config,
     checkpoint_freq=10,
     keep_checkpoints_num=None,
-    # restore="/home/ray/ray_results/old-squirrel/PPO_TensorGrowthEnvironment_9f519_00000_0_2021-05-09_06-01-08/checkpoint_000110/checkpoint-110",
+    restore="/home/ray/ray_results/empty_space/PPO_TensorGrowthEnvironment_f3415_00000_0_2021-05-18_15-32-38/checkpoint_000470/checkpoint-470",
 )
