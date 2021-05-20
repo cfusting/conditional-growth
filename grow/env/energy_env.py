@@ -74,6 +74,19 @@ class EnergyGrowthEnvironment(gym.Env):
         self.num_materials = len(self.genome.materials)
         self.num_faces = 6
 
+    def move_creature(self, X, direction, magnitude):
+        if direction == "negative_x":
+
+    def add_creature_to_simulation(self):
+        pass
+
+    def normalize_creature_to_floor(self, X):
+        """Set the minimum z coordinate to zero for collision detection.
+
+        """
+        min_z = np.argwhere(X > 0).min(axis=2)
+        return X - min_z
+
     def calculate_energy_for_creature(self, axiom):
         """Gets the energy in / out of a creature.
 
