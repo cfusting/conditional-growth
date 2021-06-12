@@ -9,6 +9,9 @@ RUN pip install pyvista==0.27.4 dm-tree==0.1.5 lxml==4.6.2 pytest==6.2.1 matplot
 # pip version has recording bug.
 RUN pip uninstall -y gym && git clone https://github.com/openai/gym.git && cd gym && pip install -e . && cd ..
 
+RUN git clone https://github.com/real-itu/Evocraft-py
+RUN pip install grpcio
+
 COPY --chown=ray:users . conditional-growth
 RUN sudo chown ray conditional-growth
 WORKDIR conditional-growth
