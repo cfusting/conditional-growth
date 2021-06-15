@@ -6,20 +6,25 @@ from minecraft_pb2 import *
 channel = grpc.insecure_channel('localhost:5001')
 client = minecraft_pb2_grpc.MinecraftServiceStub(channel)
 
-client.spawnBlocks(Blocks(blocks=[  # Spawn a flying machine
-    Block(position=Point(x=-18, y=75, z=-75), type=AIR, orientation=NORTH),
-    Block(position=Point(x=-18, y=74, z=-75), type=FARMLAND, orientation=NORTH),
-    Block(position=Point(x=-18, y=75, z=-75), type=WHEAT, orientation=NORTH),
-    Block(position=Point(x=-19, y=75, z=-75), type=WHEAT, orientation=NORTH),
-    Block(position=Point(x=-17, y=74, z=-75), type=WATER, orientation=NORTH),
-    Block(position=Point(x=-15, y=78, z=-75), type=FIRE, orientation=NORTH),
-    Block(position=Point(x=-15, y=77, z=-75), type=LOG, orientation=NORTH),
-]))
+client.fillCube(FillCubeRequest(  # Clear a 20x10x20 working area
+    cube=Cube(
+        min=Point(x=-10, y=4, z=-10),
+        max=Point(x=10, y=14, z=10)
+    ),
+    type=AIR
+))
+
+client.spawnBlocks(Blocks(blocks=
+    [Block(position=Point(x=1, y=x, z=1), type=STONE, orientation=NORTH) for x in range(4, 10, 2)] +
+    [Block(position=Point(x=1, y=x, z=1), type=FIRE, orientation=NORTH) for x in range(5, 11, 2)] +
+    [Block(position=Point(x=x, y=6, z=1), type=STONE, orientation=NORTH) for x in range(2, 11, 2)] +
+    [Block(position=Point(x=x, y=7, z=1), type=STONE, orientation=NORTH) for x in range(2, 11, 2)]
+))
 
 
 blocks = client.readCube(Cube(
-    min=Point(x=-19, y=75, z=-76),
-    max=Point(x=-17, y=75, z=-74)
+    min=Point(x=-2, y=-2, z=-2),
+    max=Point(x=4, y=2, z=2)
 ))
 
-print(blocks)
+print(blocks.blocks)
