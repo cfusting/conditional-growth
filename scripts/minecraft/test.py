@@ -27,4 +27,4 @@ blocks = client.readCube(Cube(
     max=Point(x=4, y=2, z=2)
 ))
 
-print(blocks.blocks)
+print(blocks.blocks[0])

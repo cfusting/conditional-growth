@@ -9,6 +9,7 @@ from grow.utils.fitness import (
     get_stability,
     has_fallen,
     twist,
+    get_max_connected_y_for_tensor,
 )
 import pytest
 from grow.entities.growth_function import GrowthFunction
@@ -289,42 +290,6 @@ def get_configuration_index(c, g):
     return c_i
 
 
-def test_twist_three_voxels(growth_function):
-    configuration_index = get_configuration_index(((1, "positive_x"),), growth_function)
-    growth_function.step(configuration_index)
-    configuration_index = get_configuration_index(((1, "positive_y"),), growth_function)
-    growth_function.step(configuration_index)
-    assert twist(growth_function.axiom) == 1
-
-
-def test_twist_three_voxels_straight(growth_function):
-    configuration_index = get_configuration_index(((1, "positive_x"),), growth_function)
-    growth_function.step(configuration_index)
-    configuration_index = get_configuration_index(((1, "positive_x"),), growth_function)
-    growth_function.step(configuration_index)
-    assert twist(growth_function.axiom) == 0
-
-
-def test_twist_four_voxels(growth_function):
-    configuration_index = get_configuration_index(((1, "positive_x"),), growth_function)
-    growth_function.step(configuration_index)
-    configuration_index = get_configuration_index(((1, "positive_y"),), growth_function)
-    growth_function.step(configuration_index)
-    configuration_index = get_configuration_index(((1, "positive_x"),), growth_function)
-    growth_function.step(configuration_index)
-    assert twist(growth_function.axiom) == 2
-
-
-def test_twist_four_voxels_one_twist(growth_function):
-    configuration_index = get_configuration_index(((1, "positive_x"),), growth_function)
-    growth_function.step(configuration_index)
-    configuration_index = get_configuration_index(((1, "positive_y"),), growth_function)
-    growth_function.step(configuration_index)
-    configuration_index = get_configuration_index(((1, "positive_y"),), growth_function)
-    growth_function.step(configuration_index)
-    assert twist(growth_function.axiom) == 1
-
-
 def test_volume_none():
     assert get_convex_hull_volume([]) == 0
 
@@ -385,4 +350,33 @@ def test_hull_density_eight_apart():
     assert_almost_equal(18 / 8, max_hull_volume_min_density(points))
 
     
+def test_get_max_connected_y_for_tensor():
+    y = get_max_connected_y_for_tensor(np.zeros((0, 0, 0)), empty_material=0)
+    assert y == 0
 
+    y = get_max_connected_y_for_tensor(np.zeros((1, 1, 1)), empty_material=0)
+    assert y == 0
+
+    y = get_max_connected_y_for_tensor(np.ones((1, 1, 1)), empty_material=0)
+    assert y == 1
+
+    X = np.zeros((3, 3, 3))
+    X[0, :, 0] = np.array([[1, 1, 1]])
+    y = get_max_connected_y_for_tensor(X, empty_material=0)
+    assert y == 3
+
+    X[0, 1, 0] = 0
+    y = get_max_connected_y_for_tensor(X, empty_material=0)
+    assert y == 1
+
+    X[1, 0, 0] = 1
+    y = get_max_connected_y_for_tensor(X, empty_material=0)
+    assert y == 1
+
+    X[2, 0, 0] = 1
+    y = get_max_connected_y_for_tensor(X, empty_material=0)
+    assert y == 1
+
+    X[2, 1, 0] = 1
+    y = get_max_connected_y_for_tensor(X, empty_material=0)
+    assert y == 2

@@ -3,7 +3,6 @@ from collections import deque
 from scipy.spatial import ConvexHull
 from grow.utils.plotting import get_vertices_of_voxel
 
-
 def max_z(final_positions):
     _, max_z = get_min_max_z(final_positions)
     return max_z
@@ -76,66 +75,6 @@ def max_hull_volume_min_density(x):
     if len(x) == 0:
         return 0
     return get_convex_hull_volume(x) / len(x)
-
-
-def twist(axiom):
-    """Reward a creature that twists continuously.
-
-    This function adds one to the reward every time three voxels 
-    make an L-shaped twist with only two connections.
-
-    Examples in two dimensions:
-
-        **  and  *
-        *        **
-
-    """
-    reward = 0
-    voxels = deque([axiom])    
-    visited = set()
-
-    def add_voxel(voxel):
-        if voxel not in visited:
-            voxels.appendleft(voxel)
-            visited.add(voxel)
-
-    while len(voxels) > 0:
-
-        current_voxel = voxels.pop()
-        count = 0
-        num_x = 0
-        num_y = 0
-        num_z = 0
-
-        if current_voxel.positive_x:
-            count += 1
-            num_x += 1
-            add_voxel(current_voxel.positive_x)
-        if current_voxel.negative_x:
-            count += 1
-            num_x += 1
-            add_voxel(current_voxel.negative_x)
-        if current_voxel.positive_y:
-            count += 1
-            num_y += 1
-            add_voxel(current_voxel.positive_y)
-        if current_voxel.negative_y:
-            count += 1
-            num_y += 1
-            add_voxel(current_voxel.negative_y)
-        if current_voxel.positive_z:
-            count += 1
-            num_z += 1
-            add_voxel(current_voxel.positive_z)
-        if current_voxel.negative_z:
-            count += 1
-            num_z += 1
-            add_voxel(current_voxel.negative_z)
-
-        if count == 2 and num_x < 2 and num_y < 2 and num_z < 2:
-            reward += 1
-
-    return reward
 
 
 def get_stability(x, max_z):
@@ -222,3 +161,30 @@ def get_surface_area(X):
                     if k < z - 1 and X[i, j, k + 1] != 0:
                         surfaces += 1
     return surfaces
+
+
+def get_max_connected_y_for_tensor(X, empty_material):
+    if X.shape[1] == 0:
+        return 0
+    
+    # If it has any elements on the first level it
+    # has a heigh of 1.
+    if X.shape[1] == 1: 
+        if np.sum(X[:, 0, :]) != 0:
+            return 1
+        else:
+            return 0
+    
+    for y in range(1, X.shape[1]):
+        A = X[:, y - 1, :] == 1
+        B = X[:, y, :] == 1
+        if not np.any(np.bitwise_and(A, B)):
+            break
+
+        # If we never break, add one to the index to
+        # get the proper height.
+        if y == X.shape[1] - 1:
+            y += 1
+         
+    return y
+

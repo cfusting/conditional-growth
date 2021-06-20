@@ -21,6 +21,7 @@ class GrowthFunction:
         axiom_material=1,
         num_timestep_features=1,
         max_steps=10,
+        empty_material=0,
     ):
         directions = (
             "negative_x",
@@ -31,6 +32,7 @@ class GrowthFunction:
             "positive_z",
         )
         self.materials = materials
+        self.empty_material = empty_material
         self.directions = directions
         self.max_voxels = max_voxels
         self.search_radius = search_radius
@@ -49,10 +51,8 @@ class GrowthFunction:
         self.reset()
 
     def initialize_axiom(self):
-        self.positions = []
-        self.values = []
         self.body = deque([])
-        self.axiom = self.get_new_voxel(
+        self.get_new_voxel(
             self.axiom_material,
             self.axiom_coordinate,
             self.axiom_coordinate,
@@ -63,7 +63,6 @@ class GrowthFunction:
         self.historic_representation = [
             0 for _ in range(self.num_features + self.num_coordinates)
         ]
-        self.num_voxels = 0
         self.steps = 0
         self.X = np.zeros((self.max_length, self.max_length, self.max_length))
         self.initialize_axiom()
@@ -75,12 +74,9 @@ class GrowthFunction:
 
     def get_new_voxel(self, material, x, y, z):
         v = Voxel(material, x, y, z)
-        self.num_voxels += 1
-        self.positions.append((x, y, z))
-        self.values.append(material)
-        self.X[x, y, z] = material
-        self.body.appendleft(v)
-        return v
+        if self.X[x, y, z] == 0:
+            self.X[x, y, z] = material
+            self.body.appendleft(v)
 
     def attach_voxels(self, configuration, current_voxel):
         """Attach a configuration of voxels to the current voxel.
@@ -98,50 +94,36 @@ class GrowthFunction:
             material = c[0]
             direction = c[1]
 
-            if direction == "negative_x" and not current_voxel.negative_x:
-                voxel = self.get_new_voxel(
+            if direction == "negative_x":
+                self.get_new_voxel(
                     material, current_voxel.x - 1, current_voxel.y, current_voxel.z
                 )
-                current_voxel.negative_x = voxel
-                voxel.positive_x = current_voxel
-
-            if direction == "positive_x" and not current_voxel.positive_x:
-                voxel = self.get_new_voxel(
+            if direction == "positive_x":
+                self.get_new_voxel(
                     material, current_voxel.x + 1, current_voxel.y, current_voxel.z
                 )
-                current_voxel.positive_x = voxel
-                voxel.negative_x = current_voxel
-
-            if direction == "negative_y" and not current_voxel.negative_y:
-                voxel = self.get_new_voxel(
+            if direction == "negative_y":
+                self.get_new_voxel(
                     material, current_voxel.x, current_voxel.y - 1, current_voxel.z
                 )
-                current_voxel.negative_y = voxel
-                voxel.positive_y = current_voxel
-
-            if direction == "positive_y" and not current_voxel.positive_y:
-                voxel = self.get_new_voxel(
+            if direction == "positive_y":
+                self.get_new_voxel(
                     material, current_voxel.x, current_voxel.y + 1, current_voxel.z
                 )
-                current_voxel.positive_y = voxel
-                voxel.negative_y = current_voxel
-
-            if direction == "negative_z" and not current_voxel.negative_z:
-                voxel = self.get_new_voxel(
+            if direction == "negative_z":
+                self.get_new_voxel(
                     material, current_voxel.x, current_voxel.y, current_voxel.z - 1
                 )
-                current_voxel.negative_z = voxel
-                voxel.positive_z = current_voxel
-
-            if direction == "positive_z" and not current_voxel.positive_z:
-                voxel = self.get_new_voxel(
+            if direction == "positive_z":
+                self.get_new_voxel(
                     material, current_voxel.x, current_voxel.y, current_voxel.z + 1
                 )
-                current_voxel.positive_z = voxel
-                voxel.negative_z = current_voxel
 
     def step(self, configuration_index):
         """Add one configuration. Do not use with ``expand()``."""
+
+        assert self.building(), "Step called without anything left to build."
+
         voxel = self.body.pop()
         configuration = self.configuration_map[configuration_index]
         self.attach_voxels(configuration, voxel)
@@ -149,6 +131,7 @@ class GrowthFunction:
 
     def get_local_voxel_representation(self):
         """Get a representation of voxels nearby the next voxel in queue."""
+
         if self.building():
             local_representation = self.get_function_input(self.body[-1])
         else:
@@ -235,9 +218,12 @@ class GrowthFunction:
         surfaces.
 
         """
+
+        building_materials = [x for x in self.materials if x != self.empty_material] 
+
         # Get all possible voxels.
         possible_voxels = []
-        for m in self.materials[1:]:
+        for m in building_materials:
             for d in self.directions:
                 possible_voxels.append((m, d))
 
@@ -250,3 +236,6 @@ class GrowthFunction:
                 i += 1
 
         print(f"Found {len(self.configuration_map)} possible voxel configurations.")
+
+    def __len__(self):
+        return np.sum(self.X != 0)

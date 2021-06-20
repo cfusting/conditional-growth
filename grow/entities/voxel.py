@@ -18,7 +18,7 @@ class Voxel:
         self.z = z
 
     def __str__(self):
-        return f"Voxel with material: {self.material}"
+        return f"Voxel at ({self.x}, {self.y}, {self.z}) with material: {self.material}"
 
     def __key(self):
         return (
