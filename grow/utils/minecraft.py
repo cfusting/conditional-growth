@@ -6,12 +6,13 @@ import numpy as np
 
 class MinecraftAPI:
 
-    max_indices = (29999999, 255, 29999999)
     min_indices = (-30000000, 0, -30000000)
+    max_indices = (29999999, 255, 29999999)
 
     def __init__(
         self,
         max_steps,
+        max_length,
         address="localhost:5001",
         x_offset=0,
         z_offset=0,
@@ -21,7 +22,7 @@ class MinecraftAPI:
         self.x_offset = x_offset
         self.z_offset = z_offset
         self.y_offset = 0
-        self.y_offset = self.find_the_floor(max_steps)
+        self.y_offset = self.find_the_floor(max_steps, max_length)
         print(f"Offsets: ({self.x_offset}, {self.y_offset}, {self.z_offset})")
 
     def blocks_to_tensor(self, blocks, x_length, y_length, z_length):
@@ -94,16 +95,21 @@ class MinecraftAPI:
         blocks = self.tensor_to_blocks(X, skip)
         self.client.spawnBlocks(blocks)
 
-    def find_the_floor(self, max_steps):
-        x = self.x_offset + max_steps + 1
-        y_min = 0
-        y_max = 200
-        z = self.z_offset + max_steps + 1
-        X = self.read_tensor(x, x, y_min, y_max, z, z)
-        X = X.flatten()
-        y = y_min
-        while y < y_max and y != AIR:
-            y += 1
-        if y == y_max:
-            raise ValueError("No floor found. Exiting.")
-        return y - 1
+    def find_the_floor(self, max_steps, max_length):
+        x = max_steps + 1
+        z = max_steps + 1
+
+        X = self.read_tensor(
+            0,
+            max_length,
+            MinecraftAPI.min_indices[1],
+            MinecraftAPI.max_indices[1],
+            0,
+            max_length,
+        )
+
+        for y in reversed(range(X.shape[1])):
+            if X[x, y, z] != AIR:
+                break
+
+        return y + 1

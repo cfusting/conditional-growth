@@ -12,6 +12,7 @@ from grow.utils.minecraft import MinecraftAPI
 
 class MinecraftEnvironment(gym.Env):
     def __init__(self, config):
+        print(config.keys())
         self.empty_material = config["empty_material"]
 
         self.growth_function = GrowthFunction(
@@ -36,7 +37,12 @@ class MinecraftEnvironment(gym.Env):
         self.reward_type = config["reward_type"]
         self.reward_interval = config["reward_interval"]
 
-        self.mc = MinecraftAPI(self.max_steps, x_offset=0, z_offset=0)
+        self.mc = MinecraftAPI(
+            self.max_steps,
+            self.growth_function.max_length,
+            x_offset=config.worker_index * self.growth_function.max_length,
+            z_offset=config.vector_index * self.growth_function.max_length,
+        )
 
         ###
         # Ensure the axiom coordinate is one block above the floor.
