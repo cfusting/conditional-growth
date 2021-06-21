@@ -5,6 +5,10 @@ import numpy as np
 
 
 class MinecraftAPI:
+
+    max_indices = (29999999, 255, 29999999)
+    min_indices = (-30000000, 0, -30000000)
+
     def __init__(
         self,
         max_steps,
@@ -18,6 +22,7 @@ class MinecraftAPI:
         self.z_offset = z_offset
         self.y_offset = 0
         self.y_offset = self.find_the_floor(max_steps)
+        print(f"Offsets: ({self.x_offset}, {self.y_offset}, {self.z_offset})")
 
     def blocks_to_tensor(self, blocks, x_length, y_length, z_length):
         X = np.zeros((x_length, y_length, z_length))
@@ -25,8 +30,7 @@ class MinecraftAPI:
             x = block.position.x - self.x_offset
             y = block.position.y - self.y_offset
             z = block.position.z - self.z_offset
-            material = block.type
-            X[x, y, z] = material
+            X[x, y, z] = block.type
         return X
 
     def read_tensor(self, x_min, x_max, y_min, y_max, z_min, z_max):
@@ -50,24 +54,44 @@ class MinecraftAPI:
             blocks, x_max - x_min, y_max - y_min, z_max - z_min
         )
 
-    def tensor_to_blocks(self, X):
+    def tensor_to_blocks(self, X, skip=AIR):
         blocks = []
         it = np.nditer(X, flags=["multi_index"])
-        for x in it:
+        for v in it:
             x, y, z = it.multi_index
-            blocks.append(
-                Block(
-                    position=Point(
-                        x=x + self.x_offset, y=y + self.y_offset, z=z + self.z_offset
-                    ),
-                    type=X[x, y, z],
+            if (
+                v != skip
+                and (
+                    MinecraftAPI.min_indices[0]
+                    <= x + self.x_offset
+                    <= MinecraftAPI.max_indices[0]
                 )
-            )
+                and (
+                    MinecraftAPI.min_indices[1]
+                    <= y + self.y_offset
+                    <= MinecraftAPI.max_indices[1]
+                )
+                and (
+                    MinecraftAPI.min_indices[2]
+                    <= z + self.z_offset
+                    <= MinecraftAPI.max_indices[2]
+                )
+            ):
+                blocks.append(
+                    Block(
+                        position=Point(
+                            x=x + self.x_offset,
+                            y=y + self.y_offset,
+                            z=z + self.z_offset,
+                        ),
+                        type=int(v),
+                    )
+                )
 
         return Blocks(blocks=blocks)
 
-    def write_tensor(self, X):
-        blocks = self.tensor_to_blocks(X)
+    def write_tensor(self, X, skip=AIR):
+        blocks = self.tensor_to_blocks(X, skip)
         self.client.spawnBlocks(blocks)
 
     def find_the_floor(self, max_steps):

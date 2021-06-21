@@ -1,10 +1,10 @@
 import gym
+import sys
 import numpy as np
 from gym.spaces import Box, Discrete
-from grow.utils.fitness import get_max_connected_y_for_tensor
+from grow.utils.fitness import get_height_from_floor
 from grow.entities.growth_function import GrowthFunction
 from grow.utils.minecraft import MinecraftAPI
-from grow.utils.minecraft_pb2 import AIR
 
 
 """Minecraft Environment."""
@@ -12,6 +12,8 @@ from grow.utils.minecraft_pb2 import AIR
 
 class MinecraftEnvironment(gym.Env):
     def __init__(self, config):
+        self.empty_material = config["empty_material"]
+
         self.growth_function = GrowthFunction(
             materials=config["materials"],
             max_voxels=config["max_voxels"],
@@ -19,7 +21,7 @@ class MinecraftEnvironment(gym.Env):
             axiom_material=config["axiom_material"],
             num_timestep_features=config["num_timestep_features"],
             max_steps=config["max_steps"],
-            empty_material=AIR,
+            empty_material=self.empty_material,
         )
 
         self.max_steps = config["max_steps"]
@@ -33,17 +35,27 @@ class MinecraftEnvironment(gym.Env):
         self.reward_range = (-float("inf"), float("inf"))
         self.reward_type = config["reward_type"]
         self.reward_interval = config["reward_interval"]
-        self.mc = MinecraftAPI(
-            self.max_steps,
-            x_offset=0,
-            z_offset=0
-        )
+
+        self.mc = MinecraftAPI(self.max_steps, x_offset=0, z_offset=0)
+
+        ###
+        # Ensure the axiom coordinate is one block above the floor.
+        #
+        # Having found the y_offset during self.mc initialization,
+        # we must now account for the axiom coordinate being in the
+        # center of the growth function's tensor so that it starts
+        # one block above the floor.
+        self.mc.y_offset -= self.growth_function.max_steps + 1
+        ###
+
+        # Save the landscape before growth.
         self.initial_state = self.get_grow_area_tensor()
 
     def reset(self):
-        self.mc.write_tensor(self.initial_state)
         self.growth_function.reset()
+        self.mc.write_tensor(self.growth_function.X, skip=self.empty_material)
         self.previous_reward = 0
+        self.previous_height = 1
         return self.get_representation()
 
     def get_grow_area_tensor(self):
@@ -73,9 +85,9 @@ class MinecraftEnvironment(gym.Env):
 
         """
 
-        X = self.get_grow_area_tensor()    
-        M = self.growth_function.X == X
-        self.growth_function.X = self.growth_function.X[~M]
+        X = self.get_grow_area_tensor()
+        M = self.growth_function.X != X
+        self.growth_function.X[M] = self.empty_material
 
     def get_representation(self):
         x = np.array(self.growth_function.get_local_voxel_representation())
@@ -84,7 +96,7 @@ class MinecraftEnvironment(gym.Env):
     def step(self, action):
         self.update_growth_function_tensor()
         self.growth_function.step(action)
-        self.mc.write_tensor(self.growth_function.X)
+        self.mc.write_tensor(self.growth_function.X, skip=self.empty_material)
         if (
             0 < self.growth_function.steps
             and self.growth_function.steps % self.reward_interval == 0
@@ -95,11 +107,17 @@ class MinecraftEnvironment(gym.Env):
         done = (not self.growth_function.building()) or (
             self.growth_function.steps == self.max_steps
         )
+        if done:
+            self.mc.write_tensor(self.initial_state, skip=None)
         return self.get_representation(), self.previous_reward, done, {}
 
     def get_reward(self, X):
         if self.reward_type == "max_y":
-            reward = get_max_connected_y_for_tensor(X)
+            height = get_height_from_floor(
+                X, self.growth_function.building_materials, self.max_steps + 1
+            )
+            reward = height - self.previous_height
+            self.previous_height = height
         else:
             raise Exception("Unknown reward type: {self.reward}")
         return reward

@@ -64,7 +64,9 @@ class GrowthFunction:
             0 for _ in range(self.num_features + self.num_coordinates)
         ]
         self.steps = 0
-        self.X = np.zeros((self.max_length, self.max_length, self.max_length))
+        self.X = np.full(
+            (self.max_length, self.max_length, self.max_length), self.empty_material
+        )
         self.initialize_axiom()
 
     def building(self):
@@ -74,7 +76,7 @@ class GrowthFunction:
 
     def get_new_voxel(self, material, x, y, z):
         v = Voxel(material, x, y, z)
-        if self.X[x, y, z] == 0:
+        if self.X[x, y, z] == self.empty_material:
             self.X[x, y, z] = material
             self.body.appendleft(v)
 
@@ -157,7 +159,7 @@ class GrowthFunction:
         v = min(voxel.x + self.search_radius + 1, self.max_length)
         material_totals = []
         for m in self.materials:
-            material_totals.append(np.sum(self.X[voxel.x:v, :, :] == m))
+            material_totals.append(np.sum(self.X[voxel.x : v, :, :] == m))
         for i in range(len(self.materials)):
             proportions.append(material_totals[i] / np.sum(material_totals))
 
@@ -174,7 +176,7 @@ class GrowthFunction:
         v = min(voxel.y + self.search_radius + 1, self.max_length)
         material_totals = []
         for m in self.materials:
-            material_totals.append(np.sum(self.X[:, voxel.y:v, :] == m))
+            material_totals.append(np.sum(self.X[:, voxel.y : v, :] == m))
         for i in range(len(self.materials)):
             proportions.append(material_totals[i] / np.sum(material_totals))
 
@@ -191,7 +193,7 @@ class GrowthFunction:
         v = min(voxel.z + self.search_radius + 1, self.max_length)
         material_totals = []
         for m in self.materials:
-            material_totals.append(np.sum(self.X[:, :, voxel.z:v] == m))
+            material_totals.append(np.sum(self.X[:, :, voxel.z : v] == m))
         for i in range(len(self.materials)):
             proportions.append(material_totals[i] / np.sum(material_totals))
 
@@ -219,11 +221,13 @@ class GrowthFunction:
 
         """
 
-        building_materials = [x for x in self.materials if x != self.empty_material] 
+        self.building_materials = [
+            x for x in self.materials if x != self.empty_material
+        ]
 
         # Get all possible voxels.
         possible_voxels = []
-        for m in building_materials:
+        for m in self.building_materials:
             for d in self.directions:
                 possible_voxels.append((m, d))
 

@@ -3,6 +3,7 @@ from collections import deque
 from scipy.spatial import ConvexHull
 from grow.utils.plotting import get_vertices_of_voxel
 
+
 def max_z(final_positions):
     _, max_z = get_min_max_z(final_positions)
     return max_z
@@ -53,13 +54,13 @@ def prepare_points_for_convex_hull(x):
 
 
 def get_convex_hull_area(x):
-    x = prepare_points_for_convex_hull(x)    
+    x = prepare_points_for_convex_hull(x)
     if len(x) == 0:
         return 0
     if len(x) == 1:
         return 0
     if len(x) == 2:
-        return np.sqrt((x[0][0] - x[0][1])**2 + (x[1][0] - x[1][1])**2)
+        return np.sqrt((x[0][0] - x[0][1]) ** 2 + (x[1][0] - x[1][1]) ** 2)
 
     return ConvexHull(x).volume
 
@@ -78,9 +79,7 @@ def max_hull_volume_min_density(x):
 
 
 def get_stability(x, max_z):
-    descending_positions = sorted(
-        x, key=lambda p: p[2], reverse=True
-    )
+    descending_positions = sorted(x, key=lambda p: p[2], reverse=True)
     # Top layer is not considered.
     while np.floor(descending_positions[0][2]) == np.floor(max_z):
         descending_positions.pop(0)
@@ -141,7 +140,7 @@ def get_surface_area(X):
     m = X.shape[0]
     n = X.shape[1]
     z = X.shape[2]
-    
+
     surfaces = 0
     for i in range(m):
         for j in range(n):
@@ -163,28 +162,22 @@ def get_surface_area(X):
     return surfaces
 
 
-def get_max_connected_y_for_tensor(X, empty_material):
+def get_height_from_floor(X, connecting_materials, floor_index):
     if X.shape[1] == 0:
         return 0
+
+    if X.shape[1] == floor_index + 1 and np.any(np.isin(
+        X[:, floor_index, :], connecting_materials
+    )):
+        return 1
     
-    # If it has any elements on the first level it
-    # has a heigh of 1.
-    if X.shape[1] == 1: 
-        if np.sum(X[:, 0, :]) != 0:
-            return 1
+    height = 1
+    for y in range(floor_index + 1, X.shape[1]):
+        A = np.isin(X[:, y - 1, :], connecting_materials)
+        B = np.isin(X[:, y, :], connecting_materials)
+        if np.any(np.bitwise_and(A, B)):
+            height += 1
         else:
-            return 0
-    
-    for y in range(1, X.shape[1]):
-        A = X[:, y - 1, :] == 1
-        B = X[:, y, :] == 1
-        if not np.any(np.bitwise_and(A, B)):
             break
 
-        # If we never break, add one to the index to
-        # get the proper height.
-        if y == X.shape[1] - 1:
-            y += 1
-         
-    return y
-
+    return height
