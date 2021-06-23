@@ -5,6 +5,7 @@ from gym.spaces import Box, Discrete
 from grow.utils.fitness import get_height_from_floor
 from grow.entities.growth_function import GrowthFunction
 from grow.utils.minecraft import MinecraftAPI
+from grow.utils.observations import get_voxel_material_proportions
 
 
 """Minecraft Environment."""
@@ -12,8 +13,8 @@ from grow.utils.minecraft import MinecraftAPI
 
 class MinecraftEnvironment(gym.Env):
     def __init__(self, config):
-        print(config.keys())
         self.empty_material = config["empty_material"]
+        self.observing_materials = config["observing_materials"]
 
         self.growth_function = GrowthFunction(
             materials=config["materials"],
@@ -25,23 +26,42 @@ class MinecraftEnvironment(gym.Env):
             empty_material=self.empty_material,
         )
 
+        self.search_radius = config["search_radius"]
         self.max_steps = config["max_steps"]
         self.action_space = Discrete(len(self.growth_function.configuration_map))
+        self.num_proportion_features = len(self.observing_materials) * 6
         self.observation_space = Box(
-            np.array(
-                [0 for x in range(self.growth_function.num_features)] + [-1, -1, -1]
-            ),
-            np.array([1 for x in range(self.growth_function.num_features)] + [1, 1, 1]),
+            np.array([0 for x in range(self.num_proportion_features + 3)]),
+            np.array([1 for x in range(self.num_proportion_features + 3)]),
         )
-        self.reward_range = (-float("inf"), float("inf"))
+        self.last_features = (
+            np.array([0 for x in range(self.num_proportion_features + 3)]),
+        )
+        self.reward_range = (0, float("inf"))
         self.reward_type = config["reward_type"]
         self.reward_interval = config["reward_interval"]
 
+        # The grow location is based on worker and vector indices.
+        sigma = self.growth_function.max_length
+        x_offset = int(
+            np.floor(
+                np.random.normal(
+                    config.worker_index * self.growth_function.max_length * 3, sigma
+                )
+            )
+        )
+        y_offset = int(
+            np.floor(
+                np.random.normal(
+                    config.vector_index * self.growth_function.max_length * 3, sigma
+                )
+            )
+        )
         self.mc = MinecraftAPI(
             self.max_steps,
             self.growth_function.max_length,
-            x_offset=config.worker_index * self.growth_function.max_length,
-            z_offset=config.vector_index * self.growth_function.max_length,
+            x_offset=x_offset,
+            z_offset=y_offset,
         )
 
         ###
@@ -96,13 +116,32 @@ class MinecraftEnvironment(gym.Env):
         self.growth_function.X[M] = self.empty_material
 
     def get_representation(self):
-        x = np.array(self.growth_function.get_local_voxel_representation())
-        return x
+        current_voxel = self.growth_function.get_next_building_voxel()
+        x, y, z = current_voxel.x, current_voxel.y, current_voxel.z
+        X = self.mc.read_tensor(
+            x - self.search_radius,
+            x + self.search_radius,
+            y - self.search_radius,
+            y + self.search_radius,
+            z - self.search_radius,
+            z + self.search_radius,
+        )
+        material_proportions = get_voxel_material_proportions(
+            X, x, y, z, self.observing_materials
+        )
+        relative_locations = [
+            x / self.growth_function.max_length,
+            y / self.growth_function.max_length,
+            z / self.growth_function.max_length,
+        ]
+        features = np.array(material_proportions + relative_locations)
+        return features
 
     def step(self, action):
         self.update_growth_function_tensor()
         self.growth_function.step(action)
         self.mc.write_tensor(self.growth_function.X, skip=self.empty_material)
+
         if (
             0 < self.growth_function.steps
             and self.growth_function.steps % self.reward_interval == 0
@@ -113,9 +152,15 @@ class MinecraftEnvironment(gym.Env):
         done = (not self.growth_function.building()) or (
             self.growth_function.steps == self.max_steps
         )
+
         if done:
             self.mc.write_tensor(self.initial_state, skip=None)
-        return self.get_representation(), self.previous_reward, done, {}
+            features = self.last_features
+        else:
+            features = self.get_representation()
+            self.last_features = features
+
+        return features, self.previous_reward, done, {}
 
     def get_reward(self, X):
         if self.reward_type == "max_y":

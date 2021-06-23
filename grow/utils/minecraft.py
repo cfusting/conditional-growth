@@ -25,41 +25,65 @@ class MinecraftAPI:
         self.y_offset = self.find_the_floor(max_steps, max_length)
         print(f"Offsets: ({self.x_offset}, {self.y_offset}, {self.z_offset})")
 
-    def blocks_to_tensor(self, blocks, x_length, y_length, z_length):
-        X = np.zeros((x_length, y_length, z_length))
+    def to_global_coordinates(self, x, y, z):
+        """Inputs in local coordinates."""
+        return x + self.x_offset, y + self.y_offset, z + self.z_offset
+
+    def to_local_coordinates(self, x, y, z):
+        """Inputs in global coordinates."""
+        return x - self.x_offset, y - self.y_offset, z - self.z_offset
+
+    def to_hyper_local_coordinates(
+        self, x, y, z, x_local_offset, y_local_offset, z_local_offset
+    ):
+        """Inputs in local coordinates."""
+        return x - x_local_offset, y - y_local_offset, z - z_local_offset
+
+    def blocks_to_tensor(self, blocks, x_min, x_max, y_min, y_max, z_min, z_max):
+        X = np.zeros((x_max - x_min, y_max - y_min, z_max - z_min))
+
         for block in blocks.blocks:
-            x = block.position.x - self.x_offset
-            y = block.position.y - self.y_offset
-            z = block.position.z - self.z_offset
+            x, y, z = self.to_local_coordinates(
+                block.position.x, block.position.y, block.position.z
+            )
+            x, y, z = self.to_hyper_local_coordinates(
+                block.position.x,
+                block.position.y,
+                block.position.z,
+                x_min,
+                y_min,
+                z_min
+            )
             X[x, y, z] = block.type
         return X
 
     def read_tensor(self, x_min, x_max, y_min, y_max, z_min, z_max):
+        x_min, y_min, z_min = self.to_global_coordinates(x_min, y_min, z_min)
+        x_max, y_max, z_max = self.to_global_coordinates(x_max, y_max, z_max)
         blocks = self.client.readCube(
             Cube(
                 min=Point(
-                    x=x_min + self.x_offset,
-                    y=y_min + self.y_offset,
-                    z=z_min + self.z_offset,
+                    x=x_min,
+                    y=y_min,
+                    z=z_min,
                 ),
                 # API is inclusive on both ends [min, max].
                 # We follow numpy [min, max) and thus subtract 1.
                 max=Point(
-                    x=x_max + self.x_offset - 1,
-                    y=y_max + self.y_offset - 1,
-                    z=z_max + self.z_offset - 1,
+                    x=x_max - 1,
+                    y=y_max - 1,
+                    z=z_max - 1,
                 ),
             )
         )
-        return self.blocks_to_tensor(
-            blocks, x_max - x_min, y_max - y_min, z_max - z_min
-        )
+        return self.blocks_to_tensor(blocks, x_min, x_max, y_min, y_max, z_min, z_max)
 
     def tensor_to_blocks(self, X, skip=AIR):
         blocks = []
         it = np.nditer(X, flags=["multi_index"])
         for v in it:
             x, y, z = it.multi_index
+            x, y, z = self.to_global_coordinates(x, y, z)
             if (
                 v != skip
                 and (
@@ -81,9 +105,9 @@ class MinecraftAPI:
                 blocks.append(
                     Block(
                         position=Point(
-                            x=x + self.x_offset,
-                            y=y + self.y_offset,
-                            z=z + self.z_offset,
+                            x=x,
+                            y=y,
+                            z=z,
                         ),
                         type=int(v),
                     )

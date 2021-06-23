@@ -152,6 +152,9 @@ class GrowthFunction:
 
         return self.historic_representation[: self.num_features + self.num_coordinates]
 
+    def get_next_building_voxel(self):
+        return self.body[-1]
+
     def get_function_input(self, voxel):
         proportions = []  # Ordered by -x, +x, -y, ...
 
