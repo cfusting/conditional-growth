@@ -49,7 +49,7 @@ config = {
     # Settings
     "seed": np.random.randint(2 ** 32),
     "num_workers": 3,
-    "num_gpus": 0,
+    "num_gpus": 1,
     "num_gpus_per_worker": 0,
     "num_envs_per_worker": 3,
     "framework": "torch",
