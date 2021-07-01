@@ -246,3 +246,6 @@ class GrowthFunction:
 
     def __len__(self):
         return np.sum(self.X != 0)
+
+    def atrophy_disconnected_voxels(self):
+        raise NotImplementedError

@@ -8,6 +8,7 @@ def get_voxel_material_proportions(X, x, y, z, materials):
         if x == 0 or y == 0:
             return 0, 0
         return x, y
+
     # x axis positive.
     material_totals = []
     for m in materials:

@@ -1,19 +1,38 @@
 import gym
-import sys
 import numpy as np
 from gym.spaces import Box, Discrete
-from grow.utils.fitness import get_height_from_floor
+from grow.utils.fitness import get_height_from_floor, inverse_distance_from_block_type
 from grow.entities.growth_function import GrowthFunction
 from grow.utils.minecraft import MinecraftAPI
 from grow.utils.observations import get_voxel_material_proportions
 
 
-"""Minecraft Environment."""
+"""Minecraft Environment.
+
+This environment communicates with Minecraft via a read blocks / 
+write blocks API. It iteratively grows a creasture based on the
+world around it where each time step is a (potential) growth step.
+
+If multiple workers and vectors are available, this environment will
+use the corresponding indices to psudo-randomly place the creature in
+the Minecraft environment. 
+
+Notes:
+    Minecraft indices block locations as (axis1, height, axis2)
+    which throughout the API and this class is called (x, y, z).
+
+    References in this class are in local coordinates with respect
+    to the creature. The MinecraftAPI handles local to global
+    coordinate transforms using the x, y, and z offsets set during
+    initialization.
+
+"""
 
 
 class MinecraftEnvironment(gym.Env):
     def __init__(self, config):
         self.empty_material = config["empty_material"]
+        self.reward_block_type = config["block_type"]
         self.observing_materials = config["observing_materials"]
 
         self.growth_function = GrowthFunction(
@@ -30,13 +49,12 @@ class MinecraftEnvironment(gym.Env):
         self.max_steps = config["max_steps"]
         self.action_space = Discrete(len(self.growth_function.configuration_map))
         self.num_proportion_features = len(self.observing_materials) * 6
+        feature_zeros = np.array([0 for x in range(self.num_proportion_features + 3)])
         self.observation_space = Box(
-            np.array([0 for x in range(self.num_proportion_features + 3)]),
+            feature_zeros,
             np.array([1 for x in range(self.num_proportion_features + 3)]),
         )
-        self.last_features = (
-            np.array([0 for x in range(self.num_proportion_features + 3)]),
-        )
+        self.last_features = (feature_zeros,)
         self.reward_range = (0, float("inf"))
         self.reward_type = config["reward_type"]
         self.reward_interval = config["reward_interval"]
@@ -75,16 +93,29 @@ class MinecraftEnvironment(gym.Env):
         ###
 
         # Save the landscape before growth.
-        self.initial_state = self.get_grow_area_tensor()
+        self.set_growth_area_tensor()
+        self.initial_state = self.growth_area_tensor
+
+        self.initialize_rewards()
+
+    def initialize_rewards(self):
+        if self.reward_type == "y_max":
+            self.previous_height = 1
+        elif self.reward_type == "distance_from_blocks":
+            self.previous_inverse_distance = 0
+            for _ in range(np.random.randint(1, 5)):
+                x = np.random.randint(0, self.growth_function.max_length)
+                z = np.random.randint(0, self.growth_function.max_length)
+        else:
+            raise Exception("Unknown reward type: {self.reward}")
 
     def reset(self):
         self.growth_function.reset()
         self.mc.write_tensor(self.growth_function.X, skip=self.empty_material)
         self.previous_reward = 0
-        self.previous_height = 1
         return self.get_representation()
 
-    def get_grow_area_tensor(self):
+    def set_grow_area_tensor(self):
         """Get the tensor representation of the entire grow area.
 
         The grow area is defined as the maximum extent the growth
@@ -101,7 +132,7 @@ class MinecraftEnvironment(gym.Env):
             0,
             self.growth_function.max_length,
         )
-        return X
+        self.growth_area_tensor = X
 
     def update_growth_function_tensor(self):
         """Update the state of the creature.
@@ -111,11 +142,19 @@ class MinecraftEnvironment(gym.Env):
 
         """
 
-        X = self.get_grow_area_tensor()
-        M = self.growth_function.X != X
+        self.set_grow_area_tensor()
+        M = self.growth_function.X != self.growth_area_tensor
         self.growth_function.X[M] = self.empty_material
+        # self.growth_function.atrophy_disconnected_voxels()
 
     def get_representation(self):
+        """Get the local representation of blocks.
+
+        Return the proportions of blocks around the block on which
+        growth is about to occur. A proportion is returned for each
+        of the sixes faces of the block.
+
+        """
         current_voxel = self.growth_function.get_next_building_voxel()
         x, y, z = current_voxel.x, current_voxel.y, current_voxel.z
         X = self.mc.read_tensor(
@@ -138,21 +177,26 @@ class MinecraftEnvironment(gym.Env):
         return features
 
     def step(self, action):
+        # Ensure the growth functiona and Minecraft are in parity.
+        # Take a growth step and update Minecraft.
         self.update_growth_function_tensor()
         self.growth_function.step(action)
         self.mc.write_tensor(self.growth_function.X, skip=self.empty_material)
 
+        # Determine the reward and end state.
         if (
             0 < self.growth_function.steps
             and self.growth_function.steps % self.reward_interval == 0
         ):
-            reward = self.get_reward(self.growth_function.X)
+            reward = self.get_reward()
             self.previous_reward = reward
 
         done = (not self.growth_function.building()) or (
             self.growth_function.steps == self.max_steps
         )
 
+        # Get the representation around the next block on
+        # which to build and return the features, reward, etc.
         if done:
             self.mc.write_tensor(self.initial_state, skip=None)
             features = self.last_features
@@ -162,13 +206,24 @@ class MinecraftEnvironment(gym.Env):
 
         return features, self.previous_reward, done, {}
 
-    def get_reward(self, X):
+    def get_reward(self):
         if self.reward_type == "max_y":
             height = get_height_from_floor(
-                X, self.growth_function.building_materials, self.max_steps + 1
+                self.growth_function.X,
+                self.growth_function.building_materials,
+                self.max_steps + 1,
             )
             reward = height - self.previous_height
             self.previous_height = height
+        elif self.reward_type == "distance_from_blocks":
+            inverse_distance = inverse_distance_from_block_type(
+                self.growth_function.X,
+                self.growth_area_tensor,
+                self.reward_block_type,
+                self.empty_material,
+            )
+            reward = self.inverse_distance - self.previous_inverse_distance
+            self.previous_inverse_distance = inverse_distance
         else:
             raise Exception("Unknown reward type: {self.reward}")
         return reward

@@ -1,19 +1,15 @@
 import ray
 import numpy as np
 from ray.rllib.agents.ppo import PPOTrainer
-from ray.rllib.agents.impala import ImpalaTrainer
 from grow.env.minecraft_environment import MinecraftEnvironment
-from grow.utils.minecraft_pb2 import AIR, STONE, SAND, WATER, LOG, SEA_LANTERN, TORCH
-from ray.tune.registry import register_env
-
-# register_env("MinecraftEnvironment", MinecraftEnvironment)
+from grow.utils.minecraft_pb2 import AIR, SEA_LANTERN
 
 ray.init()
 
 config = {
     "env": MinecraftEnvironment,
     "env_config": {
-        "materials": (AIR, SAND, WATER, SEA_LANTERN),
+        "materials": (AIR, SEA_LANTERN),
         "num_timestep_features": 1,
         "max_steps": 10,
         "reward_interval": 1,
@@ -22,9 +18,10 @@ config = {
         "axiom_material": SEA_LANTERN,
         "reward_type": "max_y",
         "empty_material": AIR,
-        "observing_materials": (AIR, SAND, WATER, SEA_LANTERN)
+        "observing_materials": (AIR, SEA_LANTERN)
     },
     # Hypers
+
     # See https://openreview.net/pdf?id=nIAxjsniDzg
     # WHAT MATTERS FOR ON-POLICY DEEP ACTOR-CRITIC METHODS? A LARGE-SCALE STUDY
     "model": {
@@ -51,13 +48,13 @@ config = {
     "num_workers": 3,
     "num_gpus": 0,
     "num_gpus_per_worker": 0,
-    "num_envs_per_worker": 3,
+    "num_envs_per_worker": 2,
     "framework": "torch",
 }
 
 ray.tune.run(
     PPOTrainer,
-    name="sand_tower",
+    name="tower",
     config=config,
     checkpoint_freq=10,
     keep_checkpoints_num=None,

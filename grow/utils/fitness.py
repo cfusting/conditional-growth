@@ -1,7 +1,7 @@
 import numpy as np
-from collections import deque
 from scipy.spatial import ConvexHull
 from grow.utils.plotting import get_vertices_of_voxel
+from sklearn.neighbors import KDTree
 
 
 def max_z(final_positions):
@@ -166,11 +166,11 @@ def get_height_from_floor(X, connecting_materials, floor_index):
     if X.shape[1] == 0:
         return 0
 
-    if X.shape[1] == floor_index + 1 and np.any(np.isin(
-        X[:, floor_index, :], connecting_materials
-    )):
+    if X.shape[1] == floor_index + 1 and np.any(
+        np.isin(X[:, floor_index, :], connecting_materials)
+    ):
         return 1
-    
+
     height = 1
     for y in range(floor_index + 1, X.shape[1]):
         A = np.isin(X[:, y - 1, :], connecting_materials)
@@ -181,3 +181,11 @@ def get_height_from_floor(X, connecting_materials, floor_index):
             break
 
     return height
+
+
+def inverse_distance_from_block_type(X, M, block_type, empty_material):
+    creature_indices = np.argwhere(X != empty_material)
+    material_indices = np.argwhere(M == block_type)
+    tree = KDTree(creature_indices)
+    distances, _ = tree.query(material_indices)
+    return 1 / np.mean(distances)
