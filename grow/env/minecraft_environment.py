@@ -1,4 +1,5 @@
 import gym
+import itertools
 import numpy as np
 from gym.spaces import Box, Discrete
 from grow.utils.fitness import get_height_from_floor, inverse_distance_from_block_type
@@ -32,7 +33,7 @@ Notes:
 class MinecraftEnvironment(gym.Env):
     def __init__(self, config):
         self.empty_material = config["empty_material"]
-        self.reward_block_type = config["block_type"]
+        self.reward_block_type = config["reward_block_type"]
         self.observing_materials = config["observing_materials"]
 
         self.growth_function = GrowthFunction(
@@ -99,20 +100,45 @@ class MinecraftEnvironment(gym.Env):
         self.initialize_rewards()
 
     def initialize_rewards(self):
+        self.previous_reward = 0
+        
         if self.reward_type == "y_max":
             self.previous_height = 1
         elif self.reward_type == "distance_from_blocks":
             self.previous_inverse_distance = 0
-            for _ in range(np.random.randint(1, 5)):
-                x = np.random.randint(0, self.growth_function.max_length)
-                z = np.random.randint(0, self.growth_function.max_length)
+
+            # Uniformly at random select points to place blocks.
+            # Excluding Axiom.
+            possible_points = itertools.combinations(
+                [x for x in range(self.growth_function.max_length)], 2
+            )
+            possible_points.remove(
+                (
+                    self.growth_function.axiom_coordinate,
+                    self.growth_function.axiom_coordinate,
+                )
+            )
+            points = np.random.choice(possible_points, size=np.random.randint(1, 3))
+            for p in points:
+                X = np.full_like(self.growth_function.X, self.empty_material)
+                X[p[0], p[1]] = self.reward_block_type
+                MinecraftAPI.write_tensor(X)
         else:
             raise Exception("Unknown reward type: {self.reward}")
 
+    def clear_creature(self):
+        X = np.full_like(self.growth_function.X, np.nan)
+        for material in self.growth_function.building_materials:
+            M = self.growth_function.X == material
+            X = np.bitwise_or(X, M)
+
+        X[X == 1] = self.empty_material
+        self.mc.write_tensor(X, skip=None, only=[self.empty_material])
+
     def reset(self):
+        self.clear_creature()
         self.growth_function.reset()
-        self.mc.write_tensor(self.growth_function.X, skip=self.empty_material)
-        self.previous_reward = 0
+        self.initialize_rewards()
         return self.get_representation()
 
     def set_grow_area_tensor(self):
