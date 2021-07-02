@@ -94,40 +94,43 @@ class MinecraftEnvironment(gym.Env):
         ###
 
         # Save the landscape before growth.
-        self.set_growth_area_tensor()
+        self.set_grow_area_tensor()
         self.initial_state = self.growth_area_tensor
-
-        self.initialize_rewards()
 
     def initialize_rewards(self):
         self.previous_reward = 0
-        
+
         if self.reward_type == "y_max":
             self.previous_height = 1
         elif self.reward_type == "distance_from_blocks":
             self.previous_inverse_distance = 0
 
-            # Uniformly at random select points to place blocks.
-            # Excluding Axiom.
-            possible_points = itertools.combinations(
-                [x for x in range(self.growth_function.max_length)], 2
+            # Find empty space to place the reward block.
+            X = self.initial_state
+            X[
+                self.growth_function.axiom_coordinate,
+                self.growth_function.axiom_coordinate,
+                self.growth_function.axiom_coordinate,
+            ] = self.growth_function.building_materials[0]
+            possible_points = list(np.argwhere(X == self.empty_material))
+            indices = np.random.choice(
+                len(possible_points),
+                size=np.random.randint(1, 3),
+                replace=False,
             )
-            possible_points.remove(
-                (
-                    self.growth_function.axiom_coordinate,
-                    self.growth_function.axiom_coordinate,
-                )
-            )
-            points = np.random.choice(possible_points, size=np.random.randint(1, 3))
-            for p in points:
+            for i in indices:
+                x = possible_points[i][0]
+                y = possible_points[i][0]
+                z = possible_points[i][1]
+
                 X = np.full_like(self.growth_function.X, self.empty_material)
-                X[p[0], p[1]] = self.reward_block_type
-                MinecraftAPI.write_tensor(X)
+                X[x, y, z] = self.reward_block_type
+                self.mc.write_tensor(X)
         else:
             raise Exception("Unknown reward type: {self.reward}")
 
     def clear_creature(self):
-        X = np.full_like(self.growth_function.X, np.nan)
+        X = np.full_like(self.growth_function.X, 0)
         for material in self.growth_function.building_materials:
             M = self.growth_function.X == material
             X = np.bitwise_or(X, M)
@@ -248,7 +251,7 @@ class MinecraftEnvironment(gym.Env):
                 self.reward_block_type,
                 self.empty_material,
             )
-            reward = self.inverse_distance - self.previous_inverse_distance
+            reward = inverse_distance - self.previous_inverse_distance
             self.previous_inverse_distance = inverse_distance
         else:
             raise Exception("Unknown reward type: {self.reward}")

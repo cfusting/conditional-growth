@@ -186,6 +186,12 @@ def get_height_from_floor(X, connecting_materials, floor_index):
 def inverse_distance_from_block_type(X, M, block_type, empty_material):
     creature_indices = np.argwhere(X != empty_material)
     material_indices = np.argwhere(M == block_type)
+    if len(creature_indices) == 0:
+        print("Warning: No creature indices found. Returning reward 0.")
+        return 0
     tree = KDTree(creature_indices)
-    distances, _ = tree.query(material_indices)
-    return 1 / np.mean(distances)
+    distances, _ = tree.query(material_indices, k=1)
+    d = np.mean(distances)
+    if d == 0:
+        return 2
+    return 1 / d

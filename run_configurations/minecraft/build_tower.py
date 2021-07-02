@@ -2,7 +2,7 @@ import ray
 import numpy as np
 from ray.rllib.agents.ppo import PPOTrainer
 from grow.env.minecraft_environment import MinecraftEnvironment
-from grow.utils.minecraft_pb2 import AIR, SEA_LANTERN
+from grow.utils.minecraft_pb2 import AIR, SEA_LANTERN, GLOWSTONE
 
 ray.init()
 
@@ -14,11 +14,12 @@ config = {
         "max_steps": 10,
         "reward_interval": 1,
         "max_voxels": 6,
-        "search_radius": 3,
+        "search_radius": 10,
         "axiom_material": SEA_LANTERN,
-        "reward_type": "max_y",
+        "reward_type": "distance_from_blocks",
         "empty_material": AIR,
-        "observing_materials": (AIR, SEA_LANTERN)
+        "observing_materials": (AIR, SEA_LANTERN, GLOWSTONE),
+        "reward_block_type": GLOWSTONE,
     },
     # Hypers
 
@@ -46,7 +47,7 @@ config = {
     # Settings
     "seed": np.random.randint(2 ** 32),
     "num_workers": 3,
-    "num_gpus": 1,
+    "num_gpus": 0,
     "num_gpus_per_worker": 0,
     "num_envs_per_worker": 2,
     "framework": "torch",
@@ -54,7 +55,7 @@ config = {
 
 ray.tune.run(
     PPOTrainer,
-    name="tower",
+    name="ddog",
     config=config,
     checkpoint_freq=10,
     keep_checkpoints_num=None,

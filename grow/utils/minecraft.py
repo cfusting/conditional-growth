@@ -133,7 +133,7 @@ class MinecraftAPI:
             self.max_length,
         )
 
-        self.Z = np.zeros((self.max_length, self.max_length))
+        self.Z = np.zeros((self.max_length, self.max_length), dtype=np.int)
         for y in reversed(range(X.shape[1])):
             M = X[:, y, :].reshape((self.max_length, self.max_length)) != AIR
             self.Z[np.bitwise_and(self.Z == 0, M)] = y
