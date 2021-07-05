@@ -1,10 +1,23 @@
 import ray
+import os
 import numpy as np
 from ray.rllib.agents.ppo import PPOTrainer
 from grow.env.minecraft_environment import MinecraftEnvironment
 from grow.utils.minecraft_pb2 import AIR, SEA_LANTERN, GLOWSTONE
+import torch
 
-ray.init()
+
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+
+ray.init(num_gpus=1)
+
+print(torch.cuda.is_available())
+print(torch.cuda.current_device())
+print(torch.cuda.device_count())
+print(torch.cuda.device(torch.cuda.current_device()))
+print(torch.cuda.get_device_name())
+print("ray.get_gpu_ids(): {}".format(ray.get_gpu_ids()))
+print("CUDA_VISIBLE_DEVICES: {}".format(os.environ["CUDA_VISIBLE_DEVICES"]))
 
 config = {
     "env": MinecraftEnvironment,
@@ -37,19 +50,19 @@ config = {
     # The remaining choices were not addressed in the paper.
     "entropy_coeff": 0.00,  # Tune?
     # Size of batches collected from each worker.
-    "rollout_fragment_length": 10,
+    # "rollout_fragment_length": 10,
     # Number of timesteps collected for each SGD round. This defines the size
     # of each SGD epoch.
-    "train_batch_size": 100,
+    # "train_batch_size": 100,
     # Total SGD batch size across all devices for SGD. This defines the
     # minibatch size within each epoch.
-    "sgd_minibatch_size": 10,
+    # "sgd_minibatch_size": 10,
     # Settings
     "seed": np.random.randint(2 ** 32),
-    "num_workers": 3,
-    "num_gpus": 0,
+    "num_workers": 8,
+    "num_gpus": 1,
     "num_gpus_per_worker": 0,
-    "num_envs_per_worker": 2,
+    "num_envs_per_worker": 1,
     "framework": "torch",
 }
 

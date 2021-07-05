@@ -1,5 +1,4 @@
 import gym
-import itertools
 import numpy as np
 from gym.spaces import Box, Discrete
 from grow.utils.fitness import get_height_from_floor, inverse_distance_from_block_type
@@ -113,19 +112,17 @@ class MinecraftEnvironment(gym.Env):
                 self.growth_function.axiom_coordinate,
             ] = self.growth_function.building_materials[0]
             possible_points = list(np.argwhere(X == self.empty_material))
-            indices = np.random.choice(
+            i = np.random.choice(
                 len(possible_points),
-                size=np.random.randint(1, 3),
                 replace=False,
             )
-            for i in indices:
-                x = possible_points[i][0]
-                y = possible_points[i][0]
-                z = possible_points[i][1]
+            x = possible_points[i][0]
+            y = possible_points[i][0]
+            z = possible_points[i][1]
 
-                X = np.full_like(self.growth_function.X, self.empty_material)
-                X[x, y, z] = self.reward_block_type
-                self.mc.write_tensor(X)
+            X = np.full_like(self.growth_function.X, self.empty_material)
+            X[x, y, z] = self.reward_block_type
+            self.mc.write_tensor(X)
         else:
             raise Exception("Unknown reward type: {self.reward}")
 
