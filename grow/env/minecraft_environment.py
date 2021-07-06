@@ -1,7 +1,7 @@
 import gym
 import numpy as np
 from gym.spaces import Box, Discrete
-from grow.utils.fitness import get_height_from_floor, inverse_distance_from_block_type
+from grow.utils.fitness import get_height_from_floor, distance_from_block_type
 from grow.entities.growth_function import GrowthFunction
 from grow.utils.minecraft import MinecraftAPI
 from grow.utils.observations import get_voxel_material_proportions
@@ -34,6 +34,7 @@ class MinecraftEnvironment(gym.Env):
         self.empty_material = config["empty_material"]
         self.reward_block_type = config["reward_block_type"]
         self.observing_materials = config["observing_materials"]
+        self.feature_type = config["feature_type"]
 
         self.growth_function = GrowthFunction(
             materials=config["materials"],
@@ -50,10 +51,24 @@ class MinecraftEnvironment(gym.Env):
         self.action_space = Discrete(len(self.growth_function.configuration_map))
         self.num_proportion_features = len(self.observing_materials) * 6
         feature_zeros = np.array([0 for x in range(self.num_proportion_features + 3)])
-        self.observation_space = Box(
-            feature_zeros,
-            np.array([1 for x in range(self.num_proportion_features + 3)]),
-        )
+        if self.feature_type == "raw":
+            self.observation_space = Box(
+                0,
+                1.0,
+                (
+                    self.growth_function.max_length,
+                    self.growth_function.max_length,
+                    self.growth_function.max_length,
+                    254,
+                ),
+                np.uint8,
+            )
+        else:
+            self.observation_space = Box(
+                feature_zeros,
+                np.array([1 for x in range(self.num_proportion_features + 3)]),
+            )
+
         self.last_features = (feature_zeros,)
         self.reward_range = (0, float("inf"))
         self.reward_type = config["reward_type"]
@@ -102,23 +117,27 @@ class MinecraftEnvironment(gym.Env):
         if self.reward_type == "y_max":
             self.previous_height = 1
         elif self.reward_type == "distance_from_blocks":
-            self.previous_inverse_distance = 0
+            self.previous_distance = 0
 
-            # Find empty space to place the reward block.
             X = self.initial_state
+            # Put something in the axiom spot to prevent
+            # placing the reward where the first block
+            # will be placed.
             X[
                 self.growth_function.axiom_coordinate,
                 self.growth_function.axiom_coordinate,
                 self.growth_function.axiom_coordinate,
             ] = self.growth_function.building_materials[0]
+
+            # Find empty space to place the reward block.
             possible_points = list(np.argwhere(X == self.empty_material))
             i = np.random.choice(
                 len(possible_points),
                 replace=False,
             )
             x = possible_points[i][0]
-            y = possible_points[i][0]
-            z = possible_points[i][1]
+            y = possible_points[i][1]
+            z = possible_points[i][2]
 
             X = np.full_like(self.growth_function.X, self.empty_material)
             X[x, y, z] = self.reward_block_type
@@ -150,7 +169,7 @@ class MinecraftEnvironment(gym.Env):
 
         """
 
-        X = self.mc.read_tensor(
+        X, _ = self.mc.read_tensor(
             0,
             self.growth_function.max_length,
             0,
@@ -183,7 +202,7 @@ class MinecraftEnvironment(gym.Env):
         """
         current_voxel = self.growth_function.get_next_building_voxel()
         x, y, z = current_voxel.x, current_voxel.y, current_voxel.z
-        X = self.mc.read_tensor(
+        X, Z = self.mc.read_tensor(
             x - self.search_radius,
             x + self.search_radius,
             y - self.search_radius,
@@ -191,6 +210,11 @@ class MinecraftEnvironment(gym.Env):
             z - self.search_radius,
             z + self.search_radius,
         )
+        # Use convolution to find features.
+        if self.feature_type == "raw":
+            return Z
+
+        # Otherwise we'll hand craft some features.
         material_proportions = get_voxel_material_proportions(
             X, x, y, z, self.observing_materials
         )
@@ -217,8 +241,10 @@ class MinecraftEnvironment(gym.Env):
             reward = self.get_reward()
             self.previous_reward = reward
 
-        done = (not self.growth_function.building()) or (
-            self.growth_function.steps == self.max_steps
+        done = (
+            (not self.growth_function.building())
+            or (self.growth_function.steps == self.max_steps)
+            or (reward == -1)
         )
 
         # Get the representation around the next block on
@@ -230,6 +256,8 @@ class MinecraftEnvironment(gym.Env):
             features = self.get_representation()
             self.last_features = features
 
+        if reward == -1:
+            self.previous_reward = 0
         return features, self.previous_reward, done, {}
 
     def get_reward(self):
@@ -239,17 +267,25 @@ class MinecraftEnvironment(gym.Env):
                 self.growth_function.building_materials,
                 self.max_steps + 1,
             )
-            reward = height - self.previous_height
+            if height > self.previous_height:
+                reward = 1
+            else:
+                reward = 0
             self.previous_height = height
         elif self.reward_type == "distance_from_blocks":
-            inverse_distance = inverse_distance_from_block_type(
+            distance = distance_from_block_type(
                 self.growth_function.X,
                 self.growth_area_tensor,
                 self.reward_block_type,
                 self.empty_material,
             )
-            reward = inverse_distance - self.previous_inverse_distance
-            self.previous_inverse_distance = inverse_distance
+            if distance == -1:
+                return -1
+            if distance < self.previous_distance:
+                reward = 1
+            else:
+                reward = 0
+            self.previous_distance = distance
         else:
             raise Exception("Unknown reward type: {self.reward}")
         return reward

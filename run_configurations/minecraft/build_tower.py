@@ -4,20 +4,42 @@ import numpy as np
 from ray.rllib.agents.ppo import PPOTrainer
 from grow.env.minecraft_environment import MinecraftEnvironment
 from grow.utils.minecraft_pb2 import AIR, SEA_LANTERN, GLOWSTONE
-import torch
+from torch.nn import Module, Conv3d, Sequential, ReLU, Linear, Flatten
+from ray.rllib.models.torch.torch_modelv2 import TorchModelV2
+from ray.rllib.models import ModelCatalog
 
 
+class ThreeDimensionalConvolution(TorchModelV2, Module):
+    def __init__(self, obs_space, action_space, num_outputs, model_config, name):
+        TorchModelV2.__init__(
+            self, obs_space, action_space, num_outputs, model_config, name
+        )
+        Module.__init__(self)
+        self._hidden_layers = Sequential(
+            Conv3d(obs_space.shape[0], 508, 4, stride=2),
+            ReLU(),
+            Conv3d(508, 1016, 4, stride=2),
+            ReLU(),
+            Conv3d(1016, 2032, 4, stride=1),
+            ReLU(),
+            Flatten(),
+            Linear(2032, 1016),
+            ReLU(),
+            Linear(1016, 508),
+            ReLU(),
+            Linear(508, action_space.n),
+        )
+
+    def forward(self, input_dict, state, seq_lens):
+        x = input_dict["obs"].float()
+        x = x.permute(0, 4, 1, 2, 3)
+        print(x.shape)
+        return self._hidden_layers(x), state
+
+
+ModelCatalog.register_custom_model("3dconv", ThreeDimensionalConvolution)
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
-
 ray.init(num_gpus=1)
-
-print(torch.cuda.is_available())
-print(torch.cuda.current_device())
-print(torch.cuda.device_count())
-print(torch.cuda.device(torch.cuda.current_device()))
-print(torch.cuda.get_device_name())
-print("ray.get_gpu_ids(): {}".format(ray.get_gpu_ids()))
-print("CUDA_VISIBLE_DEVICES: {}".format(os.environ["CUDA_VISIBLE_DEVICES"]))
 
 config = {
     "env": MinecraftEnvironment,
@@ -33,14 +55,15 @@ config = {
         "empty_material": AIR,
         "observing_materials": (AIR, SEA_LANTERN, GLOWSTONE),
         "reward_block_type": GLOWSTONE,
+        "feature_type": "raw",
     },
     # Hypers
-
     # See https://openreview.net/pdf?id=nIAxjsniDzg
     # WHAT MATTERS FOR ON-POLICY DEEP ACTOR-CRITIC METHODS? A LARGE-SCALE STUDY
     "model": {
-        "fcnet_hiddens": [256, 256],
-        "fcnet_activation": "tanh",
+        "custom_model": "3dconv",
+        # "fcnet_hiddens": [256, 256],
+        # "fcnet_activation": "tanh",
     },
     "gamma": 0.99,  # One of the most important. Tune this!
     "lr": 0.0003,  # Tune this as well.
@@ -59,7 +82,7 @@ config = {
     # "sgd_minibatch_size": 10,
     # Settings
     "seed": np.random.randint(2 ** 32),
-    "num_workers": 8,
+    "num_workers": 1,
     "num_gpus": 1,
     "num_gpus_per_worker": 0,
     "num_envs_per_worker": 1,

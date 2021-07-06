@@ -44,6 +44,7 @@ class MinecraftAPI:
 
     def blocks_to_tensor(self, blocks, x_min, x_max, y_min, y_max, z_min, z_max):
         X = np.zeros((x_max - x_min, y_max - y_min, z_max - z_min))
+        Z = np.zeros((x_max - x_min, y_max - y_min, z_max - z_min, 254))
 
         for block in blocks.blocks:
             x, y, z = self.to_local_coordinates(
@@ -58,7 +59,8 @@ class MinecraftAPI:
                 z_min,
             )
             X[x, y, z] = block.type
-        return X
+            Z[x, y, z, block.type] = 1
+        return X, Z
 
     def read_tensor(self, x_min, x_max, y_min, y_max, z_min, z_max):
         x_min, y_min, z_min = self.to_global_coordinates(x_min, y_min, z_min)
@@ -124,7 +126,7 @@ class MinecraftAPI:
         self.client.spawnBlocks(blocks)
 
     def find_the_floor(self):
-        X = self.read_tensor(
+        X, _ = self.read_tensor(
             0,
             self.max_length,
             MinecraftAPI.min_indices[1],
