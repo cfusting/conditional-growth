@@ -4,7 +4,7 @@ import numpy as np
 from ray.rllib.agents.ppo import PPOTrainer
 from grow.env.minecraft_environment import MinecraftEnvironment
 from grow.utils.minecraft_pb2 import AIR, SEA_LANTERN, GLOWSTONE
-from torch.nn import Module, Conv3d, Sequential, ReLU, Linear, Flatten
+from torch.nn import Module, Sequential, ReLU, Linear, Flatten, Conv3d
 from ray.rllib.models.torch.torch_modelv2 import TorchModelV2
 from ray.rllib.models import ModelCatalog
 
@@ -15,26 +15,39 @@ class ThreeDimensionalConvolution(TorchModelV2, Module):
             self, obs_space, action_space, num_outputs, model_config, name
         )
         Module.__init__(self)
+
         self._hidden_layers = Sequential(
-            Conv3d(obs_space.shape[0], 508, 4, stride=2),
+            Conv3d(obs_space.shape[3], 508, 4, 2),
             ReLU(),
-            Conv3d(508, 1016, 4, stride=2),
+            Conv3d(508, 1016, 4, 2),
             ReLU(),
-            Conv3d(1016, 2032, 4, stride=1),
+            Conv3d(1016, 2032, 4, 1),
             ReLU(),
             Flatten(),
-            Linear(2032, 1016),
-            ReLU(),
-            Linear(1016, 508),
-            ReLU(),
-            Linear(508, action_space.n),
+            Linear(2032, num_outputs),
         )
+
+        self.vf = Sequential(
+            Conv3d(obs_space.shape[3], 508, 4, 2),
+            ReLU(),
+            Conv3d(508, 1016, 4, 2),
+            ReLU(),
+            Conv3d(1016, 2032, 4, 1),
+            ReLU(),
+            Flatten(),
+            Linear(2032, 1),
+        )
+
+        self.x = None
 
     def forward(self, input_dict, state, seq_lens):
         x = input_dict["obs"].float()
-        x = x.permute(0, 4, 1, 2, 3)
-        print(x.shape)
-        return self._hidden_layers(x), state
+        self.x = x.permute(0, 4, 1, 2, 3)
+        return self._hidden_layers(self.x), state
+
+    def value_function(self):
+        assert self.x is not None, "You must call forward() before value_function()."
+        return self.vf(self.x).squeeze(1)
 
 
 ModelCatalog.register_custom_model("3dconv", ThreeDimensionalConvolution)
@@ -49,21 +62,21 @@ config = {
         "max_steps": 10,
         "reward_interval": 1,
         "max_voxels": 6,
-        "search_radius": 10,
+        "search_radius": 3,
         "axiom_material": SEA_LANTERN,
         "reward_type": "distance_from_blocks",
         "empty_material": AIR,
         "observing_materials": (AIR, SEA_LANTERN, GLOWSTONE),
         "reward_block_type": GLOWSTONE,
-        "feature_type": "raw",
+        "feature_type": "nope",
     },
     # Hypers
     # See https://openreview.net/pdf?id=nIAxjsniDzg
     # WHAT MATTERS FOR ON-POLICY DEEP ACTOR-CRITIC METHODS? A LARGE-SCALE STUDY
     "model": {
-        "custom_model": "3dconv",
-        # "fcnet_hiddens": [256, 256],
-        # "fcnet_activation": "tanh",
+        # "custom_model": "3dconv",
+        "fcnet_hiddens": [256, 256],
+        "fcnet_activation": "tanh",
     },
     "gamma": 0.99,  # One of the most important. Tune this!
     "lr": 0.0003,  # Tune this as well.
