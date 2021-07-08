@@ -42,9 +42,14 @@ class MinecraftAPI:
         """Inputs in local coordinates."""
         return x - x_local_offset, y - y_local_offset, z - z_local_offset
 
-    def blocks_to_tensor(self, blocks, x_min, x_max, y_min, y_max, z_min, z_max):
+    def blocks_to_tensor(
+        self, blocks, x_min, x_max, y_min, y_max, z_min, z_max, only_encode=[]
+    ):
         X = np.zeros((x_max - x_min, y_max - y_min, z_max - z_min))
-        Z = np.zeros((x_max - x_min, y_max - y_min, z_max - z_min, 254))
+        Z = np.zeros((x_max - x_min, y_max - y_min, z_max - z_min, len(only_encode)))
+        material_to_index = {}
+        for i, m in enumerate(only_encode):
+            material_to_index[m] = i
 
         for block in blocks.blocks:
             x, y, z = self.to_local_coordinates(
@@ -59,10 +64,11 @@ class MinecraftAPI:
                 z_min,
             )
             X[x, y, z] = block.type
-            Z[x, y, z, block.type] = 1
+            if block.type in only_encode:
+                Z[x, y, z, material_to_index[block.type]] = 1
         return X, Z
 
-    def read_tensor(self, x_min, x_max, y_min, y_max, z_min, z_max):
+    def read_tensor(self, x_min, x_max, y_min, y_max, z_min, z_max, only_encode=[]):
         x_min, y_min, z_min = self.to_global_coordinates(x_min, y_min, z_min)
         x_max, y_max, z_max = self.to_global_coordinates(x_max, y_max, z_max)
         blocks = self.client.readCube(
@@ -81,7 +87,9 @@ class MinecraftAPI:
                 ),
             )
         )
-        return self.blocks_to_tensor(blocks, x_min, x_max, y_min, y_max, z_min, z_max)
+        return self.blocks_to_tensor(
+            blocks, x_min, x_max, y_min, y_max, z_min, z_max, only_encode
+        )
 
     def tensor_to_blocks(self, X, skip=AIR, only=None):
         blocks = []

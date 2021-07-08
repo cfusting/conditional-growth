@@ -56,10 +56,10 @@ class MinecraftEnvironment(gym.Env):
                 0,
                 1.0,
                 (
-                    self.growth_function.max_length,
-                    self.growth_function.max_length,
-                    self.growth_function.max_length,
-                    254,
+                    2 * self.search_radius + 2,
+                    2 * self.search_radius + 2,
+                    2 * self.search_radius + 2,
+                    len(self.observing_materials),
                 ),
                 np.uint8,
             )
@@ -203,12 +203,13 @@ class MinecraftEnvironment(gym.Env):
         current_voxel = self.growth_function.get_next_building_voxel()
         x, y, z = current_voxel.x, current_voxel.y, current_voxel.z
         X, Z = self.mc.read_tensor(
-            x - self.search_radius,
-            x + self.search_radius,
-            y - self.search_radius,
-            y + self.search_radius,
-            z - self.search_radius,
-            z + self.search_radius,
+            x - self.search_radius - 1,
+            x + self.search_radius + 1,
+            y - self.search_radius - 1,
+            y + self.search_radius + 1,
+            z - self.search_radius - 1,
+            z + self.search_radius + 1,
+            self.observing_materials,
         )
         # Use convolution to find features.
         if self.feature_type == "raw":

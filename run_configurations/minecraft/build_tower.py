@@ -15,27 +15,27 @@ class ThreeDimensionalConvolution(TorchModelV2, Module):
             self, obs_space, action_space, num_outputs, model_config, name
         )
         Module.__init__(self)
-
+        n = obs_space.shape[3]
         self._hidden_layers = Sequential(
-            Conv3d(obs_space.shape[3], 508, 4, 2),
+            Conv3d(n, 2 * n, 4, 2),
             ReLU(),
-            Conv3d(508, 1016, 4, 2),
+            Conv3d(2 * n, 4 * n, 4, 2),
             ReLU(),
-            Conv3d(1016, 2032, 4, 1),
+            Conv3d(4 * n, 8 * n, 4, 1),
             ReLU(),
             Flatten(),
-            Linear(2032, num_outputs),
+            Linear(8 * n, num_outputs),
         )
 
         self.vf = Sequential(
-            Conv3d(obs_space.shape[3], 508, 4, 2),
+            Conv3d(n, 2 * n, 4, 2),
             ReLU(),
-            Conv3d(508, 1016, 4, 2),
+            Conv3d(2 * n, 4 * n, 4, 2),
             ReLU(),
-            Conv3d(1016, 2032, 4, 1),
+            Conv3d(4 * n, 8 * n, 4, 1),
             ReLU(),
             Flatten(),
-            Linear(2032, 1),
+            Linear(8 * n, 1),
         )
 
         self.x = None
@@ -62,21 +62,22 @@ config = {
         "max_steps": 10,
         "reward_interval": 1,
         "max_voxels": 6,
-        "search_radius": 3,
+        # Make sure to calibrate this with the convolutions.
+        "search_radius": 10,
         "axiom_material": SEA_LANTERN,
         "reward_type": "distance_from_blocks",
         "empty_material": AIR,
         "observing_materials": (AIR, SEA_LANTERN, GLOWSTONE),
         "reward_block_type": GLOWSTONE,
-        "feature_type": "nope",
+        "feature_type": "raw",
     },
     # Hypers
     # See https://openreview.net/pdf?id=nIAxjsniDzg
     # WHAT MATTERS FOR ON-POLICY DEEP ACTOR-CRITIC METHODS? A LARGE-SCALE STUDY
     "model": {
-        # "custom_model": "3dconv",
-        "fcnet_hiddens": [256, 256],
-        "fcnet_activation": "tanh",
+        "custom_model": "3dconv",
+        # "fcnet_hiddens": [256, 256],
+        # "fcnet_activation": "tanh",
     },
     "gamma": 0.99,  # One of the most important. Tune this!
     "lr": 0.0003,  # Tune this as well.
@@ -95,7 +96,7 @@ config = {
     # "sgd_minibatch_size": 10,
     # Settings
     "seed": np.random.randint(2 ** 32),
-    "num_workers": 1,
+    "num_workers": 4,
     "num_gpus": 1,
     "num_gpus_per_worker": 0,
     "num_envs_per_worker": 1,
