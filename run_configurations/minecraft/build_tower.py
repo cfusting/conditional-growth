@@ -96,17 +96,18 @@ config = {
     # "sgd_minibatch_size": 10,
     # Settings
     "seed": np.random.randint(2 ** 32),
-    "num_workers": 4,
+    "num_workers": 15,
     "num_gpus": 1,
     "num_gpus_per_worker": 0,
-    "num_envs_per_worker": 1,
+    "num_envs_per_worker": 2,
     "framework": "torch",
 }
 
 ray.tune.run(
     PPOTrainer,
-    name="ddog",
+    name="bigbadger",
     config=config,
-    checkpoint_freq=10,
+    checkpoint_freq=1,
     keep_checkpoints_num=None,
+    # restore=""
 )

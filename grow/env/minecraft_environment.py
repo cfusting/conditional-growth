@@ -1,10 +1,4 @@
-import gym
-import numpy as np
-from gym.spaces import Box, Discrete
-from grow.utils.fitness import get_height_from_floor, distance_from_block_type
-from grow.entities.growth_function import GrowthFunction
-from grow.utils.minecraft import MinecraftAPI
-from grow.utils.observations import get_voxel_material_proportions
+/
 
 
 """Minecraft Environment.
@@ -251,14 +245,13 @@ class MinecraftEnvironment(gym.Env):
         # Get the representation around the next block on
         # which to build and return the features, reward, etc.
         if done:
-            self.mc.write_tensor(self.initial_state, skip=None)
             features = self.last_features
         else:
             features = self.get_representation()
             self.last_features = features
 
         if reward == -1:
-            self.previous_reward = 0
+            self.previous_reward = 1
         return features, self.previous_reward, done, {}
 
     def get_reward(self):

@@ -25,7 +25,7 @@ class MinecraftAPI:
         self.max_steps = max_steps
         self.max_length = max_length
         self.find_the_floor()
-        self.y_offset = self.Z[self.max_steps + 1, self.max_steps + 1]
+        self.y_offset = self.Z[self.max_steps + 1, self.max_steps + 1] + 1
         print(f"Offsets: ({self.x_offset}, {self.y_offset}, {self.z_offset})")
 
     def to_global_coordinates(self, x, y, z):
