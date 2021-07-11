@@ -197,6 +197,7 @@ class MinecraftEnvironment(gym.Env):
         self.set_grow_area_tensor()
         M = self.growth_function.X != self.growth_area_tensor
         self.growth_function.X[M] = self.empty_material
+        # Should probably do this at some points.
         # self.growth_function.atrophy_disconnected_voxels()
 
     def get_representation(self):
@@ -233,6 +234,8 @@ class MinecraftEnvironment(gym.Env):
         ]
         features = np.array(material_proportions + relative_locations)
         return features
+
+        self.clear_construction()
 
     def step(self, action):
         # Ensure the growth functiona and Minecraft are in parity.
