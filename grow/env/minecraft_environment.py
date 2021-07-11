@@ -1,4 +1,10 @@
-/
+import gym
+import numpy as np
+from gym.spaces import Box, Discrete
+from grow.utils.fitness import get_height_from_floor, distance_from_block_type
+from grow.entities.growth_function import GrowthFunction
+from grow.utils.minecraft import MinecraftAPI
+from grow.utils.observations import get_voxel_material_proportions
 
 
 """Minecraft Environment.
@@ -77,7 +83,7 @@ class MinecraftEnvironment(gym.Env):
                 )
             )
         )
-        y_offset = int(
+        z_offset = int(
             np.floor(
                 np.random.normal(
                     config.vector_index * self.growth_function.max_length * 3, sigma
@@ -88,7 +94,7 @@ class MinecraftEnvironment(gym.Env):
             self.max_steps,
             self.growth_function.max_length,
             x_offset=x_offset,
-            z_offset=y_offset,
+            z_offset=z_offset,
         )
 
         ###
@@ -135,21 +141,28 @@ class MinecraftEnvironment(gym.Env):
 
             X = np.full_like(self.growth_function.X, self.empty_material)
             X[x, y, z] = self.reward_block_type
+            self.reward_block_coordinate = (x, y, z)
             self.mc.write_tensor(X)
         else:
             raise Exception("Unknown reward type: {self.reward}")
 
-    def clear_creature(self):
+    def clear_construction(self):
         X = np.full_like(self.growth_function.X, 0)
         for material in self.growth_function.building_materials:
             M = self.growth_function.X == material
             X = np.bitwise_or(X, M)
 
         X[X == 1] = self.empty_material
+
+        if self.reward_type == "distance_from_blocks":
+            X[
+                self.reward_block_coordinate[0],
+                self.reward_block_coordinate[1],
+                self.reward_block_coordinate[2],
+            ] = self.empty_material
         self.mc.write_tensor(X, skip=None, only=[self.empty_material])
 
     def reset(self):
-        self.clear_creature()
         self.growth_function.reset()
         self.initialize_rewards()
         return self.get_representation()
@@ -245,6 +258,7 @@ class MinecraftEnvironment(gym.Env):
         # Get the representation around the next block on
         # which to build and return the features, reward, etc.
         if done:
+            self.clear_construction()
             features = self.last_features
         else:
             features = self.get_representation()
