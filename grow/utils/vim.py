@@ -59,7 +59,7 @@ class VariationInformationMaximization:
 
         return np.max(probabilities, axis=1)
 
-    def get_source_action_state_probabilities(self, start_state, actions):
+    def get_source_action_state_probabilities_per_action(self, start_state, actions):
         X = np.zeros(
             (
                 start_state.shape[0],
@@ -68,12 +68,21 @@ class VariationInformationMaximization:
         )
         X[:, self.num_actions : self.null_actions + self.state_dimensions] = start_state
 
-        probabilities = np.ones((X.shape[0], self.num_actions))
-        for i in self.num_action_steps:
-            X[:, actions[i]] = np.ones(X.shape[0])
-            probabilities *= self.source_action_state(X)
+        probabilities = np.ones((X.shape[0], self.num_actions, len(actions)))
+        for i, a in enumerate(actions):
+            X[:, a, i] = np.ones(X.shape[0])
 
         return probabilities
+
+    def get_source_action_state_probabilities(self, start_state, actions):
+        probabilities = self.get_source_action_state_probabilities_per_action(
+            start_state, actions
+        )
+        return np.prod(probabilities, axis=2)
+
+    def get_source_action_state_probability(self, start_state, actions):
+        probabilities = self.get_source_action_state_probabilities(start_state, actions)
+        return np.max(probabilities, axis=0)
 
     def sample_source_distribution(self, start_state):
         probabilities = self.get_source_action_state_probabilities(start_state)
@@ -107,21 +116,22 @@ class VariationInformationMaximization:
         action_decoder_probability = self.get_action_decoder_probability(
             start_state, end_state, actions=action_sequence_sample
         )
-        source_state_probabilities = (
-            self.get_source_action_state_probabilities(
-                start_state, end_state, actions=action_sequence_sample
-            )
+        source_action_state_probabilities = self.get_source_action_state_probabilities(
+            start_state, end_state, actions=action_sequence_sample
+        )
+        source_action_state_probability = np.max(
+            source_action_state_probabilities, axis=1
         )
         scalar = self.source_state(start_state)
         source_loss = self.explortation_loss(
             self.beta * torch.log(action_decoder_probability)
-            - (torch.log(source_state_probabilities) + scalar)
+            - (torch.log(source_action_state_probability) + scalar)
         )
         source_loss.backwards()
         self.source_optimizer.step()
 
     def get_empowerment(self, start_state):
-        return self.beta**-1 * self.scalar(start_state)
+        return self.beta ** -1 * self.scalar(start_state)
 
 
 class TwoLayer(nn.Module):

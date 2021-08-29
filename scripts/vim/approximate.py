@@ -1,16 +1,17 @@
 import ray
+from grow.utils.minecraft_pb2 import AIR, SEA_LANTERN, GLOWSTONE
 import os
 import numpy as np
+from ray.rllib.offline.json_reader import JsonReader
 from ray.rllib.agents.ppo import PPOTrainer
 from grow.env.minecraft_environment import MinecraftEnvironment
-from grow.utils.minecraft_pb2 import AIR, SEA_LANTERN, GLOWSTONE
-from grow.utils.nn import ThreeDimensionalConvolution
 from ray.rllib.models import ModelCatalog
+from grow.utils.nn import ThreeDimensionalConvolution
 
 
 ModelCatalog.register_custom_model("3dconv", ThreeDimensionalConvolution)
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
-ray.init(num_gpus=1)
+ray.init(num_gpus=0)
 
 config = {
     "env": MinecraftEnvironment,
@@ -54,18 +55,26 @@ config = {
     # "sgd_minibatch_size": 10,
     # Settings
     "seed": np.random.randint(2 ** 32),
-    "num_workers": 15,
-    "num_gpus": 1,
+    "num_workers": 1,
+    "num_gpus": 0,
     "num_gpus_per_worker": 0,
     "num_envs_per_worker": 1,
     "framework": "torch",
 }
 
-ray.tune.run(
-    PPOTrainer,
-    name="bigbadger",
-    config=config,
-    checkpoint_freq=1,
-    keep_checkpoints_num=None,
-    # restore=""
+agent = PPOTrainer(env=MinecraftEnvironment, config=config)
+agent.restore(
+    "/home/ray/ray_results/masterpenguin/PPO_MinecraftEnvironment_3d1bb_00000_0_2021-08-27_06-46-54/checkpoint_000003/checkpoint-3"
 )
+
+reader = JsonReader("/home/ray/ray_results/outputs")
+for _ in range(1):
+    batch = reader.next()
+    for episode in batch.split_by_episode():
+        print(episode.keys())
+        obs, dones, new_obs = episode.columns(["obs", "dones", "new_obs"])
+        # print(obs.shape)
+        # print(obs[0, ...])
+        # print(dones)
+        print(new_obs.shape)
+        break
