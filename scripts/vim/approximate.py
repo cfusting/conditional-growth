@@ -1,4 +1,6 @@
 import ray
+import torch
+from ray.rllib.policy.sample_batch import DEFAULT_POLICY_ID
 from grow.utils.minecraft_pb2 import AIR, SEA_LANTERN, GLOWSTONE
 import os
 import numpy as np
@@ -63,18 +65,16 @@ config = {
 }
 
 agent = PPOTrainer(env=MinecraftEnvironment, config=config)
-agent.restore(
-    "/home/ray/ray_results/masterpenguin/PPO_MinecraftEnvironment_3d1bb_00000_0_2021-08-27_06-46-54/checkpoint_000003/checkpoint-3"
+agent.restore("/home/ray/ray_results/escape/PPO_MinecraftEnvironment_898b6_00000_0_2021-08-29_09-16-59/checkpoint_000042/checkpoint-42"
 )
+model = agent.get_policy(DEFAULT_POLICY_ID).model
 
-reader = JsonReader("/home/ray/ray_results/outputs")
+reader = JsonReader("/home/ray/ray_results/escape_output")
 for _ in range(1):
     batch = reader.next()
     for episode in batch.split_by_episode():
         print(episode.keys())
-        obs, dones, new_obs = episode.columns(["obs", "dones", "new_obs"])
-        # print(obs.shape)
-        # print(obs[0, ...])
-        # print(dones)
-        print(new_obs.shape)
-        break
+        obs, dones= episode.columns(["obs", "dones"])
+        X = torch.from_numpy(obs).permute(0, 4, 1, 2, 3)
+        print(X.shape)
+        print(model._hidden_layers(X).shape)
