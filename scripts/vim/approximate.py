@@ -73,8 +73,10 @@ reader = JsonReader("/home/ray/ray_results/escape_output")
 for _ in range(1):
     batch = reader.next()
     for episode in batch.split_by_episode():
-        print(episode.keys())
         obs, dones= episode.columns(["obs", "dones"])
+        print(dones)
+        if True not in dones:
+            print("Incomplete episode, skipping.")
+            continue
         X = torch.from_numpy(obs).permute(0, 4, 1, 2, 3)
-        print(X.shape)
-        print(model._hidden_layers(X).shape)
+        print(model._hidden_layers(X).squeeze().shape)
