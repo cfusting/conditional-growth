@@ -65,10 +65,10 @@ config = {
     "framework": "torch",
 }
 
-k = 5
+k = 9
 
 agent = PPOTrainer(env=MinecraftEnvironment, config=config)
-agent.restore("/home/ray/ray_results/escape/PPO_MinecraftEnvironment_898b6_00000_0_2021-08-29_09-16-59/checkpoint_000042/checkpoint-42"
+agent.restore("/home/ray/ray_results/escape/PPO_MinecraftEnvironment_898b6_00000_0_2021-08-29_09-16-59/checkpoint_000001/checkpoint-1"
 )
 model = agent.get_policy(DEFAULT_POLICY_ID).model
 
@@ -80,7 +80,7 @@ reader = JsonReader("/home/ray/ray_results/escape_output")
 for _ in range(1):
     batch = reader.next()
     for episode in batch.split_by_episode():
-        obs, dones= episode.columns(["obs", "dones"])
+        obs, dones = episode.columns(["obs", "dones"])
         if True not in dones or len(dones) < 10:
             print(f"Episode length: {len(dones)}")
             print("Incomplete episode, skipping.")
@@ -89,4 +89,4 @@ for _ in range(1):
         Z = model._hidden_layers(X).squeeze()
         z_start = Z[0, ...].unsqueeze(0)
         z_end = Z[1, ...].unsqueeze(0)
-        vim.optimize(z_start, z_end)
+        vim.step(z_start, z_end)
