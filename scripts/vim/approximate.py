@@ -68,20 +68,21 @@ config = {
 
 agent = PPOTrainer(env=MinecraftEnvironment, config=config)
 agent.restore(
-    "/home/ray/ray_results/escape/PPO_MinecraftEnvironment_898b6_00000_0_2021-08-29_09-16-59/checkpoint_000040/checkpoint-40"
+    "/home/ray/ray_results/escape/PPO_MinecraftEnvironment_898b6_00000_0_2021-08-29_09-16-59/checkpoint_000020/checkpoint-20"
 )
 model = agent.get_policy(DEFAULT_POLICY_ID).model
 
 k = 5
-vim = VariationInformationMaximization(24, 64, k, 0)
+vim = VariationInformationMaximization(24, 64, k, num_neurons=64, lr=1e-5)
 # torch.autograd.set_detect_anomaly(True)
 reader = JsonReader("/home/ray/ray_results/escape_output")
 action_decoder_losses = 0
 source_losses = 0
 empowerments = 0
 j = 1
-temperature = 1
-for _ in range(10**3):
+temperature = 10
+min_temp = 2
+while True:
     batch = reader.next()
     for episode in batch.split_by_episode():
         obs, actions, dones = episode.columns(["obs", "actions", "dones"])
@@ -96,17 +97,19 @@ for _ in range(10**3):
         actions = torch.from_numpy(actions[:k])
 
         action_decoder_loss, source_action_loss, empowerment = vim.step(
-            z_start, z_end, actions, temperature
+            z_start, z_end, actions, temperature + min_temp
         )
         action_decoder_losses += action_decoder_loss
         source_losses += source_action_loss
         empowerments += empowerment
         j += 1
 
-        if j % 10**2 == 0:
+        if j == 1 or j % 10**2 == 0:
             print(f"Action Decoder Loss: {(action_decoder_losses / j):.3f}")
             print(f"Source Loss: {(source_losses / j):.3f}")
             print(f"Empowerment: {(empowerments / j):.3f}")
 
-        if j % 10**4 == 0:
-            temperature = 1
+        if j % (2 * 10**3) == 0:
+            temperature = (temperature / 2)
+            print(f"Temperature: {(temperature + min_temp):.3f}")
+

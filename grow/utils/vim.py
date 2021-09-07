@@ -1,6 +1,6 @@
 import torch
 from torch import nn
-from torch.optim import SGD
+from torch.optim import Adam
 
 
 class VariationInformationMaximization:
@@ -8,10 +8,11 @@ class VariationInformationMaximization:
         self,
         state_dimensions,
         num_actions,
-        num_action_steps,
-        null_action,
+        num_action_steps=5,
+        null_action=0,
         num_neurons=256,
         beta=1,
+        lr=1e-4
     ):
         self.state_dimensions = state_dimensions
         self.num_action_steps = num_action_steps
@@ -28,13 +29,13 @@ class VariationInformationMaximization:
 
         # Loss to be defined in run.
         self.action_decoder_loss = nn.CrossEntropyLoss()
-        self.action_decoder_optimizer = SGD(self.action_decoder.parameters(), lr=0.001)
+        self.action_decoder_optimizer = Adam(self.action_decoder.parameters(), lr=lr)
 
         self.source_loss = nn.MSELoss()
-        self.source_optimizer = SGD(
+        self.source_optimizer = Adam(
             list(self.source_action_state.parameters())
             + list(self.source_state.parameters()),
-            lr=0.001,
+            lr=lr,
         )
 
     def get_feature_tensor(self, actions, start_state, end_state=None):
@@ -64,7 +65,9 @@ class VariationInformationMaximization:
         selected_actions = torch.full(
             (n, 1, self.num_action_steps + 1), self.null_action
         )
-        for i in range(1, self.num_action_steps):
+        for i in range(1, self.num_action_steps + 1):
+            # print(f"{i}: current probs")
+            # print(probabilities)
             X = self.get_feature_tensor(
                 selected_actions[..., i - 1], start_state, end_state
             )
@@ -74,7 +77,7 @@ class VariationInformationMaximization:
             selected_actions[..., i] = torch.argmax(probabilities[..., i], dim=1)
 
             # Drop the identity starting actions.
-            return probabilities[..., 1:]
+        return probabilities[..., 1:]
 
     def get_source_action_state_probabilities(self, start_state):
         n = start_state.shape[0]
@@ -82,7 +85,9 @@ class VariationInformationMaximization:
         selected_actions = torch.full(
             (n, 1, self.num_action_steps + 1), self.null_action
         )
-        for i in range(1, self.num_action_steps):
+        for i in range(1, self.num_action_steps + 1):
+            # print(f"{i}: current probs")
+            # print(probabilities)
             X = self.get_feature_tensor(selected_actions[..., i - 1], start_state)
             probabilities[..., i] = probabilities[
                 ..., i - 1
@@ -109,6 +114,21 @@ class VariationInformationMaximization:
         source_action_state_probability = self.get_source_action_state_probabilities(
             start_state
         )
+        sample_actions = torch.zeros(
+            (
+                source_action_state_probability.shape[0],
+                1,
+                source_action_state_probability.shape[2],
+            )
+        )
+        for i in range(source_action_state_probability.shape[2]):
+            sample_actions[..., i] = torch.multinomial(
+                source_action_state_probability[..., i],
+                num_samples=1,
+                replacement=False,
+            )
+        sample_actions = sample_actions.long()
+
         # Maximize the log likelihood of the decoder by minimizing
         # the cross entropy loss.
         # (batch, num_actions, action_step)
@@ -131,11 +151,31 @@ class VariationInformationMaximization:
         action_decoder_probability = self.get_action_decoder_probabilities(
             start_state, end_state
         )
+        action_decoder_sample = torch.gather(
+            action_decoder_probability, dim=1, index=sample_actions
+        )
+        x = self.beta * torch.sum(
+            torch.log(
+                action_decoder_sample,
+            ),
+            dim=2,
+        )
 
-        x = self.beta * torch.sum(torch.log(action_decoder_probability), dim=2)
-        y = torch.sum(
-            torch.log(source_action_state_probability), dim=2
-        ) + self.source_state(start_state)
+        source_sample = torch.gather(
+            source_action_state_probability, dim=1, index=sample_actions
+        )
+        y = (
+            torch.sum(
+                torch.log(source_sample),
+                dim=2,
+            )
+            + self.source_state(start_state)
+        )
+        # print("act dec prob")
+        # print(action_decoder_probability)
+        # print("act dec sample")
+        # print(action_decoder_sample)
+        
         source_loss = self.source_loss(x, y)
         source_loss.backward()
         self.source_optimizer.step()
@@ -145,7 +185,7 @@ class VariationInformationMaximization:
         return action_decoder_loss, source_loss, self.get_empowerment(start_state)
 
     def get_empowerment(self, start_state):
-        return 1 / self.beta * self.source_state(start_state).item()
+        return (1 / self.beta) * self.source_state(start_state).item()
 
 
 class TwoLayer(nn.Module):
