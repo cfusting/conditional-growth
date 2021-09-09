@@ -90,26 +90,29 @@ class MinecraftEnvironment(gym.Env):
                 )
             )
         )
-        self.mc = MinecraftAPI(
-            self.max_steps,
-            self.growth_function.max_length,
-            x_offset=x_offset,
-            z_offset=z_offset,
-        )
 
-        ###
-        # Ensure the axiom coordinate is one block above the floor.
-        #
-        # Having found the y_offset during self.mc initialization,
-        # we must now account for the axiom coordinate being in the
-        # center of the growth function's tensor so that it starts
-        # one block above the floor.
-        self.mc.y_offset -= self.growth_function.max_steps + 1
-        ###
+        if config["training"]:
+            self.mc = MinecraftAPI(
+                self.max_steps,
+                self.growth_function.max_length,
+                x_offset=x_offset,
+                z_offset=z_offset,
+            )
+            self.mc.establish_connection()
 
-        # Save the landscape before growth.
-        self.set_grow_area_tensor()
-        self.initial_state = self.growth_area_tensor
+            ###
+            # Ensure the axiom coordinate is one block above the floor.
+            #
+            # Having found the y_offset during self.mc initialization,
+            # we must now account for the axiom coordinate being in the
+            # center of the growth function's tensor so that it starts
+            # one block above the floor.
+            self.mc.y_offset -= self.growth_function.max_steps + 1
+            ###
+
+            # Save the landscape before growth.
+            self.set_grow_area_tensor()
+            self.initial_state = self.growth_area_tensor
 
     def initialize_rewards(self):
         self.previous_reward = 0
