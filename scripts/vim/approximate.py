@@ -67,24 +67,20 @@ config = {
 }
 
 
+device = torch.device("cuda")
 agent = PPOTrainer(env=MinecraftEnvironment, config=config)
 agent.restore(
-    "/home/ray/ray_results/escape/PPO_MinecraftEnvironment_898b6_00000_0_2021-08-29_09-16-59/checkpoint_000001/checkpoint-1"
+    "/home/ray/ray_results/escape/PPO_MinecraftEnvironment_898b6_00000_0_2021-08-29_09-16-59/checkpoint_000040/checkpoint-40"
 )
-model = agent.get_policy(DEFAULT_POLICY_ID).model
-device = torch.device("cuda")
+model = agent.get_policy(DEFAULT_POLICY_ID).model.to(device)
 k = 8
 vim = VariationInformationMaximization(
-    24, 64, device, num_action_steps=k, num_neurons=256, lr=5e-5
+    24, 64, device, num_action_steps=k, num_neurons=2048, decoder_lr=1e-3, source_lr=1e-3
 )
 torch.autograd.set_detect_anomaly(True)
 reader = JsonReader("/home/ray/ray_results/escape_output")
-action_decoder_losses = 0
-source_losses = 0
-empowerments = 0
-j = 1
-temperature = 0.1
-min_temp = 2
+temperature = 0
+min_temp = 1
 while True:
     batch = reader.next()
     episodes = batch.split_by_episode()
@@ -96,7 +92,7 @@ while True:
     q = 0
     for episode in episodes:
         obs, actions, dones = episode.columns(["obs", "actions", "dones"])
-        if True not in dones or len(dones) < 10:
+        if True not in dones or len(dones) < 10: 
             # print(f"Episode length: {len(dones)}")
             # print("Incomplete episode, skipping.")
             continue
@@ -106,24 +102,12 @@ while True:
         i += 2
         q += 1
 
-    X = X.permute(0, 4, 1, 2, 3)
-    Z = model.to(device)._hidden_layers(X).squeeze()
-    z_start = Z[[i for i in range(0, X.shape[0], 2)], ...]
-    z_end = Z[[i for i in range(1, X.shape[0], 2)], ...]
+    with torch.no_grad():
+        X = X.permute(0, 4, 1, 2, 3)
+        Z = model._hidden_layers(X).squeeze()
+        z_start = Z[[i for i in range(0, X.shape[0], 2)], ...]
+        z_end = Z[[i for i in range(1, X.shape[0], 2)], ...]
 
     action_decoder_loss, source_action_loss, empowerment = vim.step(
         z_start, z_end, A, temperature + min_temp
     )
-    action_decoder_losses += action_decoder_loss
-    source_losses += source_action_loss
-    empowerments += empowerment
-    j += 1
-
-    if j == 1 or j % 10 == 0:
-        print(f"Action Decoder Loss: {(action_decoder_losses / j):.3f}")
-        print(f"Source Loss: {(source_losses / j):.3f}")
-        print(f"Empowerment: {(empowerments / j):.3f}")
-
-    if j % (10 ** 2) == 0:
-        temperature = temperature / 2
-        print(f"Temperature: {(temperature + min_temp):.3f}")

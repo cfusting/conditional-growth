@@ -13,7 +13,8 @@ class VariationInformationMaximization:
         null_action=0,
         num_neurons=256,
         beta=1,
-        lr=1e-4,
+        decoder_lr=1e-4,
+        source_lr=1e-4,
     ):
         self.state_dimensions = state_dimensions
         self.num_action_steps = num_action_steps
@@ -32,14 +33,14 @@ class VariationInformationMaximization:
         )
 
         # Loss to be defined in run.
-        self.action_decoder_loss = nn.CrossEntropyLoss()
-        self.action_decoder_optimizer = Adam(self.action_decoder.parameters(), lr=lr)
+        self.action_decoder_loss = nn.NLLLoss()
+        self.action_decoder_optimizer = Adam(self.action_decoder.parameters(), lr=decoder_lr)
 
         self.source_loss = nn.MSELoss()
         self.source_optimizer = Adam(
             list(self.source_action_state.parameters())
             + list(self.source_state.parameters()),
-            lr=lr,
+            lr=source_lr,
         )
 
     def get_feature_tensor(self, actions, start_state, end_state=None):
@@ -77,9 +78,7 @@ class VariationInformationMaximization:
             X = self.get_feature_tensor(
                 selected_actions[..., i - 1], start_state, end_state
             )
-            probabilities[..., i] = probabilities[
-                ..., i - 1
-            ].clone() * self.action_decoder(X)
+            probabilities[..., i] = self.action_decoder(X)
             selected_actions[..., i] = torch.unsqueeze(
                 torch.argmax(probabilities[..., i], dim=1), dim=1
             )
@@ -99,9 +98,7 @@ class VariationInformationMaximization:
             # print(f"{i}: current probs")
             # print(probabilities)
             X = self.get_feature_tensor(selected_actions[..., i - 1], start_state)
-            probabilities[..., i] = probabilities[
-                ..., i - 1
-            ].clone() * self.source_action_state(X)
+            probabilities[..., i] = self.source_action_state(X)
             selected_actions[..., i] = torch.unsqueeze(
                 torch.argmax(probabilities[..., i], dim=1), dim=1
             )
@@ -123,9 +120,11 @@ class VariationInformationMaximization:
         self.beta = 1 / temperature
 
         # Sample the approximation of the source distribution.
-        source_action_state_probability = self.get_source_action_state_probabilities(
-            start_state
-        )
+        with torch.no_grad():
+            source_action_state_probability = self.get_source_action_state_probabilities(
+                start_state
+            )
+
         sample_actions = torch.zeros(
             (
                 source_action_state_probability.shape[0],
@@ -147,22 +146,23 @@ class VariationInformationMaximization:
         action_decoder_probability = self.get_action_decoder_probabilities(
             start_state, end_state
         )
+        log_action_decoder_probability = torch.log(action_decoder_probability)
         self.action_decoder_optimizer.zero_grad()
         action_decoder_loss = 0
         for i in range(self.num_action_steps):
             action_decoder_loss += self.action_decoder_loss(
-                action_decoder_probability[..., i], actions[:, i].long()
+                log_action_decoder_probability[..., i], actions[:, i].long()
             )
 
-        action_decoder_loss.backward(retain_graph=True)
+        action_decoder_loss.backward()
         self.action_decoder_optimizer.step()
-        # print(f"Action Decoder Loss: {action_decoder_loss}")
 
         # Minimize the loss of the approximation to the source distribution.
         self.source_optimizer.zero_grad()
-        action_decoder_probability = self.get_action_decoder_probabilities(
-            start_state, end_state
-        )
+        with torch.no_grad():
+            action_decoder_probability = self.get_action_decoder_probabilities(
+                start_state, end_state
+            )
         action_decoder_sample = torch.gather(
             action_decoder_probability, dim=1, index=sample_actions
         )
@@ -183,16 +183,14 @@ class VariationInformationMaximization:
             )
             + self.source_state(start_state)
         )
-        # print("act dec prob")
-        # print(action_decoder_probability)
-        # print("act dec sample")
-        # print(action_decoder_sample)
 
         source_loss = self.source_loss(x, y)
         source_loss.backward()
         self.source_optimizer.step()
-        # print(f"Source Loss: {source_loss}")
-        # print(f"Empowerment: {self.get_empowerment(start_state)}")
+        print("--------------------------------")
+        print(f"Action Decoder Loss: {action_decoder_loss}")
+        print(f"Source Loss: {source_loss}")
+        print(f"Empowerment: {self.get_empowerment(start_state)}")
 
         return action_decoder_loss, source_loss, self.get_empowerment(start_state)
 
@@ -205,8 +203,10 @@ class TwoLayer(nn.Module):
         super(TwoLayer, self).__init__()
         self.two_layer = nn.Sequential(
             nn.Linear(num_inputs, num_neurons),
+            nn.BatchNorm1d(num_neurons),
             nn.ReLU(),
             nn.Linear(num_neurons, num_neurons),
+            nn.BatchNorm1d(num_neurons),
             nn.ReLU(),
             nn.Linear(num_neurons, num_outputs),
             nn.Softmax(dim=1),
@@ -221,8 +221,10 @@ class ScalarTwoLayer(nn.Module):
         super(ScalarTwoLayer, self).__init__()
         self.two_layer = nn.Sequential(
             nn.Linear(num_inputs, num_neurons),
+            nn.BatchNorm1d(num_neurons),
             nn.ReLU(),
             nn.Linear(num_neurons, num_neurons),
+            nn.BatchNorm1d(num_neurons),
             nn.ReLU(),
             nn.Linear(num_neurons, num_outputs),
         )
