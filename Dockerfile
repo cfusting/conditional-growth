@@ -1,3 +1,4 @@
+# docker run -it --rm --gpus all --network host growth python run_configurations/minecraft/run.py
 FROM rayproject/ray-ml:latest-gpu
 
 WORKDIR /ray

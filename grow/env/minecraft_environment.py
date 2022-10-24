@@ -109,7 +109,7 @@ class MinecraftEnvironment(gym.Env):
 
         # Save the landscape before growth.
         self.set_grow_area_tensor()
-        self.initial_state = self.growth_area_tensor
+        self.initial_state = np.copy(self.growth_area_tensor)
 
     def initialize_rewards(self):
         self.previous_reward = 0
@@ -119,7 +119,7 @@ class MinecraftEnvironment(gym.Env):
         elif self.reward_type == "distance_from_blocks":
             self.previous_distance = 0
 
-            X = self.initial_state
+            X = np.copy(self.initial_state)
             # Put something in the axiom spot to prevent
             # placing the reward where the first block
             # will be placed.
@@ -139,7 +139,7 @@ class MinecraftEnvironment(gym.Env):
             y = possible_points[i][1]
             z = possible_points[i][2]
 
-            X = np.full_like(self.growth_function.X, self.empty_material)
+            # X = np.full_like(self.growth_function.X, self.empty_material)
             X[x, y, z] = self.reward_block_type
             self.reward_block_coordinate = (x, y, z)
             self.mc.write_tensor(X)
@@ -147,22 +147,24 @@ class MinecraftEnvironment(gym.Env):
             raise Exception("Unknown reward type: {self.reward}")
 
     def clear_construction(self):
-        X = np.full_like(self.growth_function.X, 0)
-        for material in self.growth_function.building_materials:
-            M = self.growth_function.X == material
-            X = np.bitwise_or(X, M)
+        # X = np.full_like(self.growth_function.X, 0)
+        # for material in self.growth_function.building_materials:
+        #     M = self.growth_function.X == material
+        #     X = np.bitwise_or(X, M)
 
-        X[X == 1] = self.empty_material
+        # X[X == 1] = self.empty_material
 
-        if self.reward_type == "distance_from_blocks":
-            X[
-                self.reward_block_coordinate[0],
-                self.reward_block_coordinate[1],
-                self.reward_block_coordinate[2],
-            ] = self.empty_material
-        self.mc.write_tensor(X, skip=None, only=[self.empty_material])
+        # if self.reward_type == "distance_from_blocks" and self.reward_block_coordinate is not None:
+        #     X[
+        #         self.reward_block_coordinate[0],
+        #         self.reward_block_coordinate[1],
+        #         self.reward_block_coordinate[2],
+        #     ] = self.empty_material
+        # self.mc.write_tensor(X, skip=None, only=[self.empty_material])
+        self.mc.write_tensor(self.initial_state, skip=None)
 
     def reset(self):
+        self.clear_construction()
         self.growth_function.reset()
         self.initialize_rewards()
         return self.get_representation()
@@ -184,7 +186,7 @@ class MinecraftEnvironment(gym.Env):
             0,
             self.growth_function.max_length,
         )
-        self.growth_area_tensor = X
+        self.growth_area_tensor = np.copy(X)
 
     def update_growth_function_tensor(self):
         """Update the state of the creature.
@@ -235,7 +237,6 @@ class MinecraftEnvironment(gym.Env):
         features = np.array(material_proportions + relative_locations)
         return features
 
-        self.clear_construction()
 
     def step(self, action):
         # Ensure the growth functiona and Minecraft are in parity.
@@ -261,7 +262,6 @@ class MinecraftEnvironment(gym.Env):
         # Get the representation around the next block on
         # which to build and return the features, reward, etc.
         if done:
-            self.clear_construction()
             features = self.last_features
         else:
             features = self.get_representation()
@@ -290,9 +290,13 @@ class MinecraftEnvironment(gym.Env):
                 self.reward_block_type,
                 self.empty_material,
             )
+            if distance < 3:
+                print(f"distance: {distance}")
             if distance == -1:
                 return -1
             if distance < self.previous_distance:
+                reward = 1
+            elif distance == 0:
                 reward = 1
             else:
                 reward = 0

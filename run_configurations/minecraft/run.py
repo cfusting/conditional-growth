@@ -54,18 +54,19 @@ config = {
     # "sgd_minibatch_size": 10,
     # Settings
     "seed": np.random.randint(2 ** 32),
-    "num_workers": 15,
+    "num_workers": 20,
     "num_gpus": 1,
     "num_gpus_per_worker": 0,
     "num_envs_per_worker": 1,
     "framework": "torch",
+    "output": "/home/ray/ray_results/escape_output",
 }
 
 ray.tune.run(
     PPOTrainer,
-    name="bigbadger",
+    #name="escape",
     config=config,
     checkpoint_freq=1,
     keep_checkpoints_num=None,
-    # restore=""
+    restore="/home/ray/ray_results/escape/PPO_MinecraftEnvironment_299c0_00000_0_2022-10-23_19-54-22/checkpoint_000388/checkpoint-388"
 )

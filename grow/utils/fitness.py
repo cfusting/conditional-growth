@@ -186,9 +186,14 @@ def get_height_from_floor(X, connecting_materials, floor_index):
 def distance_from_block_type(X, M, block_type, empty_material):
     creature_indices = np.argwhere(X != empty_material)
     material_indices = np.argwhere(M == block_type)
-    if len(creature_indices) == 0 or len(material_indices) == 0:
-        # Exceptions cost more than passing back
-        # an impossible value.
+
+    # Exceptions cost more than passing back
+    # an impossible value.
+    if len(material_indices) == 0:
+        # Reward block has been eaten.
+        return 0
+    if len(creature_indices) == 0:
+        # No creature makes no sense.
         return -1
     tree = KDTree(creature_indices)
     distances, _ = tree.query(material_indices, k=1)
