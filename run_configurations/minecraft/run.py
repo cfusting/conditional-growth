@@ -64,9 +64,9 @@ config = {
 
 ray.tune.run(
     PPOTrainer,
-    #name="escape",
+    # name="witch",
     config=config,
     checkpoint_freq=1,
     keep_checkpoints_num=None,
-    restore="/home/ray/ray_results/escape/PPO_MinecraftEnvironment_299c0_00000_0_2022-10-23_19-54-22/checkpoint_000388/checkpoint-388"
+    restore="/home/ray/ray_results/witch/PPO_MinecraftEnvironment_e096d_00000_0_2022-10-25_10-24-27/checkpoint_000030/checkpoint-30"
 )

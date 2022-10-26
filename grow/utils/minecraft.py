@@ -45,8 +45,10 @@ class MinecraftAPI:
     def blocks_to_tensor(
         self, blocks, x_min, x_max, y_min, y_max, z_min, z_max, only_encode=[]
     ):
+        # Add 1 for all other blocks.
+        p = len(only_encode) + 1
         X = np.zeros((x_max - x_min, y_max - y_min, z_max - z_min))
-        Z = np.zeros((x_max - x_min, y_max - y_min, z_max - z_min, len(only_encode)))
+        Z = np.zeros((x_max - x_min, y_max - y_min, z_max - z_min, p))
         material_to_index = {}
         for i, m in enumerate(only_encode):
             material_to_index[m] = i
@@ -66,6 +68,10 @@ class MinecraftAPI:
             X[x, y, z] = block.type
             if block.type in only_encode:
                 Z[x, y, z, material_to_index[block.type]] = 1
+            else:
+                # Everything else
+                Z[x, y, z, p - 1] = 1
+
         return X, Z
 
     def read_tensor(self, x_min, x_max, y_min, y_max, z_min, z_max, only_encode=[]):

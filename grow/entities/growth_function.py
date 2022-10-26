@@ -22,6 +22,8 @@ class GrowthFunction:
         num_timestep_features=1,
         max_steps=10,
         empty_material=0,
+        initial_state=None,
+        max_length=None,
     ):
         directions = (
             "negative_x",
@@ -33,18 +35,18 @@ class GrowthFunction:
         )
         self.materials = materials
         self.empty_material = empty_material
+        self.initial_state = initial_state
         self.directions = directions
         self.max_voxels = max_voxels
         self.search_radius = search_radius
         self.axiom_material = axiom_material
         self.max_steps = max_steps
+        self.max_length = max_length
         # n-dim creatures next.
         self.num_coordinates = 3
 
         self.num_features = len(materials) * len(directions) * num_timestep_features
 
-        # If it builds on one axis in one direction.
-        self.max_length = 2 * (self.max_steps) + 2
         self.axiom_coordinate = self.max_steps + 1
 
         self.initialize_configurations()
@@ -57,6 +59,8 @@ class GrowthFunction:
             self.axiom_coordinate,
             self.axiom_coordinate,
             self.axiom_coordinate,
+            self.initial_state,
+            clobber=True,
         )
 
     def reset(self):
@@ -74,13 +78,13 @@ class GrowthFunction:
 
         return len(self.body) > 0
 
-    def get_new_voxel(self, material, x, y, z):
+    def get_new_voxel(self, material, x, y, z, E, clobber=False):
         v = Voxel(material, x, y, z)
-        if self.X[x, y, z] == self.empty_material:
+        if E[x, y, z] == self.empty_material or clobber:
             self.X[x, y, z] = material
             self.body.appendleft(v)
 
-    def attach_voxels(self, configuration, current_voxel):
+    def attach_voxels(self, configuration, current_voxel, E):
         """Attach a configuration of voxels to the current voxel.
 
         Attach a configuration of voxels (IE a
@@ -98,37 +102,37 @@ class GrowthFunction:
 
             if direction == "negative_x":
                 self.get_new_voxel(
-                    material, current_voxel.x - 1, current_voxel.y, current_voxel.z
+                    material, current_voxel.x - 1, current_voxel.y, current_voxel.z, E
                 )
             if direction == "positive_x":
                 self.get_new_voxel(
-                    material, current_voxel.x + 1, current_voxel.y, current_voxel.z
+                    material, current_voxel.x + 1, current_voxel.y, current_voxel.z, E
                 )
             if direction == "negative_y":
                 self.get_new_voxel(
-                    material, current_voxel.x, current_voxel.y - 1, current_voxel.z
+                    material, current_voxel.x, current_voxel.y - 1, current_voxel.z, E
                 )
             if direction == "positive_y":
                 self.get_new_voxel(
-                    material, current_voxel.x, current_voxel.y + 1, current_voxel.z
+                    material, current_voxel.x, current_voxel.y + 1, current_voxel.z, E
                 )
             if direction == "negative_z":
                 self.get_new_voxel(
-                    material, current_voxel.x, current_voxel.y, current_voxel.z - 1
+                    material, current_voxel.x, current_voxel.y, current_voxel.z - 1, E
                 )
             if direction == "positive_z":
                 self.get_new_voxel(
-                    material, current_voxel.x, current_voxel.y, current_voxel.z + 1
+                    material, current_voxel.x, current_voxel.y, current_voxel.z + 1, E
                 )
 
-    def step(self, configuration_index):
+    def step(self, configuration_index, environment_tensor=None):
         """Add one configuration. Do not use with ``expand()``."""
 
         assert self.building(), "Step called without anything left to build."
 
         voxel = self.body.pop()
         configuration = self.configuration_map[configuration_index]
-        self.attach_voxels(configuration, voxel)
+        self.attach_voxels(configuration, voxel, environment_tensor)
         self.steps += 1
 
     def get_local_voxel_representation(self):
