@@ -81,6 +81,7 @@ class MinecraftEnvironment(gym.Env):
                 )
             )
         )
+
         self.mc = MinecraftAPI(
             self.max_steps,
             self.max_length,

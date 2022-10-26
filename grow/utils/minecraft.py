@@ -1,7 +1,5 @@
-import grpc
-import grow.utils.minecraft_pb2_grpc as mc
-from grow.utils.minecraft_pb2 import *
 import numpy as np
+from grow.utils.minecraft_pb2 import AIR, Cube, Point, Blocks, Block
 
 
 class MinecraftAPI:
@@ -17,13 +15,18 @@ class MinecraftAPI:
         x_offset=0,
         z_offset=0,
     ):
-        channel = grpc.insecure_channel(address)
-        self.client = mc.MinecraftServiceStub(channel)
+        self.address = address
         self.x_offset = x_offset
         self.z_offset = z_offset
         self.y_offset = 0
         self.max_steps = max_steps
         self.max_length = max_length
+
+    def establish_connection(self):
+        import grpc
+        import grow.utils.minecraft_pb2_grpc as mc
+        channel = grpc.insecure_channel(self.address)
+        self.client = mc.MinecraftServiceStub(channel)
         self.find_the_floor()
         self.y_offset = self.Z[self.max_steps + 1, self.max_steps + 1] + 1
         print(f"Offsets: ({self.x_offset}, {self.y_offset}, {self.z_offset})")

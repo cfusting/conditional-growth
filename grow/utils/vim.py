@@ -1,7 +1,6 @@
 import torch
 from torch import nn
 from torch.optim import Adam
-import numpy as np
 
 
 class VariationInformationMaximization:
@@ -9,141 +8,208 @@ class VariationInformationMaximization:
         self,
         state_dimensions,
         num_actions,
-        num_action_steps,
-        null_action,
+        device,
+        num_action_steps=5,
+        null_action=0,
         num_neurons=256,
         beta=1,
+        decoder_lr=1e-4,
+        source_lr=1e-4,
     ):
         self.state_dimensions = state_dimensions
         self.num_action_steps = num_action_steps
         self.null_action = null_action
         self.num_actions = num_actions
-        self.beta = beta
+        self.device = device
 
         self.action_decoder = TwoLayer(
             self.num_actions + 2 * state_dimensions, num_actions, num_neurons
-        )
+        ).to(device)
         self.source_action_state = TwoLayer(
             self.num_actions + state_dimensions, num_actions, num_neurons
+        ).to(device)
+        self.source_state = ScalarTwoLayer(self.state_dimensions, 1, num_neurons).to(
+            device
         )
-        self.source_state = TwoLayer(self.state_dimensions, 1, num_neurons)
 
         # Loss to be defined in run.
-        self.action_decoder_optimizer = Adam(self.action_decoder.parameters())
+        self.action_decoder_loss = nn.NLLLoss()
+        self.action_decoder_optimizer = Adam(self.action_decoder.parameters(), lr=decoder_lr)
 
         self.source_loss = nn.MSELoss()
         self.source_optimizer = Adam(
-            list(self.action_decoder.parameters()) + list(self.scalar)
+            list(self.source_action_state.parameters())
+            + list(self.source_state.parameters()),
+            lr=source_lr,
         )
 
-    def get_action_decoder_probability(self, start_state, end_state, actions=None):
-        # One hot encoding of actions concatenated by start and end states.
-        X = np.zeros(
+    def get_feature_tensor(self, actions, start_state, end_state=None):
+        if end_state is not None:
+            num_states = 2
+        else:
+            num_states = 1
+        X = torch.zeros(
             (
                 start_state.shape[0],
-                self.num_actions + 2 * self.state_dimensions,
+                self.num_actions + num_states * self.state_dimensions,
             )
+        ).to(self.device)
+        X[:, self.num_actions : self.num_actions + self.state_dimensions] = start_state
+        if end_state is not None:
+            X[:, self.num_actions + self.state_dimensions :] = end_state
+
+        # Actions are (batch_size, 1)
+        actions = torch.squeeze(actions.long())
+        for i in range(X.shape[0]):
+            X[i, actions[i]] = torch.ones((1,)).to(self.device)
+        return X
+
+    def get_action_decoder_probabilities(self, start_state, end_state):
+        n = start_state.shape[0]
+        probabilities = torch.ones((n, self.num_actions, self.num_action_steps + 1)).to(
+            self.device
         )
-        X[:, self.num_actions : self.null_actions + self.state_dimensions] = start_state
-        X[:, self.null_actions + self.state_dimensions :] = end_state
+        selected_actions = torch.full(
+            (n, 1, self.num_action_steps + 1), self.null_action
+        ).to(self.device)
+        for i in range(1, self.num_action_steps + 1):
+            # print(f"{i}: current probs")
+            # print(probabilities)
+            X = self.get_feature_tensor(
+                selected_actions[..., i - 1], start_state, end_state
+            )
+            probabilities[..., i] = self.action_decoder(X)
+            selected_actions[..., i] = torch.unsqueeze(
+                torch.argmax(probabilities[..., i], dim=1), dim=1
+            )
 
-        selected_action = self.null_action
-        probabilities = np.ones((X.shape[0], self.num_actions))
-        for i in self.num_action_steps:
-            if actions is None:
-                X[:, selected_action] = np.ones(X.shape[0])
-            else:
-                X[:, actions[i]] = np.ones(X.shape[0])
-            probabilities *= self.action_decoder(X)
-            selected_action = np.argmax(probabilities, axis=1)
+            # Drop the identity starting actions.
+        return probabilities[..., 1:]
 
-        return np.max(probabilities, axis=1)
+    def get_source_action_state_probabilities(self, start_state):
+        n = start_state.shape[0]
+        probabilities = torch.ones((n, self.num_actions, self.num_action_steps + 1)).to(
+            self.device
+        )
+        selected_actions = torch.full(
+            (n, 1, self.num_action_steps + 1), self.null_action
+        ).to(self.device)
+        for i in range(1, self.num_action_steps + 1):
+            # print(f"{i}: current probs")
+            # print(probabilities)
+            X = self.get_feature_tensor(selected_actions[..., i - 1], start_state)
+            probabilities[..., i] = self.source_action_state(X)
+            selected_actions[..., i] = torch.unsqueeze(
+                torch.argmax(probabilities[..., i], dim=1), dim=1
+            )
 
-    def get_source_action_state_probabilities_per_action(self, start_state, actions):
-        X = np.zeros(
+        return probabilities[..., 1:]
+
+    def step(self, start_state, end_state, actions, temperature):
+        """Take a step toward optimizing the ELBO.
+
+        Note:
+            States are expected to be pre-processed from x to z via 3D convolution.
+            Failing to do so may make optimization much more difficult.
+
+        Parameters:
+            start_state: (batch_size, z_start)
+            end_state: (batch_size, z_end)
+        """
+
+        self.beta = 1 / temperature
+
+        # Sample the approximation of the source distribution.
+        with torch.no_grad():
+            source_action_state_probability = self.get_source_action_state_probabilities(
+                start_state
+            )
+
+        sample_actions = torch.zeros(
             (
-                start_state.shape[0],
-                self.num_actions + self.state_dimensions,
+                source_action_state_probability.shape[0],
+                1,
+                source_action_state_probability.shape[2],
             )
-        )
-        X[:, self.num_actions : self.null_actions + self.state_dimensions] = start_state
-
-        probabilities = np.ones((X.shape[0], self.num_actions, len(actions)))
-        for i, a in enumerate(actions):
-            X[:, a, i] = np.ones(X.shape[0])
-
-        return probabilities
-
-    def get_source_action_state_probabilities(self, start_state, actions):
-        probabilities = self.get_source_action_state_probabilities_per_action(
-            start_state, actions
-        )
-        return np.prod(probabilities, axis=2)
-
-    def get_source_action_state_probability(self, start_state, actions):
-        probabilities = self.get_source_action_state_probabilities(start_state, actions)
-        return np.max(probabilities, axis=0)
-
-    def sample_source_distribution(self, start_state):
-        probabilities = self.get_source_action_state_probabilities(start_state)
-        sample_actions = list(
-            np.random.choice(
-                self.num_actions,
-                size=self.num_action_steps,
-                replace=True,
-                p=probabilities,
+        ).to(self.device)
+        for i in range(source_action_state_probability.shape[2]):
+            sample_actions[..., i] = torch.multinomial(
+                source_action_state_probability[..., i],
+                num_samples=1,
+                replacement=False,
             )
-        )
-        sample_actions.insert(0, self.null_action)
-        return sample_actions
+        sample_actions = sample_actions.long()
 
-    def optimize(self, start_state, end_state):
-        action_decoder_probability = self.get_action_decoder_probability(
+        # Maximize the log likelihood of the decoder by minimizing
+        # the cross entropy loss.
+        # (batch, num_actions, action_step)
+        action_decoder_probability = self.get_action_decoder_probabilities(
             start_state, end_state
         )
+        log_action_decoder_probability = torch.log(action_decoder_probability)
+        self.action_decoder_optimizer.zero_grad()
+        action_decoder_loss = 0
+        for i in range(self.num_action_steps):
+            action_decoder_loss += self.action_decoder_loss(
+                log_action_decoder_probability[..., i], actions[:, i].long()
+            )
 
-        # Maximize the log likelihood of the decoder..
-        self.action_decoder_optimizer.zero_grads()
-        action_decoder_loss = -torch.sum(torch.log(action_decoder_probability))
-        action_decoder_loss.backwards()
+        action_decoder_loss.backward()
         self.action_decoder_optimizer.step()
 
-        # We use samples from the source distribution to optimize.
-        action_sequence_sample = self.sample_source_distribution(start_state)
-
         # Minimize the loss of the approximation to the source distribution.
-        self.source_optimizer.zero_grads()
-        action_decoder_probability = self.get_action_decoder_probability(
-            start_state, end_state, actions=action_sequence_sample
+        self.source_optimizer.zero_grad()
+        with torch.no_grad():
+            action_decoder_probability = self.get_action_decoder_probabilities(
+                start_state, end_state
+            )
+        action_decoder_sample = torch.gather(
+            action_decoder_probability, dim=1, index=sample_actions
         )
-        source_action_state_probabilities = self.get_source_action_state_probabilities(
-            start_state, end_state, actions=action_sequence_sample
+        x = self.beta * torch.sum(
+            torch.log(
+                action_decoder_sample,
+            ),
+            dim=2,
         )
-        source_action_state_probability = np.max(
-            source_action_state_probabilities, axis=1
+
+        source_sample = torch.gather(
+            source_action_state_probability, dim=1, index=sample_actions
         )
-        scalar = self.source_state(start_state)
-        source_loss = self.explortation_loss(
-            self.beta * torch.log(action_decoder_probability)
-            - (torch.log(source_action_state_probability) + scalar)
+        y = (
+            torch.sum(
+                torch.log(source_sample),
+                dim=2,
+            )
+            + self.source_state(start_state)
         )
-        source_loss.backwards()
+
+        source_loss = self.source_loss(x, y)
+        source_loss.backward()
         self.source_optimizer.step()
+        print("--------------------------------")
+        print(f"Action Decoder Loss: {action_decoder_loss}")
+        print(f"Source Loss: {source_loss}")
+        print(f"Empowerment: {self.get_empowerment(start_state)}")
+
+        return action_decoder_loss, source_loss, self.get_empowerment(start_state)
 
     def get_empowerment(self, start_state):
-        return self.beta ** -1 * self.scalar(start_state)
+        return torch.mean((1 / self.beta) * self.source_state(start_state)).item()
 
 
 class TwoLayer(nn.Module):
     def __init__(self, num_inputs, num_outputs, num_neurons=256):
-        super(TwoLayer, self).__init()
+        super(TwoLayer, self).__init__()
         self.two_layer = nn.Sequential(
             nn.Linear(num_inputs, num_neurons),
+            nn.BatchNorm1d(num_neurons),
             nn.ReLU(),
             nn.Linear(num_neurons, num_neurons),
+            nn.BatchNorm1d(num_neurons),
             nn.ReLU(),
             nn.Linear(num_neurons, num_outputs),
-            nn.Softmax(num_outputs),
+            nn.Softmax(dim=1),
         )
 
     def forward(self, x):
@@ -152,11 +218,13 @@ class TwoLayer(nn.Module):
 
 class ScalarTwoLayer(nn.Module):
     def __init__(self, num_inputs, num_outputs, num_neurons=256):
-        super(TwoLayer, self).__init()
+        super(ScalarTwoLayer, self).__init__()
         self.two_layer = nn.Sequential(
             nn.Linear(num_inputs, num_neurons),
+            nn.BatchNorm1d(num_neurons),
             nn.ReLU(),
             nn.Linear(num_neurons, num_neurons),
+            nn.BatchNorm1d(num_neurons),
             nn.ReLU(),
             nn.Linear(num_neurons, num_outputs),
         )
