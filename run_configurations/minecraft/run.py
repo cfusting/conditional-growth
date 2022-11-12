@@ -28,6 +28,7 @@ config = {
         "observing_materials": (AIR, SEA_LANTERN, GLOWSTONE),
         "reward_block_type": GLOWSTONE,
         "feature_type": "raw",
+        "axiom_position": (205, 65, 242),
     },
     # Hypers
     # See https://openreview.net/pdf?id=nIAxjsniDzg
@@ -54,7 +55,7 @@ config = {
     # "sgd_minibatch_size": 10,
     # Settings
     "seed": np.random.randint(2 ** 32),
-    "num_workers": 20,
+    "num_workers": 1,
     "num_gpus": 1,
     "num_gpus_per_worker": 0,
     "num_envs_per_worker": 1,
@@ -68,5 +69,5 @@ ray.tune.run(
     config=config,
     checkpoint_freq=1,
     keep_checkpoints_num=None,
-    restore="/home/ray/ray_results/witch/PPO_MinecraftEnvironment_e096d_00000_0_2022-10-25_10-24-27/checkpoint_000030/checkpoint-30"
+    restore="/home/ray/ray_results/PPO_2022-10-26_07-47-51/PPO_MinecraftEnvironment_2a789_00000_0_2022-10-26_07-47-51/checkpoint_000582/checkpoint-582"
 )

@@ -14,21 +14,25 @@ class MinecraftAPI:
         address="localhost:5001",
         x_offset=0,
         z_offset=0,
+        y_offset=None,
     ):
         self.address = address
         self.x_offset = x_offset
         self.z_offset = z_offset
-        self.y_offset = 0
+        self.y_offset = y_offset
         self.max_steps = max_steps
         self.max_length = max_length
+
+        self.establish_connection()
 
     def establish_connection(self):
         import grpc
         import grow.utils.minecraft_pb2_grpc as mc
         channel = grpc.insecure_channel(self.address)
         self.client = mc.MinecraftServiceStub(channel)
-        self.find_the_floor()
-        self.y_offset = self.Z[self.max_steps + 1, self.max_steps + 1] + 1
+        if self.y_offset is None:
+            self.find_the_floor()
+            self.y_offset = self.Z[self.max_steps + 1, self.max_steps + 1] + 1
         print(f"Offsets: ({self.x_offset}, {self.y_offset}, {self.z_offset})")
 
     def to_global_coordinates(self, x, y, z):

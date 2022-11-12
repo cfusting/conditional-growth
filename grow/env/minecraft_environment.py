@@ -65,28 +65,35 @@ class MinecraftEnvironment(gym.Env):
         # If it builds on one axis in one direction.
         self.max_length = 2 * (self.max_steps) + 2
 
-        # The grow location is based on worker and vector indices.
-        sigma = self.max_length
-        x_offset = int(
-            np.floor(
-                np.random.normal(
-                    config.worker_index * self.max_length * 3, sigma
+        if config["axiom_position"] is not None:
+            x_offset, y_offset, z_offset = config["axiom_position"]
+            x_offset -= self.max_steps
+            z_offset -= self.max_steps
+        else:
+            # The grow location is based on worker and vector indices.
+            sigma = self.max_length
+            x_offset = int(
+                np.floor(
+                    np.random.normal(
+                        config.worker_index * self.max_length * 3, sigma
+                    )
                 )
             )
-        )
-        z_offset = int(
-            np.floor(
-                np.random.normal(
-                    config.vector_index * self.max_length * 3, sigma
+            z_offset = int(
+                np.floor(
+                    np.random.normal(
+                        config.vector_index * self.max_length * 3, sigma
+                    )
                 )
             )
-        )
+            y_offset = None
 
         self.mc = MinecraftAPI(
             self.max_steps,
             self.max_length,
             x_offset=x_offset,
             z_offset=z_offset,
+            y_offset=y_offset,
         )
 
         ###

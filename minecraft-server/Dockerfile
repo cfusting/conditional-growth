@@ -13,4 +13,4 @@ RUN head -n -1 eula.txt > temp.txt \
     && mv temp.txt eula.txt \
     && echo "eula=True" >> eula.txt
 
-CMD java -jar spongevanilla-1.12.2-7.3.0.jar
+CMD java -Xmx8192M -Xms8192M -jar spongevanilla-1.12.2-7.3.0.jar
