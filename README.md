@@ -2,6 +2,8 @@
 
 https://user-images.githubusercontent.com/869178/201533053-27c2ff53-e625-40ed-a490-5cd401896609.mp4
 
+*Sea lanterns searching for glowstone*
+
 [![Build Status](https://travis-ci.com/cfusting/conditional-growth.svg?branch=main)](https://travis-ci.com/cfusting/conditional-growth)
 
 ## Motivation
@@ -38,7 +40,7 @@ Roughly speaking, there are three things that tie this package together.
 
 Metrics are captured by the Ray in /tmp/expname where expname is specified in the run configuartion in the run function by the paramater "name". You'll need to spend some time learning the Ray framework to become comfortable with this and other parameter choices governing the optimization process. The easiest way to view the metrics is to use tensorboard and will be described in the example below. Here's a pretty picture:
 
-![tensorboard](./docs/tensorboard.png)
+![tensorboard](./docs/tensorboard_example.png)
 
 ## Theory of the conditional growth function
 
@@ -54,6 +56,7 @@ The above process boils down to the breadth-first application of the conditional
 ## Example: Get the block
 
 https://user-images.githubusercontent.com/869178/201533091-b17d37d1-df6c-46de-b8d5-ef18f670fe3f.mp4
+*Navigating obstacles*
 
 In this example we will grow a creature out of sea lanterns (reason: they look cool) who's goal is to touch a reward block. At each growth step the probability of a voxel configuration is determined given the tensor convolution of block types within some one norm k neighborhood of the block on which the configuration is to be added (translation: limited vision). To get this example running you will need docker and linux (Windows Subsytem 2 is fine).
 
