@@ -19,7 +19,7 @@ So, although the curious individual may not be able to simulate a robot to be tr
 
 A primary goal of this package is to be standardized, extendible, and modular: many of the code bases I have come across couple a growth encoding with an optimization algorithm, limiting their application and testability. To that end the growth function and Ray's RLlib are completely independent; tied together only in the minecraft environment class following Open AI's Gym standard. You can replace the growth function with anything that returns an encoding you can convert to blocks (I'd like to see Compositional Pattern Producing Networks [3], for example) and write your own environment. In the same vein Ray gives you a robust selection of gradient and non-gradient based optimization algorithms to choose from, the ability to scale, and standardized logging and experiment tracking with [MLFlow](https://mlflow.org/) and [Tensorboard](https://www.tensorflow.org/tensorboard).
 
-My hope is that this package enables any company, university, and especially **individual** to implement one, two, or all of a:
+My hope is that this package enables any company, university, and especially **individuals** to implement one, two, or all of a:
 
 - Growth encoding
 - Environment
