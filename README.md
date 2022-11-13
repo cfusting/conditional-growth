@@ -78,35 +78,41 @@ sudo systemctl restart docker
 ```
 
 ### Running
-Navigate into this repo's root directory and build the image and name it "growth":
 
-```bash
-docker build -t growth .
-```
-
-Build the minecraft server by navigating into the minecraft-server directory:
+Build the minecraft server by navigating into the minecraft-server directory and start it:
 
 ```bash
 docker build -t mc .
-```
-
-Start it in a seperate terminal and expose the RPC and general server ports:
-
-```bash
 docker run -it --rm -p 5001:5001 -p 25565:25565 mc
 ```
 
-Start the tensorboard server. When we run the optimizer we will map /tmp to the experiment and as such are drawing the logs from that directory in the following command. You can launch tensorboard in a web browser with localhost:6006. You'll need to pull the tensorboard/tensorboard image prior to this step:
+Pull the Tensorflow image and start the tensorboard server. You can launch tensorboard in a web browser with localhost:6006:
 
 ```bash
+docker pull tensorflow/tensorflow
 docker run -p 6006:6006 --rm -v /tmp:/tmp tensorflow/tensorflow tensorboard --logdir /tmp --host 0.0.0.0 --port 6006
 ```
 
-Run the optimizer:
+Navigate into this repo's root directory, build the image, and start the optimizer:
 
 ```bash
-docker run -it --rm --gpus all -v /tmp:/home/ray/ray_results --network host growth python run_configurations/minecraft/run.py
+docker build -t growth .
+docker run -it --rm --gpus all -v /tmp:/home/ray/ray_results --network host growth python run_configurations/minecraft/get_the_block.py
 ```
+
+The previous command starts a gpu enabled optimizer and four workers (creatures) in random locations in minecraft. You can edit all configurations in the run script: see Ray's RLlib for documentation. 
+
+### Checking out the creatures
+
+You'll need the Java version of Minecraft 1.12.2 to enter the world and hang out with your creatures. You can connect to the server you started by selecting multiplay -> Direct Connect -> localhost. The game mode is creative and as such double tapping on jump (spacebar) will allow you to fly; hold shift to go fast.
+
+The locations of the creatures are output in (x, z, y) format (don't ask me why the Minecraft devs did this) when Ray finishes initializing and before the creatures start optimizing. You can use these coordinates to teleport yourself to their respective locations with the server command line:
+
+```bash
+/teleport [your_name] x z y
+```
+
+I usually add 100 or so (units are in blocks) to the z coordinate such that I am teleported above the creature.
 
 ## References
 [1] Kriegman, Sam. "Why virtual creatures matter." Nature Machine Intelligence 1.10 (2019): 492-492.
