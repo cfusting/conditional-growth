@@ -56,6 +56,7 @@ The above process boils down to the breadth-first application of the conditional
 ## Example: Get the block
 
 https://user-images.githubusercontent.com/869178/201533091-b17d37d1-df6c-46de-b8d5-ef18f670fe3f.mp4
+
 *Navigating obstacles*
 
 In this example we will grow a creature out of sea lanterns (reason: they look cool) who's goal is to touch a reward block. At each growth step the probability of a voxel configuration is determined given the tensor convolution of block types within some one norm k neighborhood of the block on which the configuration is to be added (translation: limited vision). To get this example running you will need docker and linux (Windows Subsytem 2 is fine).
