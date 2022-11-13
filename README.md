@@ -51,7 +51,7 @@ The growth of a creature can be broken down into an ordered sequence of steps. A
 The above process boils down to the breadth-first application of the conditional probability of a voxel configuration given a state. Thus the beadth-first voxel selection process coupled with the growth function results in a creature of potentially infinite voxels: the integral of the growth function over time and space. My hope is that self-repeating structures will be observed and built by the growth function, providing a genommic encoding which can be thought of as a compressed representation of a creature.
 
 
-|<img src="./docs/theory1.jpg" alt="Theory image one" width="470" height="640"/>|<img src="./docs/theory2.jpg" alt="Theory image two" width="470" height="640"/>|
+|<img src="./docs/theory1.jpg" alt="Theory image one" width="400" height="640"/>|<img src="./docs/theory2.jpg" alt="Theory image two" width="400" height="640"/>|
    
 ## Example: Get the block
 
