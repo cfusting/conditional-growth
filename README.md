@@ -19,7 +19,7 @@ So, although the curious individual may not be able to simulate a robot to be tr
 
 A primary goal of this package is to be standardized, extendible, and modular: many of the code bases I have come across couple a growth encoding with an optimization algorithm, limiting their application and testability. To that end the growth function and Ray's RLlib are completely independent; tied together only in the minecraft environment class following Open AI's Gym standard. You can replace the growth function with anything that returns an encoding you can convert to blocks (I'd like to see Compositional Pattern Producing Networks [3], for example) and write your own environment. In the same vein Ray gives you a robust selection of gradient and non-gradient based optimization algorithms to choose from, the ability to scale, and standardized logging and experiment tracking with [MLFlow](https://mlflow.org/) and [Tensorboard](https://www.tensorflow.org/tensorboard).
 
-My hope is that this package enables any company, university, and especially **individual** to implement one, two, or all of a:
+My hope is that this package enables any company, university, and especially **individuals** to implement one, two, or all of a:
 
 - Growth encoding
 - Environment
@@ -51,7 +51,7 @@ The growth of a creature can be broken down into an ordered sequence of steps. A
 The above process boils down to the breadth-first application of the conditional probability of a voxel configuration given a state. Thus the beadth-first voxel selection process coupled with the growth function results in a creature of potentially infinite voxels: the integral of the growth function over time and space. My hope is that self-repeating structures will be observed and built by the growth function, providing a genommic encoding which can be thought of as a compressed representation of a creature.
 
 
-|<img src="./docs/theory1.jpg" alt="Theory image one" width="500" height="640"/>|<img src="./docs/theory2.jpg" alt="Theory image two" width="500" height="640"/>|
+|<img src="./docs/theory1.jpg" alt="Theory image one" width="400" height="640"/>|<img src="./docs/theory2.jpg" alt="Theory image two" width="400" height="640"/>|
    
 ## Example: Get the block
 
@@ -78,35 +78,41 @@ sudo systemctl restart docker
 ```
 
 ### Running
-Navigate into this repo's root directory and build the image and name it "growth":
 
-```bash
-docker build -t growth .
-```
-
-Build the minecraft server by navigating into the minecraft-server directory:
+Build the minecraft server by navigating into the minecraft-server directory and start it:
 
 ```bash
 docker build -t mc .
-```
-
-Start it in a seperate terminal and expose the RPC and general server ports:
-
-```bash
 docker run -it --rm -p 5001:5001 -p 25565:25565 mc
 ```
 
-Start the tensorboard server. When we run the optimizer we will map /tmp to the experiment and as such are drawing the logs from that directory in the following command. You can launch tensorboard in a web browser with localhost:6006. You'll need to pull the tensorboard/tensorboard image prior to this step:
+Pull the Tensorflow image and start the tensorboard server. You can launch tensorboard in a web browser with localhost:6006:
 
 ```bash
+docker pull tensorflow/tensorflow
 docker run -p 6006:6006 --rm -v /tmp:/tmp tensorflow/tensorflow tensorboard --logdir /tmp --host 0.0.0.0 --port 6006
 ```
 
-Run the optimizer:
+Navigate into this repo's root directory, build the image, and start the optimizer:
 
 ```bash
-docker run -it --rm --gpus all -v /tmp:/home/ray/ray_results --network host growth python run_configurations/minecraft/run.py
+docker build -t growth .
+docker run -it --rm --gpus all -v /tmp:/home/ray/ray_results --network host growth python run_configurations/minecraft/get_the_block.py
 ```
+
+The previous command starts a gpu enabled optimizer and four workers (creatures) in random locations in minecraft. You can edit all configurations in the run script: see Ray's RLlib for documentation. 
+
+### Checking out the creatures
+
+You'll need the Java version of Minecraft 1.12.2 to enter the world and hang out with your creatures. You can connect to the server you started by selecting multiplay -> Direct Connect -> localhost. The game mode is creative and as such double tapping on jump (spacebar) will allow you to fly; hold shift to go fast.
+
+The locations of the creatures are output in (x, z, y) format (don't ask me why the Minecraft devs did this) when Ray finishes initializing and before the creatures start optimizing. You can use these coordinates to teleport yourself to their respective locations with the server command line:
+
+```bash
+/teleport [your_name] x z y
+```
+
+I usually add 100 or so (units are in blocks) to the z coordinate such that I am teleported above the creature.
 
 ## References
 [1] Kriegman, Sam. "Why virtual creatures matter." Nature Machine Intelligence 1.10 (2019): 492-492.
