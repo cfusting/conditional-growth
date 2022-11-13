@@ -69,6 +69,7 @@ class MinecraftEnvironment(gym.Env):
             x_offset, y_offset, z_offset = config["axiom_position"]
             x_offset -= self.max_steps
             z_offset -= self.max_steps
+            should_find_the_floor = False
         else:
             # The grow location is based on worker and vector indices.
             sigma = self.max_length
@@ -86,7 +87,8 @@ class MinecraftEnvironment(gym.Env):
                     )
                 )
             )
-            y_offset = None
+            y_offset = 0
+            should_find_the_floor = True
 
         self.mc = MinecraftAPI(
             self.max_steps,
@@ -94,6 +96,7 @@ class MinecraftEnvironment(gym.Env):
             x_offset=x_offset,
             z_offset=z_offset,
             y_offset=y_offset,
+            should_find_the_floor=should_find_the_floor,
         )
 
         ###

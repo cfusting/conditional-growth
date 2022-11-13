@@ -14,7 +14,8 @@ class MinecraftAPI:
         address="localhost:5001",
         x_offset=0,
         z_offset=0,
-        y_offset=None,
+        y_offset=0,
+        should_find_the_floor=True,
     ):
         self.address = address
         self.x_offset = x_offset
@@ -22,7 +23,7 @@ class MinecraftAPI:
         self.y_offset = y_offset
         self.max_steps = max_steps
         self.max_length = max_length
-
+        self.should_find_the_floor = should_find_the_floor
         self.establish_connection()
 
     def establish_connection(self):
@@ -30,7 +31,7 @@ class MinecraftAPI:
         import grow.utils.minecraft_pb2_grpc as mc
         channel = grpc.insecure_channel(self.address)
         self.client = mc.MinecraftServiceStub(channel)
-        if self.y_offset is None:
+        if self.find_the_floor:
             self.find_the_floor()
             self.y_offset = self.Z[self.max_steps + 1, self.max_steps + 1] + 1
         print(f"Offsets: ({self.x_offset}, {self.y_offset}, {self.z_offset})")

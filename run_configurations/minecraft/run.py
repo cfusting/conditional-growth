@@ -28,7 +28,7 @@ config = {
         "observing_materials": (AIR, SEA_LANTERN, GLOWSTONE),
         "reward_block_type": GLOWSTONE,
         "feature_type": "raw",
-        "axiom_position": (205, 65, 242),
+        "axiom_position": None,
     },
     # Hypers
     # See https://openreview.net/pdf?id=nIAxjsniDzg
@@ -55,7 +55,7 @@ config = {
     # "sgd_minibatch_size": 10,
     # Settings
     "seed": np.random.randint(2 ** 32),
-    "num_workers": 1,
+    "num_workers": 8,
     "num_gpus": 1,
     "num_gpus_per_worker": 0,
     "num_envs_per_worker": 1,

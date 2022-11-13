@@ -1,5 +1,7 @@
 # Growing Virtual Creatures in Minecraft
 
+[![Get The Block](./docs/get the block preview.png)](https://www.youtube.com/watch?v=FNKC_4rShAg)
+
 [![Build Status](https://travis-ci.com/cfusting/conditional-growth.svg?branch=main)](https://travis-ci.com/cfusting/conditional-growth)
 
 ## Motivation
