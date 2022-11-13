@@ -32,8 +32,6 @@ Roughly speaking, there are three things that tie this package together.
 2. A minecraft environment which extends OpenAI's Gym [Environment](https://github.com/openai/gym/blob/6a04d49722724677610e36c1f92908e72f51da0c/gym/core.py) and makes use of a growth function (custom to this package) to decide what to grow.
 3. [Ray's RLlib](https://docs.ray.io/en/latest/rllib/index.html) for scalable optimization and logging.
 
-<br/><br/>
-
 ### Tracking and Metrics 
 
 Metrics are captured by the Ray in /tmp/expname where expname is specified in the run configuartion in the run function by the paramater "name". You'll need to spend some time learning the Ray framework to become comfortable with this and other parameter choices governing the optimization process. The easiest way to view the metrics is to use tensorboard and will be described in the example below. Here's a pretty picture:
@@ -103,5 +101,7 @@ docker run -it --rm --gpus all -v /tmp:/home/ray/ray_results --network host grow
 
 ## References
 [1] Kriegman, Sam. "Why virtual creatures matter." Nature Machine Intelligence 1.10 (2019): 492-492.
+
 [2] Grbic, Djordje, et al. "EvoCraft: A new challenge for open-endedness." International Conference on the Applications of Evolutionary Computation (Part of EvoStar). Springer, Cham, 2021.
+
 [3] Stanley, Kenneth O. "Compositional pattern producing networks: A novel abstraction of development." Genetic programming and evolvable machines 8.2 (2007): 131-162. 
