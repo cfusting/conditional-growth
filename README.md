@@ -40,7 +40,7 @@ Roughly speaking, there are three things that tie this package together.
 
 Metrics are captured by the Ray in /tmp/expname where expname is specified in the run configuartion in the run function by the paramater "name". You'll need to spend some time learning the Ray framework to become comfortable with this and other parameter choices governing the optimization process. The easiest way to view the metrics is to use tensorboard and will be described in the example below. Here's a pretty picture:
 
-![tensorboard](./docs/tensorboard_example.png)
+<img src="./docs/tensorboard_example.png" alt="Tensorboard picture" width="960" height="540"/>
 
 ## Theory of the conditional growth function
 
@@ -50,9 +50,9 @@ The growth of a creature can be broken down into an ordered sequence of steps. A
 
 The above process boils down to the breadth-first application of the conditional probability of a voxel configuration given a state. Thus the beadth-first voxel selection process coupled with the growth function results in a creature of potentially infinite voxels: the integral of the growth function over time and space. My hope is that self-repeating structures will be observed and built by the growth function, providing a genommic encoding which can be thought of as a compressed representation of a creature.
 
-![theory1](./docs/theory1.jpg)
-![theory2](./docs/theory2.jpg)
 
+|<img src="./docs/theory1.jpg" alt="Theory image one" width="500" height="640"/>|<img src="./docs/theory2.jpg" alt="Theory image two" width="500" height="640"/>|
+   
 ## Example: Get the block
 
 https://user-images.githubusercontent.com/869178/201533091-b17d37d1-df6c-46de-b8d5-ef18f670fe3f.mp4
