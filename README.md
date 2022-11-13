@@ -1,6 +1,6 @@
 # Growing Virtual Creatures in Minecraft
 
-[![Get The Block](https://img.youtube.com/vi/FNKC_4rShAg/default.jpg)](https://youtu.be/FNKC_4rShAg)
+https://user-images.githubusercontent.com/869178/201533053-27c2ff53-e625-40ed-a490-5cd401896609.mp4
 
 [![Build Status](https://travis-ci.com/cfusting/conditional-growth.svg?branch=main)](https://travis-ci.com/cfusting/conditional-growth)
 
@@ -52,6 +52,9 @@ The above process boils down to the breadth-first application of the conditional
 ![theory2](./docs/theory2.jpg)
 
 ## Example: Get the block
+
+https://user-images.githubusercontent.com/869178/201533091-b17d37d1-df6c-46de-b8d5-ef18f670fe3f.mp4
+
 In this example we will grow a creature out of sea lanterns (reason: they look cool) who's goal is to touch a reward block. At each growth step the probability of a voxel configuration is determined given the tensor convolution of block types within some one norm k neighborhood of the block on which the configuration is to be added (translation: limited vision). To get this example running you will need docker and linux (Windows Subsytem 2 is fine).
 
 Note: It would be fair to ask at this point if the creature is "growing" or "reaching" toward the reward block. As it turns out, it doesn't matter, because this is Minecraft.
