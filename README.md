@@ -114,6 +114,16 @@ The locations of the creatures are output in (x, z, y) format (don't ask me why 
 
 I usually add 100 or so (units are in blocks) to the z coordinate such that I am teleported above the creature.
 
+## Tips
+
+You can change how the world is generated in the minecraft server properties file. Check out this [customized generator](https://minecraft.tools/en/custom.php?#seed).
+
+It's common to edit the run file (IE in the example get_the_block.py), run the docker container, and wonder why nothing changed. A simple solution is to build before running by convention:
+
+```bash
+docker build -t growth . && docker run -it --rm --gpus all -v /tmp:/home/ray/ray_results --network host growth python run_configurations/minecraft/get_the_block.py
+```
+
 ## References
 [1] Kriegman, Sam. "Why virtual creatures matter." Nature Machine Intelligence 1.10 (2019): 492-492.
 
