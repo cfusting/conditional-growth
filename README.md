@@ -8,16 +8,16 @@ https://user-images.githubusercontent.com/869178/201533053-27c2ff53-e625-40ed-a4
 
 ## Motivation
 
-Growing virtual creatures is really fun [1]. However optimizing them in a physics engine in three dimensions is (as of 2022) pretty time consuming even on a powerful desktop computer. Science is limited by creativity, technical expertise, and cycles. To address the later, this package includes a psuedo-realistic environment: Minecraft [2], to enable anyone with a fairly modern computer to grow virtual creatures for fun and perhaps, to test hypothesizes.
+Growing virtual creatures is really fun [1]. However optimizing them in a physics engine in three dimensions is (as of 2022) pretty time consuming even on a powerful desktop computer. Science is limited by creativity, technical expertise, and cycles. To address the later, this package includes a pseudo-realistic environment: Minecraft [2], to enable anyone with a fairly modern computer to grow virtual creatures for fun and perhaps, to test hypothesizes.
 
-Minecraft is a very good looking gridworld with a few noteable advantages:
+Minecraft is a very good looking gridworld with a few notable advantages:
 - Some blocks, like sand and water, respond to physics.
-- The world is procedurally generated, providng an endless landscape of random environments.
+- The world is procedurally generated, providing an endless landscape of random environments.
 - Multi-agent environments are supported by default.
 
 So, although the curious individual may not be able to simulate a robot to be transferred to our world, a great deal can be explored and tested.
 
-A primary goal of this package is to be standardized, extendible, and modular: many of the code bases I have come across couple a growth encoding with an optimization algorithm, limiting their application and testability. To that end the growth function and Ray's RLlib are completely independent; tied together only in the minecraft environment class following Open AI's Gym standard. You can replace the growth function with anything that returns an encoding you can convert to blocks (I'd like to see Compositional Pattern Producing Networks [3], for example) and write your own environment. In the same vein Ray gives you a robust selection of gradient and non-gradient based optimization algorithms to choose from, the ability to scale, and standardized logging and experiment tracking with [MLFlow](https://mlflow.org/) and [Tensorboard](https://www.tensorflow.org/tensorboard).
+A primary goal of this package is to be standardized, extensible, and modular: many of the code bases I have come across couple a growth encoding with an optimization algorithm, limiting their application and testability. To that end the growth function and Ray's RLlib are completely independent; tied together only in the minecraft environment class following Open AI's Gym standard. You can replace the growth function with anything that returns an encoding you can convert to blocks (I'd like to see Compositional Pattern Producing Networks [3], for example) and write your own environment. In the same vein Ray gives you a robust selection of gradient and non-gradient based optimization algorithms to choose from, the ability to scale, and standardized logging and experiment tracking with [MLFlow](https://mlflow.org/) and [Tensorboard](https://www.tensorflow.org/tensorboard).
 
 My hope is that this package enables any company, university, and especially **individuals** to implement one, two, or all of a:
 
@@ -38,7 +38,7 @@ Roughly speaking, there are three things that tie this package together.
 
 ### Tracking and Metrics 
 
-Metrics are captured by Ray in /tmp/[expname] where expname is specified in the run configuartion file, in the run function, by the paramater "name". You'll need to spend some time learning the Ray framework to become comfortable with this and other parameter choices governing the optimization process. The easiest way to view the metrics is to use tensorboard and will be described in the example below. Here's a pretty picture:
+Metrics are captured by Ray in /tmp/[expname] where expname is specified in the run configuration file, in the run function, by the parameter "name". You'll need to spend some time learning the Ray framework to become comfortable with this and other parameter choices governing the optimization process. The easiest way to view the metrics is to use Tensorboard and will be described in the example below. Here's a pretty picture:
 
 <img src="./docs/tensorboard_example.png" alt="Tensorboard picture" width="960" height="540"/>
 
