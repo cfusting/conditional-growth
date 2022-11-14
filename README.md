@@ -8,7 +8,7 @@ https://user-images.githubusercontent.com/869178/201533053-27c2ff53-e625-40ed-a4
 
 ## Motivation
 
-Growing virtual creatures is really fun [1]. However optimizing them in a physics engine in three dimensions is (as of 2022) pretty time consuming even on a powerful desktop computer. Science is limited by creativity, technical expertise, and cycles. To address the later, this package includes a psuedo-realistic environment: Minecraft [2], to enable anyone with a farily modern computer to grow virtual creatures for fun and perhaps, to test hypothesizes.
+Growing virtual creatures is really fun [1]. However optimizing them in a physics engine in three dimensions is (as of 2022) pretty time consuming even on a powerful desktop computer. Science is limited by creativity, technical expertise, and cycles. To address the later, this package includes a psuedo-realistic environment: Minecraft [2], to enable anyone with a fairly modern computer to grow virtual creatures for fun and perhaps, to test hypothesizes.
 
 Minecraft is a very good looking gridworld with a few noteable advantages:
 - Some blocks, like sand and water, respond to physics.
