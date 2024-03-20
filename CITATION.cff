@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Fusting"
+  given-names: "Chris"
+  orcid: "https://orcid.org/0009-0000-5894-2947"
+title: "Conditional Growth"
+version: 1.0.0
+doi: 10.5281/zenodo.10845097
+date-released: 2021-01-06
+url: "https://github.com/cfusting/conditional-growth"

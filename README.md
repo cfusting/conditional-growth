@@ -5,6 +5,7 @@ https://user-images.githubusercontent.com/869178/201533053-27c2ff53-e625-40ed-a4
 *Sea lanterns searching for glowstone*
 
 [![Build Status](https://travis-ci.com/cfusting/conditional-growth.svg?branch=main)](https://travis-ci.com/cfusting/conditional-growth)
+[![DOI](https://zenodo.org/badge/319087407.svg)](https://zenodo.org/doi/10.5281/zenodo.10845096)
 
 ## Motivation
 
